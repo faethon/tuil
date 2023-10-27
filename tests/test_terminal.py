@@ -296,7 +296,7 @@ def test_terminal_open_editor(terminal, use_ascii):
     data = {'filename': None}
 
     def side_effect(args):
-        data['filename'] = args[1]
+        data['filename'] = args[-1]
         with codecs.open(data['filename'], 'r+', 'utf-8') as fp:
             assert fp.read() == comment
             fp.write('Comment 2 ❤')
@@ -327,7 +327,7 @@ def test_terminal_open_editor_error(terminal):
         data = {'filename': None}
 
         def side_effect(args):
-            data['filename'] = args[1]
+            data['filename'] = args[-1]
             return mock.Mock()
 
         # Temporary File Errors don't delete the file
