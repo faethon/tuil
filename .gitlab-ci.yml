@@ -36,7 +36,15 @@ python3.7:
 
 python3.8:
   image: python:3.8-rc-buster
-  allow_failure: true
+  script:
+    - pip install .[test]
+    - pip install .
+    - coverage run -m pytest
+    - pylint --rcfile .pylintrc -E tuir/
+    - coverage report
+
+python3.12:
+  image: python:3.12-bookworm
   script:
     - pip install .[test]
     - pip install .
