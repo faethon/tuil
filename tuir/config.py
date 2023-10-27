@@ -131,7 +131,12 @@ class Config(object):
         config = configparser.RawConfigParser()
         if os.path.exists(filename):
             with codecs.open(filename, encoding='utf-8') as fp:
-                config.readfp(fp)
+                try:
+                    read_method = config.read_file
+                except AttributeError:
+                    # deprecated since 3.2, removed in 3.12
+                    read_method = config.readfp
+                read_method(fp)
 
         return cls._parse_tuir_file(config)
 
