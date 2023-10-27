@@ -113,6 +113,7 @@ def vcr(request):
         record_mode=request.config.option.record_mode,
         filter_headers=[('Authorization', '**********')],
         filter_post_data_parameters=[('refresh_token', '**********')],
+        decode_compressed_response=True,
         match_on=['method', 'uri_with_query', 'auth', 'body'],
         cassette_library_dir=cassette_dir)
     vcr.register_matcher('auth', auth_matcher)
@@ -137,7 +138,7 @@ def config():
             mock.patch.object(conf, 'delete_history'),     \
             mock.patch.object(conf, 'save_refresh_token'), \
             mock.patch.object(conf, 'delete_refresh_token'):
- 
+
         def delete_refresh_token():
             # Skip the os.remove
             conf.refresh_token = None
