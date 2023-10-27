@@ -174,12 +174,14 @@ def test_terminal_add_line(terminal, stdscr, use_ascii):
     terminal.config['ascii'] = use_ascii
 
     terminal.add_line(stdscr, 'hello')
-    assert stdscr.addstr.called_with(0, 0, 'hello'.encode('ascii'))
+    print(stdscr.method_calls)
+    stdscr.addstr.assert_called_with(0, 0, 'hello'.encode('ascii'))
     stdscr.reset_mock()
 
     # Text will be drawn, but cut off to fit on the screen
     terminal.add_line(stdscr, 'hello', row=3, col=75)
-    assert stdscr.addstr.called_with((3, 75, 'hell'.encode('ascii')))
+    print(stdscr.method_calls)
+    stdscr.addstr.assert_called_with(3, 75, 'hell'.encode('ascii'))
     stdscr.reset_mock()
 
     # Outside of screen bounds, don't even try to draw the text
@@ -540,7 +542,8 @@ def test_terminal_open_pager(terminal, stdscr):
         Popen.side_effect = side_effect
         terminal.open_pager(data)
         message = 'Could not open pager fake'.encode('ascii')
-        assert stdscr.addstr.called_with(0, 0, message)
+        print(stdscr.method_calls)
+        stdscr.subwin.addstr.assert_called_with(1, 1, message)
 
 
 def test_terminal_open_urlview(terminal, stdscr):
@@ -566,8 +569,9 @@ def test_terminal_open_urlview(terminal, stdscr):
         # Raise an OS error
         Popen.side_effect = side_effect
         terminal.open_urlview(data)
-        message = 'Failed to open fake'.encode('utf-8')
-        assert stdscr.addstr.called_with(0, 0, message)
+        message = 'Failed to open urlview'.encode('utf-8')
+        print(stdscr.method_calls)
+        stdscr.subwin.addstr.assert_called_with(1, 1, message)
 
 
 def test_terminal_strip_textpad(terminal):
