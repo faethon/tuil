@@ -1,26 +1,23 @@
 python2.7:
   image: python:2.7-buster
-  script:
-    - pip install .[test]
-    - pip install .
-    - coverage run -m py.test
-    - pylint --rcfile .pylintrc -E tuir/
-    - coverage report
+  script: scripts/ci.sh
 
 python3.8:
-  image: python:3.8-rc-buster
-  script:
-    - pip install .[test]
-    - pip install .
-    - coverage run -m pytest
-    - pylint --rcfile .pylintrc -E tuir/
-    - coverage report
+  image: python:3.8-buster
+  script: scripts/ci.sh
+
+python3.9:
+  image: python:3.9-alpine
+  script: scripts/ci.sh
+
+python3.10:
+  image: python:3.10-bookworm
+  script: scripts/ci.sh
+
+python3.11:
+  image: python:3.11-bullseye
+  script: scripts/ci.sh
 
 python3.12:
-  image: python:3.12-bookworm
-  script:
-    - pip install .[test]
-    - pip install .
-    - coverage run -m pytest
-    - pylint --rcfile .pylintrc -E tuir/
-    - coverage report
+  image: python:3.12-alpine
+  script: scripts/ci.sh
