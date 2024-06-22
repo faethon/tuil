@@ -275,7 +275,7 @@ def main():
             debug_text,
             traceback.format_exc(),
             'tuir has crashed. Please report this traceback at:',
-            'https://gitlab.com/ajak/tuir/issues\n'])
+            'https://gitlab.com/Chocimier/tuir/issues\n'])
         sys.stderr.write(exit_message)
         return 1  # General error exception code
     except KeyboardInterrupt:

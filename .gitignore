@@ -13,6 +13,7 @@ build
 dist
 htmlcov/
 tuir.egg-info
+tuir_continued.egg-info
 tests/refresh-token
 venv/
 tags

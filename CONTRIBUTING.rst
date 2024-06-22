@@ -5,7 +5,7 @@ Contributor Guidelines
 Before you start
 ================
 
-- Post an issue on the `tracker <https://gitlab.com/ajak/tuir/issues>`_ describing the bug or feature you would like to add
+- Post an issue on the `tracker <https://gitlab.com/Chocimier/tuir/issues>`_ describing the bug or feature you would like to add
 - If an issue already exists, leave a comment to let others know that you intend to work on it
 
 Considerations
@@ -47,13 +47,13 @@ Style guide
 
               text = ''.join(
                   line for line in fp2 if not line.startswith('#'))
-                  
+
   **Better**
 
   .. code-block:: python
 
             text = ''.join(line for line in fp2 if not line.startswith('#'))
-            
+
 - Use the existing codebase as a reference when writing docstrings (adopted from the `Google Style Guide <https://google.github.io/styleguide/pyguide.html#Comments>`_)
 - Add an encoding header ``# -*- coding: utf-8 -*-`` to all new files
 - **Please don't submit pull requests for style-only code changes**
@@ -69,7 +69,7 @@ This both speeds up the tests and helps to maintain consistency across runs.
 1. Install the test dependencies
 
    .. code-block:: bash
-  
+
       $ pip install tuir[test]
 
 2. Set your ``$PYTHONPATH`` to point to the directory of your TUIR repository.
@@ -79,9 +79,9 @@ This both speeds up the tests and helps to maintain consistency across runs.
       $ export PYTHONPATH=~/code/tuir/
 
 3. Run the tests using the existing cassettes
-  
+
    .. code-block:: bash
-    
+
      $ python -m pytest ~/code/tuir/tests/
      ================================ test session starts ================================
      platform linux -- Python 3.4.0, pytest-2.9.2, py-1.4.31, pluggy-0.3.1
@@ -95,14 +95,14 @@ This both speeds up the tests and helps to maintain consistency across runs.
    This is usually stored as *~/.local/share/tuir/refresh-token*.
 
    .. code-block:: bash
-    
+
       $ python -m pytest ~/code/tuir/tests/ --record-mode once --refresh-token ~/.local/share/tuir/refresh-token
       ================================ test session starts ================================
       platform linux -- Python 3.4.0, pytest-2.9.2, py-1.4.31, pluggy-0.3.1
       rootdir: ~/code/tuir/, inifile:
       plugins: xdist-1.14, cov-2.2.0
       collected 113 items
-  
+
    Note that all sensitive information will automatically be stripped from the cassette when it's saved.
 
 5. Once you have generated a new cassette, go ahead and commit it to your branch along with your test case

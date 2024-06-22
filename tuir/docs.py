@@ -2,8 +2,7 @@
 from __future__ import unicode_literals
 
 AGENT = """\
-desktop:https://gitlab.com/ajak/tuir:{version}\
-(by /u/ajak__)\
+desktop:https://gitlab.com/Chocimier/tuir:{version}\
 """
 
 SUMMARY = """
@@ -26,7 +25,7 @@ HELP = """\
 ====================================
 Terminal UI for Reddit
 
-https://gitlab.com/ajak/tuir
+https://gitlab.com/Chocimier/tuir
 ====================================
 
 [Basic Commands]

@@ -44,14 +44,14 @@ def long_description():
 
 
 setuptools.setup(
-    name='tuir',
+    name='tuir-continued',
     version=version,
     description='A simple terminal viewer for Reddit (Terminal UI for Reddit)',
     long_description=long_description(),
     long_description_content_type='text/markdown',
-    url='https://gitlab.com/ajak/tuir',
-    author='John Helmert III',
-    author_email='jchelmertt3@gmail.com',
+    url='https://gitlab.com/Chocimier/tuir',
+    author='Chocimier',
+    author_email='chocimier@tlen.pl',
     license='MIT',
     keywords='reddit terminal praw curses',
     packages=[
