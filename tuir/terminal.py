@@ -37,7 +37,7 @@ try:
     from html import unescape
 except ImportError:
     from six.moves import html_parser
-    unescape = html_parser.HTMLParser().unescape
+    unescape = html_parser.HTMLParser().unescape  # pylint: disable=E1101
 
 
 _logger = logging.getLogger(__name__)

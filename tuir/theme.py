@@ -403,7 +403,7 @@ class Theme(object):
                     read_method = config.read_file
                 except AttributeError:
                     # deprecated since 3.2, removed in 3.12
-                    read_method = config.readfp
+                    read_method = config.readfp  # pylint: disable=E1101
                 read_method(fp)
         except configparser.ParsingError as e:
             raise ConfigError(e.message)

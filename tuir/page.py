@@ -732,7 +732,7 @@ class Page(object):
                 title = title.decode('utf-8')
                 title = '\x1b]2;{0}\x07'.format(title)
             else:
-                title = b'\x1b]2;{0}\x07'.format(title)
+                title = b'\x1b]2;{0}\x07'.format(title)  # pylint: disable=E1101
             sys.stdout.write(title)
             sys.stdout.flush()
 
