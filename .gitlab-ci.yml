@@ -7,33 +7,6 @@ python2.7:
     - pylint --rcfile .pylintrc -E tuir/
     - coverage report
 
-python3.5:
-  image: python:3.5-buster
-  script:
-    - pip install .[test]
-    - pip install .
-    - coverage run -m pytest
-    - pylint --rcfile .pylintrc -E tuir/
-    - coverage report
-
-python3.6:
-  image: python:3.6-buster
-  script:
-    - pip install .[test]
-    - pip install .
-    - coverage run -m pytest
-    - pylint --rcfile .pylintrc -E tuir/
-    - coverage report
-
-python3.7:
-  image: python:3.7-buster
-  script:
-    - pip install .[test]
-    - pip install .
-    - coverage run -m pytest
-    - pylint --rcfile .pylintrc -E tuir/
-    - coverage report
-
 python3.8:
   image: python:3.8-rc-buster
   script:
