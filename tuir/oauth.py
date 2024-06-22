@@ -143,6 +143,7 @@ class OAuthHelper(object):
 
         # If we already have a token, request new access credentials
         if self.config.refresh_token:
+            welcome_message = None
             with self.term.loader('Logging in'):
                 try:
                     self.reddit.refresh_access_information(
@@ -168,8 +169,10 @@ class OAuthHelper(object):
                     if not autologin:
                         # Only show the welcome message if explicitly logging
                         # in, not when TUIR first launches.
-                        message = 'Welcome {}!'.format(self.reddit.user.name)
-                        self.term.show_notification(message)
+                        welcome_message = 'Welcome {}!'.format(self.reddit.user.name)
+
+            if welcome_message:
+                self.term.show_notification(welcome_message)
 
             return
 
