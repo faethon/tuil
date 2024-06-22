@@ -2,6 +2,7 @@
 RTV/TUIR Changelog
 ==================
 
+.. _1.29.1: https://gitlab.com/Chocimier/tuir/tree/v1.29.1
 .. _1.29.0: https://gitlab.com/ajak/tuir/tree/v1.29.0
 .. _1.28.3: https://gitlab.com/ajak/tuir/tree/v1.28.3
 .. _1.28.2: https://gitlab.com/ajak/tuir/tree/v1.28.2
@@ -45,6 +46,16 @@ RTV/TUIR Changelog
 .. _1.2.2: http://github.com/michael-lazar/rtv/releases/tag/v1.2.2
 .. _1.2.1: http://github.com/michael-lazar/rtv/releases/tag/v1.2.1
 .. _1.2: http://github.com/michael-lazar/rtv/releases/tag/v1.2
+
+--------------------
+1.29.1_ (2024-06-22)
+--------------------
+
+Bugfixes
+
+* Fix *ValueError: could not convert string to float* caused by api change
+* When logging in after startup, avoid blocking interface
+* Adjust for Python 3.12
 
 --------------------
 1.29.0_ (2020-04-26)
@@ -479,7 +490,7 @@ Features
 Bugfixes
 
 * Updated ``requests`` requirement to fix a bug in version 2.3.0.
-* Fixed an edge case where comment trees were unfolding out of order.  
+* Fixed an edge case where comment trees were unfolding out of order.
 
 Codebase
 
@@ -487,7 +498,7 @@ Codebase
   is now bundled with rtv. This should make installation easier because
   users are no longer required to maintain a legacy version of praw in
   their python dependencies.
-* Removed ``update-checker`` dependency.  
+* Removed ``update-checker`` dependency.
 
 --------------------
 1.14.1_ (2017-01-12)
@@ -514,7 +525,7 @@ Documentation
 --------------------
 Features
 
-* Pressing `2` or `5` twice now opens a menu to select the time frame. 
+* Pressing `2` or `5` twice now opens a menu to select the time frame.
 * Added the `hide_username` config option.
 * Added the `max_comment_cols` config option.
 
@@ -550,7 +561,7 @@ Bugixes
 * Shortened reddit links (https://redd.it/) will now work with ``-s``.
 
 Codebase
-  
+
 * Removed the Tornado dependency from the project.
 * Added a requirements.txt file.
 * Fixed a bunch of tests where cassettes were not being generated.

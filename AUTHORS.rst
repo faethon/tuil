@@ -72,3 +72,5 @@ TUIR Contributors
 * `Francesco Turco <fturco@fastmail.fm>`_
 * `John Helmert <jchelmertt3@gmail.com>`_
 * `geeseven <2251985-geeseven@users.noreply.gitlab.com>`_
+* `Suz'Anne Bonny <swannty@hotmail.com>`
+* `Piotr Wójcik <chocimier@tlen.pl>`
