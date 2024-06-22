@@ -399,7 +399,12 @@ class Theme(object):
             config = configparser.ConfigParser()
             config.optionxform = six.text_type  # Preserve case
             with codecs.open(filename, encoding='utf-8') as fp:
-                config.readfp(fp)
+                try:
+                    read_method = config.read_file
+                except AttributeError:
+                    # deprecated since 3.2, removed in 3.12
+                    read_method = config.readfp
+                read_method(fp)
         except configparser.ParsingError as e:
             raise ConfigError(e.message)
 
