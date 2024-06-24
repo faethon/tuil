@@ -1657,6 +1657,10 @@ class Subreddit(Messageable, Refreshable):
         else:
             return
 
+    def __lt__(self, other):
+        """Allows for ordering of subreddits"""
+        return self.display_name.lower() < other.display_name.lower()
+
 
 class Multireddit(Refreshable):
     """A class for users' Multireddits."""
@@ -1819,6 +1823,10 @@ class Multireddit(Refreshable):
                                                      *args, **kwargs)
         self.__dict__ = new.__dict__  # pylint: disable=W0201
         return self
+
+    def __lt__(self, other):
+        """Allows for ordering of multireddits"""
+        return self.name.lower() < other.name.lower()
 
 
 class PRAWListing(RedditContentObject):

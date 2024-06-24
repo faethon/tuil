@@ -921,11 +921,11 @@ class SubscriptionContent(Content):
     def from_user(cls, reddit, loader, content_type='subreddit'):
         if content_type == 'subreddit':
             name = 'My Subreddits'
-            items = reddit.get_my_subreddits(limit=None)
+            items = iter(sorted(reddit.get_my_subreddits(limit=None)))
         elif content_type == 'multireddit':
             name = 'My Multireddits'
             # Multireddits are returned as a list
-            items = iter(reddit.get_my_multireddits())
+            items = iter(sorted(iter(reddit.get_my_multireddits())))
         elif content_type == 'popular':
             name = 'Popular Subreddits'
             items = reddit.get_popular_subreddits(limit=None)
