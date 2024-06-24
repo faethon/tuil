@@ -76,7 +76,15 @@ def main():
     fargs, bindings = Config.get_file(args.get('config'))
 
     # Apply the file config first, then overwrite with any command line args
-    config = Config()
+    if args.get('user'):
+        #simple multi-account support
+        user = args.get('user')
+        token_file = os.path.join(Config.TUIR_DATA_HOME, user + '.refresh-token')
+        history_file = os.path.join(Config.TUIR_DATA_HOME, user + '.history.log')
+        config = Config(history_file, token_file)
+    else:
+        #single-account
+        config = Config()
     config.update(**fargs)
     config.update(**args)
 

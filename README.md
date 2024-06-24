@@ -276,6 +276,16 @@ For instructions on writing and installing your own themes, see [THEMES.md](THEM
   > ```
 
 </details>
+<details>
+ <summary>Can I use multiple accounts persistenly?</summary>
+
+  > Yes, simply start tuir with ``--user yourusername``. The refresh token and
+  > history will be preserved on a per-user basis.
+  >
+  > This does mean you need to restart the program (or simply open multiple)
+  > if you want to be another user. There's no on-the-fly switching currently.
+
+</details>
 
 ## Current development status
 

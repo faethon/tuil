@@ -242,6 +242,9 @@ def build_parser():
         '--clear-auth', dest='clear_auth', action='store_const', const=True,
         help='Remove any saved user data before launching')
     parser.add_argument(
+        '-u','--user', dest='user', action='store',
+        help='The user for this session; simple multi-account support')
+    parser.add_argument(
         '--copy-config', dest='copy_config', action='store_const', const=True,
         help='Copy the default configuration to {HOME}/.config/tuir/tuir.cfg')
     parser.add_argument(
