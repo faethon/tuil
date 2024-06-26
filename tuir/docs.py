@@ -134,6 +134,10 @@ FOOTER_SUBREDDIT = """
 [?]Help [q]Quit [l]Comments [/]Prompt [u]Login [o]Open [c]Post [a/z]Vote [r]Refresh
 """
 
+FOOTER_SUBREDDIT_LOGGED_IN = """
+[?]Help [q]Quit [l]Comments [/]Prompt [u]Logout [o]Open [c]Post [a/z]Vote [r]Refresh
+"""
+
 FOOTER_SUBMISSION = """
 [?]Help [q]Quit [h]Return [space]Fold/Expand [o]Open [c]Comment [a/z]Vote [r]Refresh
 """

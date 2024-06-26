@@ -323,6 +323,7 @@ class Page(object):
                 self.term.show_notification('Logged out')
         else:
             self.oauth.authorize()
+        self.refresh_content()
 
     def reply(self):
         """
