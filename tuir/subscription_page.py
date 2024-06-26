@@ -13,7 +13,7 @@ class SubscriptionController(PageController):
 
 class SubscriptionPage(Page):
     BANNER = None
-    FOOTER = docs.FOOTER_SUBSCRIPTION
+    footer = docs.FOOTER_SUBSCRIPTION
 
     name = 'subscription'
 

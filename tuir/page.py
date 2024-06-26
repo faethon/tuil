@@ -41,7 +41,7 @@ class PageController(Controller):
 class Page(object):
 
     BANNER = None
-    FOOTER = None
+    footer = None
 
     def __init__(self, reddit, term, config, oauth):
         self.reddit = reddit
@@ -861,7 +861,7 @@ class Page(object):
         window.erase()
         window.bkgd(str(' '), self.term.attr('HelpBar'))
 
-        text = self.FOOTER.strip()
+        text = self.footer.strip()
         self.term.add_line(window, text, 0, 0)
         self._row += 1
 

@@ -13,7 +13,7 @@ class InboxController(PageController):
 
 class InboxPage(Page):
     BANNER = docs.BANNER_INBOX
-    FOOTER = docs.FOOTER_INBOX
+    footer = docs.FOOTER_INBOX
 
     name = 'inbox'
 

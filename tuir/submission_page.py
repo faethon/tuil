@@ -13,7 +13,7 @@ class SubmissionController(PageController):
 
 class SubmissionPage(Page):
     BANNER = docs.BANNER_SUBMISSION
-    FOOTER = docs.FOOTER_SUBMISSION
+    footer = docs.FOOTER_SUBMISSION
 
     name = 'submission'
 
