@@ -9,6 +9,7 @@ import sys
 import locale
 import logging
 import warnings
+from urllib.parse import urlparse, urlunparse
 
 import six
 import requests
@@ -244,6 +245,10 @@ def main():
                     headers=reddit.http.headers,
                     allow_redirects=True
                 ).url
+
+                url_parsed = urlparse(url)
+                if url_parsed.netloc == 'old.reddit.com':
+                    url = urlunparse(url_parsed._replace(netloc='www.reddit.com'))
 
                 page = None
                 with term.loader('Loading submission'):
