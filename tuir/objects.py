@@ -14,6 +14,7 @@ import webbrowser
 import curses
 import curses.ascii
 from contextlib import contextmanager
+from six.moves.urllib_parse import urlparse, urlunparse
 
 import six
 import requests
@@ -70,6 +71,14 @@ def patch_webbrowser():
             if cmdline in ('safari', 'firefox', 'chrome', 'default'):
                 browser = webbrowser.MacOSXOSAScript(cmdline)
                 webbrowser.register(cmdline, None, browser, update_tryorder=-1)
+
+
+def replace_domain(url, new_domain, old_domain):
+    url_parsed = urlparse(url)
+    if url_parsed.netloc != old_domain:
+        return url
+    new_url = urlunparse(url_parsed._replace(netloc=new_domain))
+    return new_url
 
 
 @contextmanager

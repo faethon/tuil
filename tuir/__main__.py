@@ -9,7 +9,6 @@ import sys
 import locale
 import logging
 import warnings
-from urllib.parse import urlparse, urlunparse
 
 import six
 import requests
@@ -41,7 +40,7 @@ from .theme import Theme
 from .oauth import OAuthHelper
 from .terminal import Terminal
 from .content import RequestHeaderRateLimiter
-from .objects import curses_session, patch_webbrowser
+from .objects import curses_session, patch_webbrowser, replace_domain
 from .subreddit_page import SubredditPage
 from .submission_page import SubmissionPage
 from .exceptions import ConfigError, SubredditError, SubmissionError
@@ -246,9 +245,7 @@ def main():
                     allow_redirects=True
                 ).url
 
-                url_parsed = urlparse(url)
-                if url_parsed.netloc == 'old.reddit.com':
-                    url = urlunparse(url_parsed._replace(netloc='www.reddit.com'))
+                url = replace_domain(url, 'www.reddit.com', 'old.reddit.com')
 
                 page = None
                 with term.loader('Loading submission'):
