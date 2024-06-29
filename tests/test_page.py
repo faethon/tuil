@@ -93,8 +93,11 @@ def test_page_unauthenticated(reddit, terminal, config, oauth):
 
 
 def test_page_authenticated(reddit, terminal, config, oauth, refresh_token):
+    class TestPage(Page):
+        def refresh_content(self, order=None, name=None):
+            pass
 
-    page = Page(reddit, terminal, config, oauth)
+    page = TestPage(reddit, terminal, config, oauth)
     page.controller = PageController(page, keymap=config.keymap)
     config.refresh_token = refresh_token
 
