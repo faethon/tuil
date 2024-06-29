@@ -13,7 +13,7 @@ from kitchen.text.display import textual_width
 
 from . import docs
 from .clipboard import copy as clipboard_copy
-from .objects import Controller, Command
+from .objects import Controller, Command, replace_domain
 from .exceptions import TemporaryFileError, ProgramError
 from .__version__ import __version__
 
@@ -524,6 +524,9 @@ class Page(object):
         Copy the submission permalink to OS clipboard
         """
         url = self.get_selected_item().get('permalink')
+        if self.config['copy_as_old']:
+            url = replace_domain(url, 'old.reddit.com', 'www.reddit.com')
+        _logger.info('permalink %s %s', url, type(url))
         self.copy_to_clipboard(url)
 
     @PageController.register(Command('COPY_URL'))
@@ -532,6 +535,9 @@ class Page(object):
         Copy a link to OS clipboard
         """
         url = self.prompt_and_select_link()
+        if self.config['copy_as_old']:
+            url = replace_domain(url, 'old.reddit.com', 'www.reddit.com')
+        _logger.info('url %s %s', url, type(url))
         self.copy_to_clipboard(url)
 
     def copy_to_clipboard(self, url):

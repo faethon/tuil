@@ -168,7 +168,8 @@ class Config(object):
             'max_pager_cols': partial(config.getint, section),
             'hide_username': partial(config.getboolean, section),
             'flash': partial(config.getboolean, section),
-            'force_new_browser_window': partial(config.getboolean, section)
+            'force_new_browser_window': partial(config.getboolean, section),
+            'copy_as_old': partial(config.getboolean, section),
         }
 
         for key, func in params.items():

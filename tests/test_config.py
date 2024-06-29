@@ -179,6 +179,7 @@ def test_config_from_file():
         'theme': 'molokai',
         'flash': True,
         'autologin': True,
+        'copy_as_old': False,
     }
 
     bindings = {
