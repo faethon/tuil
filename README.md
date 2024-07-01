@@ -89,14 +89,14 @@ $ tuir
 Logging in with shared Reddit and Imgur keys does not work anymore. Please roll your own.
 
 1. log in to reddit in a browser
-2. (probably unnecessary but) new browser tab >> https://www.reddit.com/prefs/apps
-3. click the (small) button on the bottom left = "developer options" or "create a new app" or something similar
-4. fill in mostly irrelevant details in the new app dialogue box - I left most blank
-5. The only critical detail I came across is "redirect url" or something similar :: I had to enter "http://127.0.0.1:65000/" here
+2. new browser tab >> <https://www.reddit.com/prefs/apps>
+3. click the button on the bottom left = "developer options" or "create a new app" or something similar
+4. fill in mostly irrelevant details in the new app dialogue box - left most blank
+5. the only critical detail is "redirect url" or something similar :: enter "http://127.0.0.1:65000/" here
 6. click save or create for the new app :: you might get a new page to authorise the oauth or something, again minimal detail required for that
 7. in the refreshed developer or app overview page the newly created app has a section of it's own with (a) a roughly 20 character random string under the app's name, that's the client_id and (b) the client_secret is in a clearly labelled box :: copy those
 8. back in a terminal enter tuir --copy-config
-9. then edit ~/.config/tuir/tuir.cfg (or where-ever yours is) :: about halfway down, line 120-ish is an OAUTH section - as per @stelgenhof screenshot you just paste in the 2 values for client_id and client_secret
+9. then edit ~/.config/tuir/tuir.cfg (or where-ever yours is) :: about halfway down, line 130-ish is an OAUTH section - as below, you just paste in the 2 values for client_id and client_secret
 
         oauth_client_id = <client_id_from_your_reddit_app>
         oauth_client_secret = <client_secret_from_your_reddit_app>
