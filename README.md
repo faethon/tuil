@@ -5,7 +5,7 @@ A text-based interface (TUI) to view and interact with Reddit from your terminal
 </p>
 
 <p align="center">
-  <strong>TUIR is a fork of rtv, which was maintained by Michael Lazar in <a href="https://github.com/michael-lazar/rtv">this repository</a> until Jun 3, 2019.</strong><br>
+  <strong>TUIR is a fork of rtv, which <a href="https://github.com/michael-lazar/rtv">was maintained by Michael Lazar</a> until February 2023</strong><br>
 </p>
 
 <p align="center">
@@ -20,20 +20,15 @@ A text-based interface (TUI) to view and interact with Reddit from your terminal
     <img alt="gitlab-ci" src="https://gitlab.com/Chocimier/tuir/badges/master/build.svg"/>
   </a>
   <img alt="coverage" src="https://gitlab.com/Chocimier/tuir/badges/master/coverage.svg"/>
-  <a href="https://repology.org/project/tuir/versions">
+<!-- <a href="https://repology.org/project/tuir/versions">
     <img src="https://repology.org/badge/tiny-repos/tuir.svg" alt="Packaging status">
-  </a>
+  </a> -->
 </p>
-<!--
-  <a href="https://saythanks.io/to/michael-lazar">
-    <img alt="say-thanks" src="https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg"/>
-  </a>
-</p> -->
 
 ## Table of Contents
 
-* [Demo](#demo)
 * [Installation](#installation)
+* [Migration from RTV](#migration-from-rtv)
 * [Usage](#usage)
 * [Settings](#settings)
 * [Themes](#themes)
@@ -41,18 +36,6 @@ A text-based interface (TUI) to view and interact with Reddit from your terminal
 * [Contributing](#contributing)
 * [License](#license)
 
-## Demo
-
-<p align="center">
-<img alt="title image" src="resources/demo.gif"/>
-</p>
-
-<!-- You can use *telnet* or *ssh* to try out a lite version of RTV directly in your terminal, without needing to install it:
-
-- ``$ telnet redditbox.us``
-- ``$ ssh redditbox.us``
-
-*[redditbox.us](https://redditbox.us/) is an independent project by Alex Jarmoszuk* -->
 
 ## Installation
 
@@ -64,42 +47,11 @@ TUIR is available on [PyPI](https://pypi.python.org/pypi/tuir-continued/) and ca
 $ pip install tuir-continued
 ```
 
-#### Migration from RTV
-
-If you are migrating from RTV to TUIR, you can simply rename your old config directory/config file:
-
-```bash
-$ mv ~/.config/rtv ~/.config/tuir
-$ mv ~/.config/tuir/rtv.cfg ~/.config/tuir/tuir.cfg
-```
-
-Please take care to use the new API keys for Imgur and Reddit. To replace with sed:
-
-```bash
-$ sed -i 's/E2oEtRQfdfAfNQ/zjyhNI7tK8ivzQ/; s/93396265f59dec9/b33d69ac8931734/' ~/.config/tuir/tuir.cfg
-```
-
-### Distro packages
+<!-- ### Distro packages
 
 See [Repology](https://repology.org/metapackage/tuir/packages) for an up-to-date list of supported distro packages.
 
-#### Arch
-
-TUIR is available from the AUR with the package name `TUIR`.
-
-<!-- ```bash
-# macOS
-$ brew install rtv
-
-# Arch
-$ pacman -S rtv
-
-# Nix
-$ nix-env -i rtv
-
-# Debian
-$ apt install rtv
-
+```bash
 # FreeBSD
 $ pkg install rtv
 ```-->
@@ -116,12 +68,21 @@ $ python setup.py install
 
 TUIR is not supported on Windows, due to a lack of resources and interest. Sorry!
 
-## Usage
+## Migration from RTV
 
+If you are migrating from RTV to TUIR, you can simply rename your old config directory/config file:
+
+```bash
+$ mv ~/.config/rtv ~/.config/tuir
+$ mv ~/.config/tuir/rtv.cfg ~/.config/tuir/tuir.cfg
+```
+
+
+## Usage
 To run the program, type:
 
 ```bash
-$ tuir --help
+$ tuir
 ```
 
 ### Controls
@@ -288,17 +249,9 @@ For instructions on writing and installing your own themes, see [THEMES.md](THEM
 </details>
 
 ## Current development status
+Tuir-continued is meant as low activity maintainance, to keep the thing operational in face of changes in Python, libraries and Reddit API.
 
-TUIR currently depends on Michael Lazar's (maintainer of RTV) fork of PRAW being packaged with the program. Michael's fork is a fork from PRAW version 3.6.1, which is [currently unsupported](https://github.com/praw-dev/praw/blob/master/SECURITY.md). Further, packaged dependencies aren't looked upon fondly by various distribution's packaging guidelines ([#11](https://gitlab.com/ajak/tuir/issues/11), [Gentoo Wiki - Why not bundle dependencies](https://wiki.gentoo.org/wiki/Why_not_bundle_dependencies)). Due to this, I'm working to update TUIR to a more recent PRAW version which isn't bundled.
-
-There is significant API breakage from PRAW 3 to PRAW 6 (the [PRAW README](https://github.com/praw-dev/praw/) calls PRAW 4 a "complete rewrite"). As such, updating TUIR to use a PRAW multiple major versions newer is slow going. I am a relatively inexperienced developer and I have less time than I'd like to devote to software. This work is in branch `update_unbundle_praw` ([link](https://gitlab.com/ajak/tuir/-/commits/update_unbundle_praw)), so there may not be super recent commits in `master`, but that doesn't mean I'm neglecting TUIR. Unfortunately, this does mean I am not actively working on feature requests. They are always welcome of course, but it would be far simpler to add features after TUIR is converted to using PRAW 6 instead of adding them now and dealing with their breakage later.
-
-Python 2 is also [dead](https://devguide.python.org/devcycle/#end-of-life-branches) as of 2020. PRAW 6 doesn't even support Python 2, so Python 2 support in TUIR is also being dropped. Given that PRAW3 is packaged with TUIR as a result of RTV doing the same, there is little sense in removing Python 2 support from the packaged version when there is already an updated version of PRAW available, so I will work to remove Python 2 support alongside my efforts to update TUIR for PRAW 6.
-
-## Contributing
-All feedback and suggestions are welcome, just post an issue!
-
-Before writing any code, please read the [Contributor Guidelines](CONTRIBUTING.rst).
+Contributions are still welcome. Before writing any code, please read the [Contributor Guidelines](CONTRIBUTING.rst).
 
 ## License
 This project is distributed under the [MIT](LICENSE) license.
