@@ -61,6 +61,11 @@ Features
 * Accept old.reddit.com urls as commandline argument
 * Add option to rewrite copied links to old.reddit.com
 
+Documentation
+
+* Explained api key configuration
+* Cleaned readme
+
 --------------------
 1.29.1_ (2024-06-22)
 --------------------
