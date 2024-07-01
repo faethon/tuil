@@ -2,6 +2,7 @@
 RTV/TUIR Changelog
 ==================
 
+.. _1.30.0: https://gitlab.com/Chocimier/tuir/tree/v1.30.0
 .. _1.29.1: https://gitlab.com/Chocimier/tuir/tree/v1.29.1
 .. _1.29.0: https://gitlab.com/ajak/tuir/tree/v1.29.0
 .. _1.28.3: https://gitlab.com/ajak/tuir/tree/v1.28.3
@@ -46,6 +47,19 @@ RTV/TUIR Changelog
 .. _1.2.2: http://github.com/michael-lazar/rtv/releases/tag/v1.2.2
 .. _1.2.1: http://github.com/michael-lazar/rtv/releases/tag/v1.2.1
 .. _1.2: http://github.com/michael-lazar/rtv/releases/tag/v1.2
+
+--------------------
+1.30.0_ (2024-07-01)
+--------------------
+
+Features
+
+* Implemented simple multi-account support using a command line switch
+* Implemented proper alphabetic sorting of subreddits/multireddits
+* Refresh curent page after login and logout
+* The correct term (login/logout) is now displayed in footer
+* Accept old.reddit.com urls as commandline argument
+* Add option to rewrite copied links to old.reddit.com
 
 --------------------
 1.29.1_ (2024-06-22)

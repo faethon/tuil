@@ -72,5 +72,9 @@ TUIR Contributors
 * `Francesco Turco <fturco@fastmail.fm>`_
 * `John Helmert <jchelmertt3@gmail.com>`_
 * `geeseven <2251985-geeseven@users.noreply.gitlab.com>`_
-* `Suz'Anne Bonny <swannty@hotmail.com>`
-* `Piotr Wójcik <chocimier@tlen.pl>`
+* `Suz'Anne Bonny <swannty@hotmail.com>`_
+* `Piotr Wójcik <chocimier@tlen.pl>`_
+* `Maarten van Gompel <proycon@anaproy.nl>`_
+* `Aiden <aiden.sobey@agworld.com.au>`_
+* `Alex At <https://gitlab.com/whyglobaleyes>`_
+* `Sacha Telgenhof <https://gitlab.com/stelgenhof>`_
