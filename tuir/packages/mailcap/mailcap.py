@@ -7,12 +7,6 @@ import re
 __all__ = ["getcaps","findmatch"]
 
 
-_DEPRECATION_MSG = ('The {name} module is deprecated and will be removed in '
-                    'Python {remove}. See the mimetypes module for an '
-                    'alternative.')
-warnings._deprecated(__name__, _DEPRECATION_MSG, remove=(3, 13))
-
-
 def lineno_sort_key(entry):
     # Sort in ascending order, with unspecified entries at the end
     if 'lineno' in entry:
@@ -254,49 +248,3 @@ def findparam(name, plist):
         if p[:n].lower() == name:
             return p[n:]
     return ''
-
-
-# Part 4: test program.
-
-def test():
-    import sys
-    caps = getcaps()
-    if not sys.argv[1:]:
-        show(caps)
-        return
-    for i in range(1, len(sys.argv), 2):
-        args = sys.argv[i:i+2]
-        if len(args) < 2:
-            print("usage: mailcap [MIMEtype file] ...")
-            return
-        MIMEtype = args[0]
-        file = args[1]
-        command, e = findmatch(caps, MIMEtype, 'view', file)
-        if not command:
-            print("No viewer found for", type)
-        else:
-            print("Executing:", command)
-            sts = os.system(command)
-            sts = os.waitstatus_to_exitcode(sts)
-            if sts:
-                print("Exit status:", sts)
-
-def show(caps):
-    print("Mailcap files:")
-    for fn in listmailcapfiles(): print("\t" + fn)
-    print()
-    if not caps: caps = getcaps()
-    print("Mailcap entries:")
-    print()
-    ckeys = sorted(caps)
-    for type in ckeys:
-        print(type)
-        entries = caps[type]
-        for e in entries:
-            keys = sorted(e)
-            for k in keys:
-                print("  %-15s" % k, e[k])
-            print()
-
-if __name__ == '__main__':
-    test()
