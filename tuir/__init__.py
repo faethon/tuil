@@ -23,5 +23,5 @@ from .__version__ import __version__
 
 __title__ = 'Terminal UI for Reddit'
 __author__ = 'Michael Lazar'
-__license__ = 'The MIT License (MIT)'
+__license__ = 'GNU General Public License version 3'
 __copyright__ = '(c) 2016 Michael Lazar, portions (c) 2019 John Helmert III'

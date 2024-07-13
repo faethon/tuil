@@ -273,4 +273,4 @@ Tuir-continued is meant as low activity maintainance, to keep the thing operatio
 Contributions are still welcome. Before writing any code, please read the [Contributor Guidelines](CONTRIBUTING.rst).
 
 ## License
-This project is distributed under the [MIT](LICENSE) license.
+This project is distributed under the [GPLv3](COPYING) license.

@@ -2,7 +2,9 @@ include version.py
 include CHANGELOG.rst
 include AUTHORS.rst
 include README.md
-include LICENSE
+include COPYING
+include LICENSE.MIT
+include tuir/packages/mailcap/LICENSE
 include tuir.1
 include tuir/templates/*
 include tuir/themes/*

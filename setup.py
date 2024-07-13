@@ -52,7 +52,7 @@ setuptools.setup(
     url='https://gitlab.com/Chocimier/tuir',
     author='Chocimier',
     author_email='chocimier@tlen.pl',
-    license='MIT',
+    license='GPL-3.0-only',
     keywords='reddit terminal praw curses',
     packages=[
         'tuir',
@@ -75,6 +75,7 @@ setuptools.setup(
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX',
         'Natural Language :: English',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
