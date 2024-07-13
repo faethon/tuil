@@ -3,3 +3,4 @@ source = tuir
 omit = 
     */__main__.py
     */packages/praw/*
+    */packages/*/test_*.py

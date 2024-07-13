@@ -1,10 +1,9 @@
+import collections
 import copy
 import os
 import sys
-import test.support
 import unittest
-from test.support import os_helper
-from test.support import warnings_helper
+from . import mailcap
 
 
 class EnvironmentVarGuard(collections.abc.MutableMapping):
@@ -62,11 +61,10 @@ class EnvironmentVarGuard(collections.abc.MutableMapping):
             else:
                 self._environ[k] = v
         os.environ = self._environ
-mailcap = warnings_helper.import_deprecated('mailcap')
 
 
 # Location of mailcap file
-MAILCAPFILE = test.support.findfile("mailcap.txt")
+MAILCAPFILE = os.path.join(os.path.dirname(__file__), 'mailcap.txt')
 
 # Dict to act as mock mailcap entry for this test
 # The keys and values should match the contents of MAILCAPFILE
@@ -135,7 +133,7 @@ class HelperFunctionTest(unittest.TestCase):
         self.assertIsInstance(mcfiles, list)
         for m in mcfiles:
             self.assertIsInstance(m, str)
-        with os_helper.EnvironmentVarGuard() as env:
+        with EnvironmentVarGuard() as env:
             # According to RFC 1524, if MAILCAPS env variable exists, use that
             # and only that.
             if "MAILCAPS" in env:
@@ -197,7 +195,7 @@ class GetcapsTest(unittest.TestCase):
         # Test mailcap.getcaps() using mock mailcap file in this dir.
         # Temporarily override any existing system mailcap file by pointing the
         # MAILCAPS environment variable to our mock file.
-        with os_helper.EnvironmentVarGuard() as env:
+        with EnvironmentVarGuard() as env:
             env["MAILCAPS"] = MAILCAPFILE
             caps = mailcap.getcaps()
             self.assertDictEqual(caps, MAILCAPDICT)
@@ -275,10 +273,6 @@ class FindmatchTest(unittest.TestCase):
 
     @unittest.skipUnless(os.name == "posix", "Requires 'test' command on system")
     @unittest.skipIf(sys.platform == "vxworks", "'test' command is not supported on VxWorks")
-    @unittest.skipUnless(
-        test.support.has_subprocess_support,
-        "'test' command needs process support."
-    )
     def test_test(self):
         # findmatch() will automatically check any "test" conditions and skip
         # the entry if the check fails.
