@@ -27,12 +27,6 @@ from .theme import Theme, ThemeList
 from .objects import LoadScreen
 
 try:
-    # Fix only needed for versions prior to python 3.6
-    from mailcap_fix import mailcap
-except ImportError:
-    import mailcap
-
-try:
     # Added in python 3.4+
     from html import unescape
 except ImportError:
@@ -41,6 +35,16 @@ except ImportError:
 
 
 _logger = logging.getLogger(__name__)
+
+
+def import_mailcap():
+    try:
+        # Fix only needed for versions prior to python 3.6
+        from mailcap_fix import mailcap
+    except ImportError:
+        import mailcap
+    return mailcap
+
 
 
 class Terminal(object):
@@ -62,7 +66,7 @@ class Terminal(object):
         self.theme_list = ThemeList()
 
         self._display = None
-        self._mailcap_dict = self._load_mailcaps()
+        self._mailcap_dict = None
         self._term = os.environ.get('TERM')
 
         # This is a hack, the MIME parsers should be stateless
@@ -70,6 +74,9 @@ class Terminal(object):
         mime_parsers.ImgurApiMIMEParser.CLIENT_ID = config['imgur_client_id']
 
     def _load_mailcaps(self):
+        if self._mailcap_dict is not None:
+            return
+        mailcap = import_mailcap()
         mailcap_file = self.config.MAILCAP
 
         if not os.path.exists(mailcap_file):
@@ -102,7 +109,7 @@ class Terminal(object):
         else:
             os.environ[mailcaps_env] = prev_mailcaps
 
-        return caps
+        self._mailcap_dict = caps
 
     @property
     def up_arrow(self):
@@ -556,6 +563,8 @@ class Terminal(object):
             entry (dict): The full mailcap entry for the corresponding command
         """
 
+        mailcap = import_mailcap()
+
         for parser in mime_parsers.parsers:
             if parser.pattern.match(url):
                 # modified_url may be the same as the original url, but it
@@ -577,6 +586,7 @@ class Terminal(object):
                     _logger.info('Content type text/html, deferring to browser')
                     raise exceptions.MailcapEntryNotFound()
 
+                self._load_mailcaps()
                 command, entry = mailcap.findmatch(
                     self._mailcap_dict, content_type, filename=modified_url)
                 if not entry:
