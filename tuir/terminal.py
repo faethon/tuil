@@ -41,8 +41,15 @@ def import_mailcap():
     try:
         # Fix only needed for versions prior to python 3.6
         from mailcap_fix import mailcap
+        return mailcap
     except ImportError:
+        pass
+    try:
         import mailcap
+        return mailcap
+    except ImportError:
+        pass
+    from .packages.mailcap import mailcap
     return mailcap
 
 

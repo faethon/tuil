@@ -57,7 +57,8 @@ setuptools.setup(
     packages=[
         'tuir',
         'tuir.packages',
-        'tuir.packages.praw'
+        'tuir.packages.mailcap',
+        'tuir.packages.praw',
     ],
     package_data={
         'tuir': ['templates/*', 'themes/*'],
