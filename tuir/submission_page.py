@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from . import docs
 from .content import SubmissionContent
 from .page import Page, PageController, logged_in
-from .objects import Navigator, Command
+from .objects import Navigator, Command, preferred_reddit_domain
 
 
 class SubmissionController(PageController):
@@ -129,11 +129,13 @@ class SubmissionPage(Page):
         if data['type'] == 'Submission':
             link = self.prompt_and_select_link()
             if link:
+                link = preferred_reddit_domain(link, self.config)
                 self.config.history.add(link)
                 self.term.open_link(link)
         elif data['type'] == 'Comment':
             link = self.prompt_and_select_link()
             if link:
+                link = preferred_reddit_domain(link, self.config)
                 self.term.open_link(link)
         else:
             self.term.flash()

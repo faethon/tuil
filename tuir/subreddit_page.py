@@ -12,7 +12,7 @@ except ImportError:
 from . import docs
 from .content import SubredditContent
 from .page import Page, PageController, logged_in
-from .objects import Navigator, Command
+from .objects import Navigator, Command, preferred_reddit_domain
 from .exceptions import TemporaryFileError
 
 
@@ -218,8 +218,9 @@ class SubredditPage(Page):
             self.open_submission(url=data['url_full'])
             self.config.history.add(data['url_full'])
         else:
-            self.term.open_link(data['url_full'])
-            self.config.history.add(data['url_full'])
+            url = preferred_reddit_domain(data['url_full'], self.config)
+            self.term.open_link(url)
+            self.config.history.add(url)
 
     @SubredditController.register(Command('SUBREDDIT_POST'))
     @logged_in
