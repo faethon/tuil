@@ -14,7 +14,7 @@ def lineno_sort_key(entry):
     else:
         return 1, 0
 
-_find_unsafe = re.compile(r'[^\xa1-\U0010FFFF\w@+=:,./-]').search
+_find_unsafe = re.compile(u'[^\xa1-\U0010FFFF\\w@+=:,./-]').search
 
 class UnsafeMailcapInput(Warning):
     """Warning raised when refusing unsafe input"""
@@ -37,7 +37,7 @@ def getcaps():
     for mailcap in listmailcapfiles():
         try:
             fp = open(mailcap, 'r')
-        except OSError:
+        except (OSError, IOError):
             continue
         with fp:
             morecaps, lineno = _readmailcapfile(fp, lineno)
@@ -66,14 +66,6 @@ def listmailcapfiles():
 
 
 # Part 2: the parser.
-def readmailcapfile(fp):
-    """Read a mailcap file and return a dictionary keyed by MIME type."""
-    warnings.warn('readmailcapfile is deprecated, use getcaps instead',
-                  DeprecationWarning, 2)
-    caps, _ = _readmailcapfile(fp, None)
-    return caps
-
-
 def _readmailcapfile(fp, lineno):
     """Read a mailcap file and return a dictionary keyed by MIME type.
 
@@ -84,7 +76,9 @@ def _readmailcapfile(fp, lineno):
     the viewing command is stored with the key "view".
     """
     caps = {}
-    while line := fp.readline():
+    while 1:
+        line = fp.readline()
+        if not line: break
         # Ignore comments and blank lines
         if line[0] == '#' or line.strip() == '':
             continue

@@ -1,12 +1,12 @@
-import collections
 import copy
 import os
 import sys
 import unittest
+import warnings
 from . import mailcap
 
 
-class EnvironmentVarGuard(collections.abc.MutableMapping):
+class EnvironmentVarGuard():
 
     """Class to help protect the environment variable properly.  Can be used as
     a context manager."""
@@ -115,7 +115,7 @@ MAILCAPDICT = {
         [{'view': 'display %s', 'lineno': 8}]
 }
 
-# For backwards compatibility, readmailcapfile() and lookup() still support
+# For backwards compatibility, lookup() still support
 # the old version of mailcapdict without line numbers.
 MAILCAPDICT_DEPRECATED = copy.deepcopy(MAILCAPDICT)
 for entry_list in MAILCAPDICT_DEPRECATED.values():
@@ -143,13 +143,6 @@ class HelperFunctionTest(unittest.TestCase):
                 env["MAILCAPS"] = os.pathsep.join(env_mailcaps)
                 mcfiles = mailcap.listmailcapfiles()
         self.assertEqual(env_mailcaps, mcfiles)
-
-    def test_readmailcapfile(self):
-        # Test readmailcapfile() using test file. It should match MAILCAPDICT.
-        with open(MAILCAPFILE, 'r') as mcf:
-            with self.assertWarns(DeprecationWarning):
-                d = mailcap.readmailcapfile(mcf)
-        self.assertDictEqual(d, MAILCAPDICT_DEPRECATED)
 
     def test_lookup(self):
         # Test without key
@@ -290,29 +283,37 @@ class FindmatchTest(unittest.TestCase):
         ]
         self._run_cases(cases)
 
+    @unittest.skipIf(sys.platform == "vxworks", "'test' command is not supported on VxWorks")
     def test_unsafe_mailcap_input(self):
-        with self.assertWarnsRegex(mailcap.UnsafeMailcapInput,
-                                   'Refusing to substitute parameter.*'
-                                   'into a shell command'):
+        try:
+            regex_check = self.assertRegex
+        except AttributeError:
+            regex_check = self.assertRegexpMatches  # pylint: disable=E1101
+        with warnings.catch_warnings(record=True) as warns:
             unsafe_param = mailcap.subst("echo %{total}",
                                          "audio/wav",
                                          "foo.txt",
                                          ["total=*"])
             self.assertEqual(unsafe_param, None)
+            only_warn, = warns
+            self.assertEqual(only_warn.category, mailcap.UnsafeMailcapInput)
+            regex_check(repr(only_warn.message), 'Refusing to substitute parameter.*into a shell command')
 
-        with self.assertWarnsRegex(mailcap.UnsafeMailcapInput,
-                                   'Refusing to substitute MIME type'
-                                   '.*into a shell'):
+        with warnings.catch_warnings(record=True) as warns:
             unsafe_mimetype = mailcap.subst("echo %t", "audio/*", "foo.txt")
             self.assertEqual(unsafe_mimetype, None)
+            only_warn, = warns
+            self.assertEqual(only_warn.category, mailcap.UnsafeMailcapInput)
+            regex_check(repr(only_warn.message), 'Refusing to substitute MIME type.*into a shell')
 
-        with self.assertWarnsRegex(mailcap.UnsafeMailcapInput,
-                                   'Refusing to use mailcap with filename.*'
-                                   'Use a safe temporary filename.'):
+        with warnings.catch_warnings(record=True) as warns:
             unsafe_filename = mailcap.findmatch(MAILCAPDICT,
                                                 "audio/wav",
                                                 filename="foo*.txt")
             self.assertEqual(unsafe_filename, (None, None))
+            only_warn, = warns
+            self.assertEqual(only_warn.category, mailcap.UnsafeMailcapInput)
+            regex_check(repr(only_warn.message), 'Refusing to use mailcap with filename.*Use a safe temporary filename.')
 
     def _run_cases(self, cases):
         for c in cases:

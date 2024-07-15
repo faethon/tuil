@@ -477,13 +477,20 @@ def test_terminal_open_link_subprocess(terminal):
 
 def test_terminal_load_mailcaps(stdscr, config):
     with mock.patch('os.path.exists', return_value=True):
-        # This value should be restored after terminal._load_mailcaps() is
-        # called
-        os.environ['MAILCAPS'] = 'NON_NULL'
+        env_mailcaps = os.environ.get('MAILCAPS')
+        try:
+            os.environ['MAILCAPS'] = 'NON_NULL'
 
-        Terminal(stdscr, config=config)
+            term = Terminal(stdscr, config=config)
+            term._load_mailcaps()
 
-        assert os.environ['MAILCAPS'] == 'NON_NULL'
+            assert term._mailcap_dict is not None
+            assert os.environ['MAILCAPS'] == 'NON_NULL'
+        finally:
+            if env_mailcaps is None:
+                del os.environ['MAILCAPS']
+            else:
+                os.environ['MAILCAPS'] = env_mailcaps
 
 
 def test_terminal_open_browser_display(terminal):
