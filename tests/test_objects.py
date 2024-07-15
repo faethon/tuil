@@ -13,7 +13,7 @@ from six.moves import reload_module
 
 from tuir import exceptions
 from tuir.objects import Controller, Navigator, Command, KeyMap, \
-    curses_session, patch_webbrowser, replace_domain
+    curses_session, patch_webbrowser, replace_domain, preferred_reddit_domain
 
 try:
     from unittest import mock
@@ -55,6 +55,18 @@ def test_patch_webbrowser(*_):
 ])
 def test_replace_domain(url, new, old, expected):
     assert replace_domain(url, old, new) == expected
+
+
+@pytest.mark.parametrize('url,old,expected', [
+    ('http://old.reddit.com/u/me', False, 'http://old.reddit.com/u/me'),
+    ('http://old.reddit.com/u/me', True, 'http://old.reddit.com/u/me'),
+    ('https://www.reddit.com/u/me', False, 'https://www.reddit.com/u/me'),
+    ('https://www.reddit.com/u/me', True, 'https://old.reddit.com/u/me'),
+    ('https://gitlab.com/Chocimier/tuir/', False, 'https://gitlab.com/Chocimier/tuir/'),
+    ('https://gitlab.com/Chocimier/tuir/', True, 'https://gitlab.com/Chocimier/tuir/'),
+])
+def test_preferred_reddit_domain(url, old, expected):
+    assert preferred_reddit_domain(url, dict(copy_as_old=old)) == expected
 
 
 @pytest.mark.parametrize('use_ascii', [True, False])

@@ -81,6 +81,12 @@ def replace_domain(url, new_domain, old_domain):
     return new_url
 
 
+def preferred_reddit_domain(url, config):
+    if config['copy_as_old']:
+        url = replace_domain(url, 'old.reddit.com', 'www.reddit.com')
+    return url
+
+
 @contextmanager
 def curses_session():
     """
