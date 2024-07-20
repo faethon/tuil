@@ -80,6 +80,11 @@ def test_inbox_private_message_parse_file(inbox_page, terminal, reddit):
         inbox_page.controller.trigger('C')
         assert not send_message.called
 
+        text = 'civilization_phaze_3\n\nbody\n'
+        open_editor.return_value.__enter__.return_value = text
+        inbox_page.controller.trigger('C')
+        assert not send_message.called
+
         text = 'civilization_phaze_3\nsubject\nbody\n'
         open_editor.return_value.__enter__.return_value = text
         inbox_page.controller.trigger('C')

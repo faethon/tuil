@@ -451,6 +451,20 @@ def test_submission_edit(submission_page, terminal, refresh_token):
     submission_page.controller.trigger('e')
     assert curses.flash.called
 
+    # Spoof the submission and submit empty comment
+    data = submission_page.content.get(submission_page.nav.absolute_index)
+    data['author'] = submission_page.reddit.user.name
+    with mock.patch('tuir.packages.praw.objects.Submission.edit') as edit,  \
+            mock.patch.object(terminal, 'open_editor') as open_editor,     \
+            mock.patch.object(terminal, 'show_notification'),  \
+            mock.patch('time.sleep'):
+        open_editor.return_value.__enter__.return_value = ''
+
+        submission_page.controller.trigger('e')
+        assert open_editor.called
+        terminal.show_notification.assert_called_with('Canceled')
+        edit.assert_not_called()
+
     # Spoof the submission and try to edit again
     data = submission_page.content.get(submission_page.nav.absolute_index)
     data['author'] = submission_page.reddit.user.name
@@ -542,3 +556,23 @@ def test_submission_prompt_and_select_link(submission_page, terminal):
     # The comment is now hidden so there are no links to select
     link = submission_page.prompt_and_select_link()
     assert link is None
+
+
+def test_submission_copy_permalink(submission_page, terminal):
+    url = ('https://www.reddit.com/r/Python/comments/2xmo63/'
+           'a_python_terminal_viewer_for_browsing_reddit/')
+    with mock.patch('tuir.page.clipboard_copy') as copy, \
+            mock.patch.object(terminal, 'show_notification'):
+        submission_page.controller.trigger('y')
+        copy.assert_called_with(url, mock.ANY)
+        terminal.show_notification.assert_called_with(['Copied to clipboard:', url], timeout=1)
+
+
+def test_submission_copy_link(submission_page, terminal):
+    url = 'https://github.com/michael-lazar/rtv'
+    with mock.patch('tuir.page.clipboard_copy') as copy, \
+            mock.patch.object(terminal, 'prompt_user_to_select_link') as prompt, \
+            mock.patch.object(terminal, 'show_notification'):
+        submission_page.controller.trigger('Y')
+        copy.assert_called_with(url, mock.ANY)
+        terminal.show_notification.assert_called_with(['Copied to clipboard:', url], timeout=1)
