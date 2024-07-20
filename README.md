@@ -17,7 +17,7 @@ A text-based interface (TUI) to view and interact with Reddit from your terminal
     <img alt="pypi" src="https://img.shields.io/pypi/v/tuir-continued.svg?label=version"/>
   </a>
   <a href="https://gitlab.com/Chocimier/tuir/pipelines?ref=master">
-    <img alt="gitlab-ci" src="https://gitlab.com/Chocimier/tuir/badges/master/build.svg"/>
+    <img alt="gitlab-ci" src="https://gitlab.com/Chocimier/tuir/badges/master/pipeline.svg"/>
   </a>
   <img alt="coverage" src="https://gitlab.com/Chocimier/tuir/badges/master/coverage.svg"/>
 <!-- <a href="https://repology.org/project/tuir/versions">
