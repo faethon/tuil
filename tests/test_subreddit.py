@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import curses
 from collections import OrderedDict
+import os.path
 import sys
 
 import six
@@ -844,3 +845,73 @@ def test_subreddit_page__draw_item_format(terminal, subreddit_page):
 
         # Should be called thrice - ' ', '|', ' '
         assert terminal.add_line.call_count == 3
+
+
+class MockPopen():
+    def __init__(*args, **kwargs): pass
+    def communicate(self): return '', ''
+    def poll(self): pass
+
+
+class MockProcess():
+    def __init__(self, target, args=None):
+        self._target = target
+        self._args = args or []
+    def start(self):
+        self._target(*self._args)
+    def join(self, _=None): pass
+    def is_alive(self): pass
+    def terminate(self): pass
+
+
+def test_subreddit_open_in_browser(subreddit_page, terminal):
+    subreddit_page.refresh_content(order='ignore', name='/r/front/hot')
+    terminal.config.MAILCAP = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tuir', 'templates', 'mailcap')
+    with mock.patch('os.system'), \
+            mock.patch('tuir.terminal.Process', side_effect=MockProcess), \
+            mock.patch('webbrowser.open_new_tab') as new_tab:
+        for i in range(8):
+            subreddit_page.controller.trigger('o')
+            with mock.patch.object(subreddit_page, 'clear_input_queue'):
+                subreddit_page.controller.trigger('j')
+                subreddit_page.controller.trigger('j')
+                subreddit_page.controller.trigger('j')
+        assert [list(i.args) for i in new_tab.mock_calls] == [
+            ['https://i.redd.it/czlc1ff2tqlz.jpg'],
+            ['https://i.imgur.com/ok9H05N.gifv'],
+            ['https://twitter.com/DOOM/status/908094489276928001'],
+            ['https://i.imgur.com/qrWbOue.gifv'],
+            ['https://i.redd.it/3lld01w00qlz.gif'],
+            ['https://i.imgur.com/Kt6HUl8.jpg'],
+            ['https://i.redd.it/2rbvjstdfplz.jpg'],
+            ['https://twitter.com/elonmusk/status/908108029777686528'],
+        ]
+
+
+def test_subreddit_open_with_mailcap(subreddit_page, terminal):
+    subreddit_page.refresh_content(order='ignore', name='/r/front/hot')
+    terminal.config['enable_media'] = True
+    terminal.config.MAILCAP = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tuir', 'templates', 'mailcap')
+    with mock.patch('os.system'), \
+            mock.patch('tuir.terminal.Process', side_effect=MockProcess), \
+            mock.patch('subprocess.Popen', side_effect=MockPopen) as popen, \
+            mock.patch('webbrowser.open_new_tab') as new_tab, \
+            mock.patch('six.moves.input'):
+        for i in range(8):
+            subreddit_page.controller.trigger('o')
+            with mock.patch.object(subreddit_page, 'clear_input_queue'):
+                subreddit_page.controller.trigger('j')
+                subreddit_page.controller.trigger('j')
+                subreddit_page.controller.trigger('j')
+        assert [list(i.args) for i in new_tab.mock_calls] == [
+            ['https://twitter.com/DOOM/status/908094489276928001'],
+            ['https://twitter.com/elonmusk/status/908108029777686528'],
+        ]
+        assert [list(i.args) for i in popen.mock_calls] == [
+            [["curl -s 'https://i.redd.it/czlc1ff2tqlz.jpg' | convert -resize 80x80 - jpg:/tmp/tuir.jpg && img2xterm /tmp/tuir.jpg"]],
+            [["mpv -vo drm -quiet 'https://i.imgur.com/ok9H05N.mp4'"]],
+            [["mpv -vo drm -quiet 'https://i.imgur.com/qrWbOue.mp4'"]],
+            [["curl -s 'https://i.redd.it/3lld01w00qlz.gif' | convert -resize 80x80 - jpg:/tmp/tuir.jpg && img2xterm /tmp/tuir.jpg"]],
+            [["curl -s 'https://i.imgur.com/Kt6HUl8.jpg' | convert -resize 80x80 - jpg:/tmp/tuir.jpg && img2xterm /tmp/tuir.jpg"]],
+            [["curl -s 'https://i.redd.it/2rbvjstdfplz.jpg' | convert -resize 80x80 - jpg:/tmp/tuir.jpg && img2xterm /tmp/tuir.jpg"]],
+        ]
