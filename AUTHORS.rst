@@ -78,3 +78,4 @@ TUIR Contributors
 * `Aiden <aiden.sobey@agworld.com.au>`_
 * `Alex At <https://gitlab.com/whyglobaleyes>`_
 * `Sacha Telgenhof <https://gitlab.com/stelgenhof>`_
+* `brokenpip3 <https://gitlab.com/brokenpip3>`_

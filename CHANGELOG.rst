@@ -2,6 +2,7 @@
 RTV/TUIR Changelog
 ==================
 
+.. _1.31.1: https://gitlab.com/Chocimier/tuir/tree/v1.31.1
 .. _1.31.0: https://gitlab.com/Chocimier/tuir/tree/v1.31.0
 .. _1.30.0: https://gitlab.com/Chocimier/tuir/tree/v1.30.0
 .. _1.29.1: https://gitlab.com/Chocimier/tuir/tree/v1.29.1
@@ -50,16 +51,27 @@ RTV/TUIR Changelog
 .. _1.2: http://github.com/michael-lazar/rtv/releases/tag/v1.2
 
 --------------------
+1.31.1_ (2024-09-09)
+--------------------
+
+Features
+
+* Added a new *gruvbox* theme.
+
+--------------------
 1.31.0_ (2024-07-23)
 --------------------
 
 Documentation
+
 * Notice relicence to GPL 3 by bundling PRAW
 
 Features
+
 * Rewrite links to old.reddit.com also when opening in browser
 
 Bugfixes
+
 * Adjust for Python 3.13, by bundling mailcap module
 
 --------------------
