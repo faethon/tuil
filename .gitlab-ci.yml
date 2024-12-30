@@ -2,10 +2,6 @@ python2.7:
   image: python:2.7-buster
   script: scripts/ci.sh
 
-python3.8:
-  image: python:3.8-buster
-  script: scripts/ci.sh
-
 python3.9:
   image: python:3.9-alpine
   script: scripts/ci.sh
