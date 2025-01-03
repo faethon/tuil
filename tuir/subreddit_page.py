@@ -50,7 +50,7 @@ class SubredditPage(Page):
             # Split the list between %., newlines, and separator characters to
             # treat them separately
             format_list = re.split(r'(%.|[\n' + re.escape(self.FORMAT_SEP) + '])',
-                    self.config['subreddit_format'], re.DOTALL)
+                    self.config['subreddit_format'], flags=re.DOTALL)
 
             # Clean the list of null items. We don't need to join this list
             # together again, so this is safe.
