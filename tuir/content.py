@@ -352,9 +352,8 @@ class Content(object):
         Convert a utc timestamp into a human readable relative-time.
         """
 
-        timedelta = datetime.utcnow() - datetime.utcfromtimestamp(utc_timestamp)
+        seconds = time.time() - utc_timestamp
 
-        seconds = int(timedelta.total_seconds())
         if seconds < 60:
             return 'moments ago' if verbose else '0min'
 
