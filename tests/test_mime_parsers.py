@@ -55,23 +55,23 @@ URLS = OrderedDict([
         'image/x-imgur-album')),
     ('instagram_image', (
         'https://www.instagram.com/p/BIxQ0vrBN2Y/?taken-by=kimchi_chic',
-        re.compile('https://instagram(.*)\.jpg'),
+        re.compile('https://instagram(.*)[.]jpg'),
         'image/jpeg')),
     ('instagram_video', (
         'https://www.instagram.com/p/BUm3cvEhFMt/',
-        re.compile('https://instagram(.*)\.mp4'),
+        re.compile('https://instagram(.*)[.]mp4'),
         'video/mp4')),
     ('streamable_video', (
         'https://streamable.com/vkc0y',
-        re.compile('https://(.*)\.streamable\.com/video/mp4/(.*)\.mp4(.*)'),
+        re.compile('https://(.*)[.]streamable[.]com/video/mp4/(.*)[.]mp4(.*)'),
         'video/mp4')),
     ('liveleak_video_1', (
         'https://www.liveleak.com/view?i=08b_1499296574',
-        re.compile('https://cdn\.liveleak\.com/(.*)\.mp4(.*)'),
+        re.compile('https://cdn[.]liveleak[.]com/(.*)[.]mp4(.*)'),
         'video/mp4')),
     ('liveleak_video_2', (
         'https://www.liveleak.com/view?i=cad_1487311993',
-        re.compile('www\.youtube\.com/embed/D4GrlOMlOBY'),
+        re.compile('www[.]youtube[.]com/embed/D4GrlOMlOBY'),
         'video/x-youtube')),
     ('reddit_gif', (
         'https://v.redd.it/1j6sbv2npvd11',
