@@ -53,6 +53,34 @@ def import_mailcap():
     return mailcap
 
 
+def open_url_silent(url, force_new_browser_window):
+    # This used to be done using subprocess.Popen().
+    # It was switched to multiprocessing.Process so that we
+    # can re-use the webbrowser instance that has been patched
+    # by TUIR. It's also safer because it doesn't inject
+    # python code through the command line.
+
+    # Suppress stdout/stderr from the browser, see
+    # https://stackoverflow.com/questions/2323080. We can't
+    # depend on replacing sys.stdout & sys.stderr because
+    # webbrowser uses Popen().
+    stdout, stderr = os.dup(1), os.dup(2)
+    null = os.open(os.devnull, os.O_RDWR)
+    try:
+        os.dup2(null, 1)
+        os.dup2(null, 2)
+        if force_new_browser_window:
+            webbrowser.open_new(url)
+        else:
+            webbrowser.open_new_tab(url)
+    finally:
+        try:
+            os.close(null)
+        except OSError:
+            pass
+        os.dup2(stdout, 1)
+        os.dup2(stderr, 2)
+
 
 class Terminal(object):
 
@@ -634,36 +662,7 @@ class Terminal(object):
 
         if self.display:
             with self.loader('Opening page in a new window'):
-
-                def open_url_silent(url):
-                    # This used to be done using subprocess.Popen().
-                    # It was switched to multiprocessing.Process so that we
-                    # can re-use the webbrowser instance that has been patched
-                    # by TUIR. It's also safer because it doesn't inject
-                    # python code through the command line.
-
-                    # Suppress stdout/stderr from the browser, see
-                    # https://stackoverflow.com/questions/2323080. We can't
-                    # depend on replacing sys.stdout & sys.stderr because
-                    # webbrowser uses Popen().
-                    stdout, stderr = os.dup(1), os.dup(2)
-                    null = os.open(os.devnull, os.O_RDWR)
-                    try:
-                        os.dup2(null, 1)
-                        os.dup2(null, 2)
-                        if self.config['force_new_browser_window']:
-                            webbrowser.open_new(url)
-                        else:
-                            webbrowser.open_new_tab(url)
-                    finally:
-                        try:
-                            os.close(null)
-                        except OSError:
-                            pass
-                        os.dup2(stdout, 1)
-                        os.dup2(stderr, 2)
-
-                p = Process(target=open_url_silent, args=(url,))
+                p = Process(target=open_url_silent, args=(url, self.config['force_new_browser_window']))
                 p.start()
                 # Give the browser 7 seconds to open a new tab. Because the
                 # display is set, calling webbrowser should be non-blocking.
