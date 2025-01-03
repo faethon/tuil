@@ -131,7 +131,7 @@ def refresh_token(request):
             return fp.read()
 
 
-@pytest.yield_fixture()
+@pytest.fixture()
 def config():
     conf = Config()
     with mock.patch.object(conf, 'save_history'),          \
@@ -147,7 +147,7 @@ def config():
         yield conf
 
 
-@pytest.yield_fixture()
+@pytest.fixture()
 def stdscr():
     with patch('curses.initscr'),               \
             patch('curses.echo'),               \
@@ -175,7 +175,7 @@ def stdscr():
         yield out
 
 
-@pytest.yield_fixture()
+@pytest.fixture()
 def reddit(vcr, request):
     cassette_name = '%s.yaml' % request.node.name
     # Clear the cassette before running the test
@@ -216,7 +216,7 @@ def oauth(reddit, terminal, config):
     return OAuthHelper(reddit, terminal, config)
 
 
-@pytest.yield_fixture()
+@pytest.fixture()
 def oauth_server():
     # Start the OAuth server on a random port in the background
     server = OAuthHTTPServer(('', 0), OAuthHandler)
