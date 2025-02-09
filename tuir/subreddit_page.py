@@ -275,6 +275,11 @@ class SubredditPage(Page):
     @logged_in
     def subreddit_subscribe(self):
         name = self.content.name
+
+        if 'u/' in name or name in ('/r/all', '/r/front', '/r/me', '/u/saved'):
+            self.term.show_notification("Not a valid subreddit {0}".format(name))
+            return
+
         self.reddit.subscribe(name)
         self.term.show_notification("Joining {0}".format(name), 1)
 
@@ -282,6 +287,11 @@ class SubredditPage(Page):
     @logged_in
     def subreddit_unsubscribe(self):
         name = self.content.name
+
+        if 'u/' in name or name in ('/r/all', '/r/front', '/r/me', '/u/saved'):
+            self.term.show_notification("Not a valid subreddit {0}".format(name))
+            return
+
         self.reddit.unsubscribe(name)
         self.term.show_notification("Leaving {0}".format(name), 1)
 
