@@ -668,7 +668,12 @@ class Page(object):
         """
         from .subreddit_page import SubredditPage
 
-        with self.term.loader('Loading subreddit'):
+        if 'u/' in name:
+            pagetypename = "userpage"
+        else:
+            pagetypename = "subreddit"
+
+        with self.term.loader('Loading {0}'.format(pagetypename)):
             page = SubredditPage(self.reddit, self.term, self.config,
                                  self.oauth, name)
         if not self.term.loader.exception:
