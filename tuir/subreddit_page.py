@@ -271,6 +271,20 @@ class SubredditPage(Page):
                 data['object'].hide()
                 data['hidden'] = True
 
+    @SubredditController.register(Command('SUBREDDIT_JOIN'))
+    @logged_in
+    def subreddit_subscribe(self):
+        name = self.content.name
+        self.reddit.subscribe(name)
+        self.term.show_notification("Joining {0}".format(name), 1)
+
+    @SubredditController.register(Command('SUBREDDIT_LEAVE'))
+    @logged_in
+    def subreddit_unsubscribe(self):
+        name = self.content.name
+        self.reddit.unsubscribe(name)
+        self.term.show_notification("Leaving {0}".format(name), 1)
+
     def _submission_attr(self, data):
         if data['url_full'] in self.config.history:
             return self.term.attr('SubmissionTitleSeen')

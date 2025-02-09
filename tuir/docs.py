@@ -68,6 +68,8 @@ https://gitlab.com/Chocimier/tuir
   SPACE : Mark the selected submission as hidden
   p     : Toggle between the currently viewed subreddit and /r/front
   f     : Open a prompt to search the current subreddit for a text string
+  j     : Join this subreddit
+  J     : Leave this subreddit
   v     : Open the subreddit for the selected submission
   V     : Open the authors user page for the selected submission
 
