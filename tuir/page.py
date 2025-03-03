@@ -310,7 +310,7 @@ class Page(object):
         data = self.get_selected_item()
         if 'author' in data:
             author = data['author']
-            if type(author) == str:
+            if isinstance(author, str):
                 self.selected_page = self.open_subreddit_page('u/' + author)
         else:
             self.term.flash()
@@ -669,11 +669,11 @@ class Page(object):
         from .subreddit_page import SubredditPage
 
         if 'u/' in name:
-            pagetypename = "userpage"
+            pagetypename = "userpage "
         else:
-            pagetypename = "subreddit"
+            pagetypename = "subreddit r/"
 
-        with self.term.loader('Loading {0}'.format(pagetypename)):
+        with self.term.loader('Loading {0}{1}'.format(pagetypename, name)):
             page = SubredditPage(self.reddit, self.term, self.config,
                                  self.oauth, name)
         if not self.term.loader.exception:
