@@ -669,9 +669,11 @@ class Page(object):
         from .subreddit_page import SubredditPage
 
         if 'u/' in name:
-            pagetypename = "userpage "
+            pagetypename = "userpage /"
+        elif 'r/' in name:
+            pagetypename = "subreddit "
         else:
-            pagetypename = "subreddit r/"
+            pagetypename = "subreddit /r/"
 
         with self.term.loader('Loading {0}{1}'.format(pagetypename, name)):
             page = SubredditPage(self.reddit, self.term, self.config,
