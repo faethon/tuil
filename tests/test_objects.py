@@ -39,7 +39,8 @@ def test_patch_webbrowser(*_):
 
     # By default, we expect that BROWSER will be loaded as a generic browser
     # This is because "safari" is not a valid script in the system PATH
-    assert isinstance(webbrowser.get(), webbrowser.GenericBrowser)
+    # With 3.14 it is OSAScript browser
+    assert isinstance(webbrowser.get(), (webbrowser.GenericBrowser, webbrowser.MacOSXOSAScript))
 
     # After patching, the default webbrowser should now be interpreted as an
     # OSAScript browser
