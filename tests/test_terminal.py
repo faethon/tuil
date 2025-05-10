@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 import re
 import os
 import curses
-import codecs
 from textwrap import dedent
 
 import six
@@ -15,6 +14,7 @@ from tuir.terminal import Terminal
 from tuir.docs import (HELP, REPLY_FILE, COMMENT_EDIT_FILE, TOKEN,
                       SUBMISSION_FILE, SUBMISSION_EDIT_FILE, MESSAGE_FILE)
 from tuir.exceptions import TemporaryFileError, BrowserError
+from tuir.objects import codecs_open
 
 try:
     from unittest import mock
@@ -299,7 +299,7 @@ def test_terminal_open_editor(terminal, use_ascii):
 
     def side_effect(args):
         data['filename'] = args[-1]
-        with codecs.open(data['filename'], 'r+', 'utf-8') as fp:
+        with codecs_open(data['filename'], 'r+', encoding='utf-8') as fp:
             assert fp.read() == comment
             fp.write('Comment 2 ❤')
         return mock.Mock()

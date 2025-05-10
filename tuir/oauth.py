@@ -16,6 +16,7 @@ from six.moves.BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from . import docs
 from .config import Config
 from .exceptions import InvalidRefreshToken
+from .objects import codecs_open
 from .packages.praw.errors import HTTPException, OAuthException
 
 _logger = logging.getLogger(__name__)
@@ -105,7 +106,7 @@ class OAuthHandler(BaseHTTPRequestHandler):
         else:
             message = docs.OAUTH_SUCCESS
 
-        with codecs.open(template_file, 'r', 'utf-8') as fp:
+        with codecs_open(template_file, 'r', encoding='utf-8') as fp:
             index_text = fp.read()
 
         body = string.Template(index_text).substitute(message=message)

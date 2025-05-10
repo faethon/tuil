@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import os
-import codecs
 import shutil
 import argparse
 from functools import partial
@@ -11,7 +10,7 @@ import six
 from six.moves import configparser
 
 from . import docs, __version__
-from .objects import KeyMap
+from .objects import KeyMap, codecs_open
 
 
 class Config(object):
@@ -87,14 +86,14 @@ class Config(object):
 
     def load_history(self):
         if os.path.exists(self.history_file):
-            with codecs.open(self.history_file, encoding='utf-8') as fp:
+            with codecs_open(self.history_file, encoding='utf-8') as fp:
                 self.history = OrderedSet([line.strip() for line in fp])
         else:
             self.history = OrderedSet()
 
     def save_history(self):
         self._ensure_filepath(self.history_file)
-        with codecs.open(self.history_file, 'w+', encoding='utf-8') as fp:
+        with codecs_open(self.history_file, 'w+', encoding='utf-8') as fp:
             fp.writelines('\n'.join(self.history[-self['history_size']:]))
 
     def delete_history(self):
@@ -130,7 +129,7 @@ class Config(object):
 
         config = configparser.RawConfigParser()
         if os.path.exists(filename):
-            with codecs.open(filename, encoding='utf-8') as fp:
+            with codecs_open(filename, encoding='utf-8') as fp:
                 try:
                     read_method = config.read_file
                 except AttributeError:

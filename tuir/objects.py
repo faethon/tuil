@@ -5,6 +5,7 @@ import re
 import os
 import sys
 import time
+import codecs
 import signal
 import inspect
 import weakref
@@ -85,6 +86,8 @@ def preferred_reddit_domain(url, config):
     if config['copy_as_old']:
         url = replace_domain(url, 'old.reddit.com', 'www.reddit.com')
     return url
+
+codecs_open = codecs.open if six.PY2 else open
 
 
 @contextmanager

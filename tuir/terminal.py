@@ -6,7 +6,6 @@ import re
 import sys
 import time
 import shlex
-import codecs
 import curses
 import logging
 import threading
@@ -24,7 +23,7 @@ from kitchen.text.display import textual_width_chop
 from . import exceptions, mime_parsers, content
 from .docs import TOKEN
 from .theme import Theme, ThemeList
-from .objects import LoadScreen
+from .objects import LoadScreen, codecs_open
 
 try:
     # Added in python 3.4+
@@ -743,7 +742,7 @@ class Terminal(object):
             # we can re-open using the right encoding
             filepath = fp.name
 
-        with codecs.open(filepath, 'w', 'utf-8') as fp:
+        with codecs_open(filepath, 'w', encoding='utf-8') as fp:
             fp.write(data)
         _logger.info('File created: %s', filepath)
 
@@ -764,7 +763,7 @@ class Terminal(object):
             _logger.exception(e)
             self.show_notification('Could not open file with %s' % editor)
 
-        with codecs.open(filepath, 'r', 'utf-8') as fp:
+        with codecs_open(filepath, 'r', encoding='utf-8') as fp:
             text = fp.read()
             text = self.strip_instructions(text)
 

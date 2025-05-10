@@ -1,7 +1,6 @@
 # pylint: disable=bad-whitespace
 
 import os
-import codecs
 import curses
 import logging
 from collections import OrderedDict
@@ -12,6 +11,7 @@ from six.moves import configparser
 
 from .config import Config
 from .exceptions import ConfigError
+from .objects import codecs_open
 
 _logger = logging.getLogger(__name__)
 
@@ -398,7 +398,7 @@ class Theme(object):
         try:
             config = configparser.ConfigParser()
             config.optionxform = six.text_type  # Preserve case
-            with codecs.open(filename, encoding='utf-8') as fp:
+            with codecs_open(filename, encoding='utf-8') as fp:
                 try:
                     read_method = config.read_file
                 except AttributeError:
