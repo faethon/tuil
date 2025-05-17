@@ -576,3 +576,15 @@ def test_submission_copy_link(submission_page, terminal):
         submission_page.controller.trigger('Y')
         copy.assert_called_with(url, mock.ANY)
         terminal.show_notification.assert_called_with(['Copied to clipboard:', url], timeout=1)
+
+
+def test_submission_open_subreddit(submission_page):
+    # Open subreddit
+    submission_page.controller.trigger('v')
+    assert submission_page.selected_page.name == 'subreddit'
+    assert submission_page.active
+    # raise ValueError((subreddit_page,vars(subreddit_page),list(vars(subreddit_page))))
+
+    submission_page.handle_selected_page()
+    assert submission_page.selected_page.name == 'subreddit'
+    assert not submission_page.active

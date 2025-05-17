@@ -413,6 +413,29 @@ def test_subreddit_open_subscriptions(subreddit_page, refresh_token):
         assert loop.called
 
 
+def test_subreddit_open_userpage(subreddit_page):
+    # Open userpage
+    subreddit_page.controller.trigger('V')
+    assert subreddit_page.selected_page.name == 'subreddit'
+    assert subreddit_page.active
+
+    subreddit_page.handle_selected_page()
+    assert subreddit_page.selected_page.name == 'subreddit'
+    assert not subreddit_page.active
+
+
+def test_subreddit_join(subreddit_page, terminal):
+    subreddit_page.controller.trigger('t')
+    text = 'Not logged in'.encode('utf-8')
+    terminal.stdscr.subwin.addstr.assert_called_with(1, 1, text)
+
+
+def test_subreddit_leave(subreddit_page, terminal):
+    subreddit_page.controller.trigger('T')
+    text = 'Not logged in'.encode('utf-8')
+    terminal.stdscr.subwin.addstr.assert_called_with(1, 1, text)
+
+
 def test_subreddit_get_inbox_timeout(subreddit_page, refresh_token, terminal, vcr):
     if vcr.record_mode == 'none':
         pytest.skip('Unable to test ReadTimeout exceptions using a cassette')
