@@ -79,3 +79,5 @@ TUIR Contributors
 * `Alex At <https://gitlab.com/whyglobaleyes>`_
 * `Sacha Telgenhof <https://gitlab.com/stelgenhof>`_
 * `brokenpip3 <https://gitlab.com/brokenpip3>`_
+* `Alexander Seiler <https://github.com/goggle>`_
+* `faethon <https://gitlab.com/faethon>`_
