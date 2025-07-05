@@ -310,7 +310,7 @@ class Page(object):
         data = self.get_selected_item()
         if 'author' in data:
             author = data['author']
-            if isinstance(author, str):
+            if isinstance(author, six.string_types):
                 self.selected_page = self.open_subreddit_page('u/' + author)
         else:
             self.term.flash()
