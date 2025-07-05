@@ -72,6 +72,10 @@ The following actions can be performed when viewing a subreddit:
 - <kbd>SPACE</kbd> - Mark the selected submission as *hidden*
 - <kbd>p</kbd> - Toggle between the currently viewed subreddit and ``/r/front``
 - <kbd>f</kbd> - Open a prompt to search the current subreddit for a text string
+- <kbd>t</kbd> - Join this subreddit
+- <kbd>T</kbd> - Leave this subreddit
+- <kbd>v</kbd> - Open the subreddit for the selected submission
+- <kbd>V</kbd> - Open the authors user page for the selected submission
 
 ## Submission Mode
 
