@@ -16,6 +16,10 @@ python3.12:
 
 python3.13:
   image: python:3.13-bookworm
+  script: scripts/ci.sh
+
+python3.14:
+  image: python:3.14-trixie
   script:
     - scripts/ci.sh
     - coverage xml
@@ -25,7 +29,3 @@ python3.13:
         coverage_format: cobertura
         path: coverage.xml
   coverage: "/(100(?:[.]0+)?|[1-9]?[0-9](?:[.][0-9]+)?)%$/"
-
-python3.14:
-  image: python:3.14-rc-bullseye
-  script: scripts/ci.sh
