@@ -161,10 +161,9 @@ class OAuthHelper(object):
 
                     # Otherwise we know the token is bad, so we can remove it.
                     _logger.exception(e)
-                    self.clear_oauth_data()
                     raise InvalidRefreshToken(
                         '       Invalid user credentials!\n'
-                        'The cached refresh token has been removed')
+                        'The cached refresh token in ~/.local/share may need to be removed')
 
                 else:
                     if not autologin:
