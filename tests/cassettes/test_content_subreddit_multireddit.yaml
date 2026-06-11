@@ -7,7 +7,7 @@ interactions:
       Connection: [keep-alive]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/r/python+linux/.json?limit=1024
+    uri: https://www.reddit.com/r/python+linux/.json?limit=1024
   response:
     body:
       string: !!binary |
@@ -911,7 +911,7 @@ interactions:
           session_tracker=v27QrppoNHBBlGeTDr.0.1505363982271.Z0FBQUFBQlp1Z2dPTkVTMG1SdldnSGlxbGN0eGNXSkNyR0p1OHRUWVF4MkJFTmgwYlpjc2VCRm5PeEJPVm9UNXUyYkg2Y0hxSWV6bjRYTXdWTXZrZVRQRTljZ0VSLTBQVkpweWltVUZTczl2OGpncmNmTzdBX0pqaXV0ZzdDX2taLXJXV3dsTUs2SlM]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/r/a+b/.json?limit=1024
+    uri: https://www.reddit.com/r/a+b/.json?limit=1024
   response:
     body: {string: '{"message": "Not Found", "error": 404}'}
     headers:

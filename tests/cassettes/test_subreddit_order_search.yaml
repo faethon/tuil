@@ -7,7 +7,7 @@ interactions:
       Connection: [keep-alive]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/r/python/.json?limit=1024
+    uri: https://www.reddit.com/r/python/.json?limit=1024
   response:
     body:
       string: !!binary |
@@ -701,7 +701,7 @@ interactions:
           session_tracker=ew3pnD4y4nBkfmRcqJ.0.1505364148712.Z0FBQUFBQlp1Z2kxSmZ4VXJaNHo0Q3hHV1JpMEtnN1JXM1ZqcFdRdEJLVl9VOVZIalJPTWJPSkxzYmNnV0RCZHFfeGl4SzJfMXA2MmhuRlptbjVZMlRVV3dvNno5dUtzRklEUjJlYlVuZDNTZjgwSkZqOFFQeDhJWmxRbEU3a3lQM1JpYnJOak1mTWo]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/r/python/search.json?q=search+term&restrict_sr=on
+    uri: https://www.reddit.com/r/python/search.json?q=search+term&restrict_sr=on
   response:
     body:
       string: !!binary |
@@ -1070,7 +1070,7 @@ interactions:
           session_tracker=ew3pnD4y4nBkfmRcqJ.0.1505364150439.Z0FBQUFBQlp1Z2kycjlReUZDMXBRekNHWHpud2EtaXpBaFVHeXNqY0xWNlZsZjZIQW1ENTllUlVGOVRRQVhDaWdrNVA3T1NXWjluUHg1cC1nZW14Q3c3RnFHa3hkU2loSWdvdzJyNUJxYUJVWmxuVk8yX3V6eWpKbGhzSG5fbVBUM2lIandaSnE3QXM]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/r/python/search.json?q=search+term&sort=relevance&restrict_sr=on
+    uri: https://www.reddit.com/r/python/search.json?q=search+term&sort=relevance&restrict_sr=on
   response:
     body:
       string: !!binary |
@@ -1439,7 +1439,7 @@ interactions:
           session_tracker=ew3pnD4y4nBkfmRcqJ.0.1505364150645.Z0FBQUFBQlp1Z2kyaG9KNW5KNjdOcXpCeGo5M215ejRlVXIyaHAxdFFVUDVKdXJXVWM1YzNNNXhQblhxM0J2R1UwSnFNdEFzdkVQWkdKQWxvT3V2VXhxcDRqRHdpemVqb0dqSDJQUVZ6bGdFR3lSTk9salV4bno2Z2xkSEFnX3VGRE1icW45dmtHdWU]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/r/python/search.json?q=search+term&sort=top&t=all&restrict_sr=on
+    uri: https://www.reddit.com/r/python/search.json?q=search+term&sort=top&t=all&restrict_sr=on
   response:
     body:
       string: !!binary |
@@ -1817,7 +1817,7 @@ interactions:
           session_tracker=ew3pnD4y4nBkfmRcqJ.0.1505364150848.Z0FBQUFBQlp1Z2kyamhlSGlQaUtoNm45LWVSWWd3eTVUMTFoR1dHS1g3Mk5XUEN2Rzc3YnBlS3ZUVWVyRGM2Rk9BSENwbUQ5aVplTmhvWm1OU0w2MmNraW14bDFGeGhWYUhkLXZSOGs1MXZtSTBpeGFPUXB1SVg2YzN3cUoybW8tQmJqWV9tYlFLTXI]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/r/python/search.json?q=search+term&sort=comments&t=all&restrict_sr=on
+    uri: https://www.reddit.com/r/python/search.json?q=search+term&sort=comments&t=all&restrict_sr=on
   response:
     body:
       string: !!binary |
@@ -2331,7 +2331,7 @@ interactions:
           session_tracker=ew3pnD4y4nBkfmRcqJ.0.1505364151018.Z0FBQUFBQlp1Z2kzR1lveUFqeGJUcjFHVno0eUxMVHRVSm9LT0RZZGt1WDZ6bWZaMkFQNzRhX2ZyaHVzNWQxWVkzb2ZMVGk5TWNnQWc2eU1rU2RNbHFvUnZBZ0NSZTEzYVBDNDNVa3Bnb0pqaWhQeFFWUVhmbUQ3S21hNVM3d19XVno1UThGYXB3T1I]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/r/python/search.json?q=search+term&sort=new&restrict_sr=on
+    uri: https://www.reddit.com/r/python/search.json?q=search+term&sort=new&restrict_sr=on
   response:
     body:
       string: !!binary |

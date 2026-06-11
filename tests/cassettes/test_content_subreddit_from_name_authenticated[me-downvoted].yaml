@@ -10,7 +10,7 @@ interactions:
       Content-Type: [application/x-www-form-urlencoded]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Linux-4.4.154-1-MANJARO-x86_64-with-arch-Manjaro-Linux']
     method: POST
-    uri: https://api.reddit.com/api/v1/access_token/
+    uri: https://www.reddit.com/api/v1/access_token/
   response:
     body: {string: '{"access_token": "17277884-kgH8cxtdJAoV8nRslLWc61owb1c", "token_type":
         "bearer", "expires_in": 3600, "scope": "edit history identity mysubreddits

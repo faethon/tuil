@@ -7,10 +7,10 @@ interactions:
       Connection: [keep-alive]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/r/random/?unique=1
+    uri: https://www.reddit.com/r/random/?unique=1
   response:
     body: {string: "<html>\n <head>\n  <title>302 Found</title>\n </head>\n <body>\n
-        \ <h1>302 Found</h1>\n  The resource was found at <a href=\"https://api.reddit.com/r/GoldandBlack/.api?unique=1&amp;utm_campaign=redirect&amp;utm_medium=desktop&amp;utm_source=reddit&amp;utm_name=random_subreddit\">https://api.reddit.com/r/GoldandBlack/.api?unique=1&amp;utm_campaign=redirect&amp;utm_medium=desktop&amp;utm_source=reddit&amp;utm_name=random_subreddit</a>;\nyou
+        \ <h1>302 Found</h1>\n  The resource was found at <a href=\"https://www.reddit.com/r/GoldandBlack/.api?unique=1&amp;utm_campaign=redirect&amp;utm_medium=desktop&amp;utm_source=reddit&amp;utm_name=random_subreddit\">https://api.reddit.com/r/GoldandBlack/.api?unique=1&amp;utm_campaign=redirect&amp;utm_medium=desktop&amp;utm_source=reddit&amp;utm_name=random_subreddit</a>;\nyou
         should be redirected automatically.\n\n\n </body>\n</html>"}
     headers:
       Accept-Ranges: [bytes]
@@ -29,7 +29,7 @@ interactions:
       X-Served-By: [cache-ord1744-ORD]
       X-Timer: ['S1505363983.378092,VS0,VE42']
       cache-control: ['max-age=0, must-revalidate']
-      location: ['https://api.reddit.com/r/GoldandBlack/.api?unique=1&utm_campaign=redirect&utm_medium=desktop&utm_source=reddit&utm_name=random_subreddit']
+      location: ['https://www.reddit.com/r/GoldandBlack/.api?unique=1&utm_campaign=redirect&utm_medium=desktop&utm_source=reddit&utm_name=random_subreddit']
       x-ua-compatible: [IE=edge]
     status: {code: 302, message: Found}
 - request:
@@ -40,7 +40,7 @@ interactions:
       Connection: [keep-alive]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/r/GoldandBlack/.api?unique=1&utm_campaign=redirect&utm_medium=desktop&utm_source=reddit&utm_name=random_subreddit&unique=1
+    uri: https://www.reddit.com/r/GoldandBlack/.api?unique=1&utm_campaign=redirect&utm_medium=desktop&utm_source=reddit&utm_name=random_subreddit&unique=1
   response:
     body:
       string: !!binary |
@@ -337,7 +337,7 @@ interactions:
           session_tracker=F8LLROklZq9Ldtf9Ec.0.1505363983470.Z0FBQUFBQlp1Z2dQWTc2aDNQWXg1NnFKZ2hIMDRnU0RHRWpqVjV2VEJZVkEzUnR6QnczbXIxeFZhNXBMeUJOUW04NWI4MUtNdWhrVXhWNTlkN1lEMkRxcU5NbWVOLWNTd29aWk9feDdHY1JXb1NFbXZYeXNSLW5zYU5mSlpGMXc3RGlBalBCMG9iMFY]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/r/GoldandBlack/.json?limit=1024
+    uri: https://www.reddit.com/r/GoldandBlack/.json?limit=1024
   response:
     body:
       string: !!binary |

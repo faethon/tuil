@@ -7,7 +7,7 @@ interactions:
       Connection: [keep-alive]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.7.2 b'Darwin-17.7.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/r/python/.json?limit=1024
+    uri: https://www.reddit.com/r/python/.json?limit=1024
   response:
     body:
       string: !!binary |
@@ -852,7 +852,7 @@ interactions:
       Cookie: [edgebucket=WcMY2WYW7rR6xpUuvC]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.7.2 b'Darwin-17.7.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/r/all/.json?limit=1024
+    uri: https://www.reddit.com/r/all/.json?limit=1024
   response:
     body:
       string: !!binary |

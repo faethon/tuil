@@ -7,7 +7,7 @@ interactions:
       Connection: [keep-alive]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Linux-4.4.154-1-MANJARO-x86_64-with-arch-Manjaro-Linux']
     method: GET
-    uri: https://api.reddit.com/user/spez/comments.json?sort=new&t=all&limit=1024
+    uri: https://www.reddit.com/user/spez/comments.json?sort=new&t=all&limit=1024
   response:
     body:
       string: !!binary |

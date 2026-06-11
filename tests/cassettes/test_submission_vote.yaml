@@ -206,7 +206,7 @@ interactions:
           session_tracker=sXPaS27CCkk96VpNOT.0.1505364062834.Z0FBQUFBQlp1Z2hlcmhjSkZEbV9WSWk2RTY2cFNwT3JNZjRoT3VVNldtcTRhX0FwcERxRUs1M2k5YmxSdjJCV2hKZkV0cTNNN1RmQnM5RDVhMzgxclNxcmhVRXNFcmVkdUxBUVdRRWVlbEJkVkRxM1lTOU14OTVFTUxmaVdlNHU0ZVp2bFMwWEJzRHY]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: POST
-    uri: https://api.reddit.com/api/v1/access_token/
+    uri: https://www.reddit.com/api/v1/access_token/
   response:
     body: {string: '{"access_token": "JYW8aCIX0uogl0aQtq3xgPv7RPg", "token_type":
         "bearer", "device_id": "None", "expires_in": 3600, "scope": "edit history

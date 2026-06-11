@@ -926,7 +926,7 @@ interactions:
           session_tracker=QSl2I5eKRmR4NPLPIn.0.1505363858367.Z0FBQUFBQlp1Z2VUUnRWSWtWVThQelVoclVaMmFnck1qTmdLekxFaXBFdlZsajFVSGJ3MjVBamtzVlFIRWdtTWRGenlWcUhmN2w4WmtxOXdJZTVBa0EtM0F0RWJvV3QxSENSNk1jNWVJZzFickdJeURFT1ZabXV2Z056Q1VFOEtPZjVjaHRiSDZSR0Q]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: POST
-    uri: https://api.reddit.com/api/morechildren/.json
+    uri: https://www.reddit.com/api/morechildren/.json
   response:
     body:
       string: !!binary |

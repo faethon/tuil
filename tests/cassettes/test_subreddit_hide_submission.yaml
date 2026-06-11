@@ -7,7 +7,7 @@ interactions:
       Connection: [keep-alive]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.5 b'Darwin-17.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/r/python/.json?limit=1024
+    uri: https://www.reddit.com/r/python/.json?limit=1024
   response:
     body:
       string: !!binary |
@@ -917,7 +917,7 @@ interactions:
       Cookie: [edgebucket=QaS8jO3WB5zmTjaONd]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.5 b'Darwin-17.5.0-x86_64-i386-64bit']
     method: POST
-    uri: https://api.reddit.com/api/v1/access_token/
+    uri: https://www.reddit.com/api/v1/access_token/
   response:
     body: {string: '{"access_token": "36515184-C5ocL2ExpQrQbniJWln8hbL6OYo", "token_type":
         "bearer", "expires_in": 3600, "scope": "edit history identity mysubreddits

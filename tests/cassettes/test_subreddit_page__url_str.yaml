@@ -11,7 +11,7 @@ interactions:
       User-Agent:
       - tuir test suite PRAW/3.6.1 Python/3.6.8 b'Linux-5.2.2-gentoo-x86_64-AMD_FX-tm-8320_Eight-Core_Processor-with-gentoo-2.6'
     method: GET
-    uri: https://api.reddit.com/r/python/.json?limit=1024
+    uri: https://www.reddit.com/r/python/.json?limit=1024
   response:
     body:
       string: !!binary |

@@ -655,7 +655,7 @@ def test_content_cache(reddit):
     # A standard 200 response should be added to the cache
     next(reddit.get_subreddit('python').get_hot())
     request = list(reddit.handler.cache.values())[0]
-    assert request.url == 'https://api.reddit.com/r/python/.json'
+    assert request.url == 'https://www.reddit.com/r/python/.json'
 
     # Clearing the cache should remove the request
     reddit.handler.cache.clear()
@@ -665,7 +665,7 @@ def test_content_cache(reddit):
     assert reddit.handler.cache
 
     # Evicting the cache should also remove the entry
-    reddit.handler.evict('https://api.reddit.com/r/python')
+    reddit.handler.evict('https://www.reddit.com/r/python')
     assert not reddit.handler.cache
 
 

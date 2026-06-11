@@ -7,7 +7,7 @@ interactions:
       Connection: [keep-alive]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/u/multi-mod/m/art/search.json?q=PsBattle&sort=top&t=all&restrict_sr=on
+    uri: https://www.reddit.com/u/multi-mod/m/art/search.json?q=PsBattle&sort=top&t=all&restrict_sr=on
   response:
     body: {string: ''}
     headers:
@@ -27,7 +27,7 @@ interactions:
       X-Served-By: [cache-ord1728-ORD]
       X-Timer: ['S1505363973.435594,VS0,VE22']
       cache-control: ['max-age=0, must-revalidate']
-      location: ['https://api.reddit.com/user/multi-mod/m/art/search.json?q=PsBattle&sort=top&t=all&restrict_sr=on']
+      location: ['https://www.reddit.com/user/multi-mod/m/art/search.json?q=PsBattle&sort=top&t=all&restrict_sr=on']
     status: {code: 301, message: Moved Permanently}
 - request:
     body: null
@@ -37,7 +37,7 @@ interactions:
       Connection: [keep-alive]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/user/multi-mod/m/art/search.json?q=PsBattle&sort=top&t=all&restrict_sr=on
+    uri: https://www.reddit.com/user/multi-mod/m/art/search.json?q=PsBattle&sort=top&t=all&restrict_sr=on
   response:
     body:
       string: !!binary |

@@ -1299,7 +1299,7 @@ interactions:
       User-Agent:
       - tuir test suite PRAW/3.6.1 Python/3.13.3 b'Linux-6.14.6_1-x86_64-with-glibc2.41'
     method: GET
-    uri: https://api.reddit.com/r/Python/.json?limit=1024
+    uri: https://www.reddit.com/r/Python/.json?limit=1024
   response:
     body:
       string: '{"kind": "Listing", "data": {"after": "t3_1kjnxrz", "dist": 102, "modhash":

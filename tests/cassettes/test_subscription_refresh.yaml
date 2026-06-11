@@ -7,7 +7,7 @@ interactions:
       Connection: [keep-alive]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/subreddits/popular/.json?limit=1024
+    uri: https://www.reddit.com/subreddits/popular/.json?limit=1024
   response:
     body:
       string: !!binary |
@@ -5644,7 +5644,7 @@ interactions:
           session_tracker=ayCzcTl3V1JRlAzJSe.0.1505364213194.Z0FBQUFBQlp1Z2oxV0pxMWx4M0tlWjZqczk3WjVxX3FYRktvdjl5c1dTcFJrQi1KeXJKQ1dpU3hvVDVtZGtnU0dFLTdqTTdnLXdWZG95RGd3RXhCSkpwSTNjaHN0TEl2UlctTEU3aFVocVpyRkJpa0o1Q3FuVHE0SUthUDlicTZzWVBKYnhVeHcyMVA]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/subreddits/popular/.json?limit=1024
+    uri: https://www.reddit.com/subreddits/popular/.json?limit=1024
   response:
     body:
       string: !!binary |

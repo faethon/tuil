@@ -10,7 +10,7 @@ interactions:
       Content-Type: [application/x-www-form-urlencoded]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.7.2 b'Darwin-17.7.0-x86_64-i386-64bit']
     method: POST
-    uri: https://api.reddit.com/api/v1/access_token/
+    uri: https://www.reddit.com/api/v1/access_token/
   response:
     body: {string: '{"access_token": "36515184-pBhRriYNSkrfqWXE7z1R_Q2Rw7c", "token_type":
         "bearer", "expires_in": 3600, "scope": "edit history identity mysubreddits

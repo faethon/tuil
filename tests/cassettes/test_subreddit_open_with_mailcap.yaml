@@ -7,7 +7,7 @@ interactions:
       Connection: [keep-alive]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/r/python/.json?limit=1024
+    uri: https://www.reddit.com/r/python/.json?limit=1024
   response:
     body:
       string: !!binary |
@@ -701,7 +701,7 @@ interactions:
           session_tracker=rZQi5DOQdkjlLoArOn.0.1505364085911.Z0FBQUFBQlp1Z2gybnJZT1k1cnNqZWxRcmlMekw2d3J1aUdhZG05clF1V1F4bzJIOTRwN3FWT0NQMWRzMkE4cko1clpPcktaSGVnQjkwQzF2U09pWEZHdVVaUHE5TzhDaUlDNTRNQVJXeTBjakJKaVpUYkJoQThPWFRVNGRYVk0taHZZS2xEYlVVVjY]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/r/python/.json?limit=1024
+    uri: https://www.reddit.com/r/python/.json?limit=1024
   response:
     body:
       string: !!binary |
@@ -1386,7 +1386,7 @@ interactions:
           session_tracker=rZQi5DOQdkjlLoArOn.0.1505364087359.Z0FBQUFBQlp1Z2gzZDc0dDBFTllkd2gtYV9nb0xuVTI1SmZxUFVmWVRsQkRSNzB3RHpCT00tYjJmMXdLdk5HbmZjWnljdFl3WjIwcG9tNHlKbmFZYkt2S0tjWDZKaDRwUmIwUnh2bWFkOWpqRUxTQi1Ebi01V1lya1VxYVpQdFIwa2QyZE9EVElKdy0]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/.json?limit=1024
+    uri: https://www.reddit.com/.json?limit=1024
   response:
     body:
       string: !!binary |

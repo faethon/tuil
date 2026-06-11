@@ -7,7 +7,7 @@ interactions:
       Connection: [keep-alive]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.6.1 b'Darwin-14.5.0-x86_64-i386-64bit']
     method: GET
-    uri: https://api.reddit.com/r/pics/top.json?t=day&limit=1024
+    uri: https://www.reddit.com/r/pics/top.json?t=day&limit=1024
   response:
     body:
       string: !!binary |
