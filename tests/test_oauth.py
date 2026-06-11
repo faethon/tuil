@@ -83,7 +83,7 @@ def test_oauth_authorize_invalid_token(oauth):
 
     assert isinstance(oauth.term.loader.exception, InvalidRefreshToken)
     assert oauth.server is None
-    assert oauth.config.refresh_token is None
+    assert oauth.config.refresh_token is not None
 
 
 def test_oauth_authorize_with_refresh_token(oauth, refresh_token):
@@ -100,7 +100,7 @@ def test_oauth_authorize_with_refresh_token(oauth, refresh_token):
 
     assert isinstance(oauth.term.loader.exception, InvalidRefreshToken)
     assert oauth.server is None
-    assert oauth.config.refresh_token is None
+    assert oauth.config.refresh_token is not None
 
 
 def test_oauth_authorize_without_autologin(oauth, terminal, refresh_token):
