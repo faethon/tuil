@@ -181,7 +181,7 @@ class Config(object):  # pylint: disable=R0903
                  'user':                'user/{user}/',
                  'user_about':          'user/{user}/about/',
                  'username_available':  'api/username_available/',
-                 'vote':                'api/vote/',
+                 'vote':                'api/vote',
                  'wiki_edit':           'api/wiki/edit/',
                  'wiki_page':           'r/{subreddit}/wiki/{page}',  # No /
                  'wiki_page_editor':    ('r/{subreddit}/api/wiki/alloweditor/'
