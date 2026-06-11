@@ -81,3 +81,4 @@ TUIR Contributors
 * `brokenpip3 <https://gitlab.com/brokenpip3>`_
 * `Alexander Seiler <https://github.com/goggle>`_
 * `faethon <https://gitlab.com/faethon>`_
+* others
