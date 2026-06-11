@@ -5,10 +5,6 @@ A text-based interface (TUI) to view and interact with Reddit from your terminal
 </p>
 
 <p align="center">
-  <strong>TUIR is a fork of rtv, which <a href="https://github.com/michael-lazar/rtv">was maintained by Michael Lazar</a> until February 2023</strong><br>
-</p>
-
-<p align="center">
 <img alt="title image" src="resources/title_image.png"/>
 </p>
 
@@ -20,21 +16,31 @@ A text-based interface (TUI) to view and interact with Reddit from your terminal
     <img alt="gitlab-ci" src="https://gitlab.com/Chocimier/tuir/badges/master/pipeline.svg"/>
   </a>
   <img alt="coverage" src="https://gitlab.com/Chocimier/tuir/badges/master/coverage.svg"/>
-<!-- <a href="https://repology.org/project/tuir/versions">
-    <img src="https://repology.org/badge/tiny-repos/tuir.svg" alt="Packaging status">
-  </a> -->
 </p>
 
 ## Table of Contents
 
+* [June 2026 news](#june-2026-news)
 * [Installation](#installation)
 * [Migration from RTV](#migration-from-rtv)
 * [Usage](#usage)
 * [Settings](#settings)
 * [Themes](#themes)
 * [FAQ](#faq)
-* [Contributing](#contributing)
+* [Contributing](#current-development-status)
 * [License](#license)
+
+
+## June 2026 news
+
+Reddit limited access to their API.
+
+Now, only logged-in browsing is possible. Make sure autologin is set to True in [settings](#settings).
+
+Next, it is not possible to acquire `oauth_client_id` and `oauth_client_secret` from <https://www.reddit.com/prefs/apps/>
+while still needed to provide in settings.
+I filled form to get a shared one.
+In the meantime, if you have few of them, consider sharing one to newcomers.
 
 
 ## Installation
@@ -46,15 +52,6 @@ TUIR is available on [PyPI](https://pypi.python.org/pypi/tuir-continued/) and ca
 ```bash
 $ pip install tuir-continued
 ```
-
-<!-- ### Distro packages
-
-See [Repology](https://repology.org/metapackage/tuir/packages) for an up-to-date list of supported distro packages.
-
-```bash
-# FreeBSD
-$ pkg install rtv
-```-->
 
 ### From source
 
