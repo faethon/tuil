@@ -58,7 +58,7 @@ class Config(object):  # pylint: disable=R0903
     """A class containing the configuration for a reddit site."""
 
     API_PATHS = {'accept_mod_invite':   'api/accept_moderator_invite',
-                 'access_token_url':    'api/v1/access_token/',
+                 'access_token_url':    'https://www.reddit.com/api/v1/access_token',
                  'approve':             'api/approve/',
                  'authorize':           'api/v1/authorize/',
                  'banned':              'r/{subreddit}/about/banned/',
