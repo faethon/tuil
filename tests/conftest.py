@@ -16,6 +16,7 @@ from tuir.content import RequestHeaderRateLimiter
 from tuir.config import Config
 from tuir.packages import praw
 from tuir.terminal import Terminal
+from tuir.empty_page import EmptyPage
 from tuir.subreddit_page import SubredditPage
 from tuir.submission_page import SubmissionPage
 from tuir.subscription_page import SubscriptionPage
@@ -272,6 +273,15 @@ def inbox_page(reddit, terminal, config, oauth, refresh_token):
 
     with terminal.loader():
         page = InboxPage(reddit, terminal, config, oauth)
+    assert terminal.loader.exception is None
+    page.draw()
+    return page
+
+
+@pytest.fixture()
+def empty_page(reddit, terminal, config, oauth, refresh_token):
+    with terminal.loader():
+        page = EmptyPage(reddit, terminal, config, oauth)
     assert terminal.loader.exception is None
     page.draw()
     return page
