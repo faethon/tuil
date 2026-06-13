@@ -135,6 +135,10 @@ BANNER_INBOX = """
 [1]all [2]unread [3]messages [4]comments [5]posts [6]mentions [7]sent
 """
 
+BANNER_EMPTY = """
+[?]Help [q]Quit [/]Prompt [i]Inbox [u]Login
+"""
+
 FOOTER_SUBREDDIT = """
 [?]Help [q]Quit [l]Comments [/]Prompt [u]Login [o]Open [c]Post [a/z]Vote [r]Refresh
 """
@@ -154,6 +158,8 @@ FOOTER_SUBSCRIPTION = """
 FOOTER_INBOX = """
 [?]Help [l]View Context [o]Open Submission [c]Reply [w]Mark Read [r]Refresh
 """
+
+FOOTER_EMPTY = BANNER_EMPTY
 
 TOKEN = "INSTRUCTIONS"
 

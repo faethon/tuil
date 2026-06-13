@@ -1056,6 +1056,30 @@ class InboxContent(Content):
         return data
 
 
+class EmptyContent(Content):
+
+    def __init__(self, loader,
+                 indent_size=2, max_indent_level=8):
+
+        self.name = 'Empty Page'
+        self.order = None
+        self.query = None
+        self.indent_size = indent_size
+        self.max_indent_level = max_indent_level
+        self._loader = loader
+        self._content_data = []
+
+    @property
+    def range(self):
+        return 0, len(self._content_data) - 1
+
+    def get(self, index, n_cols=70):
+        data = {}
+        data['n_rows'] = 1
+        data['h_offset'] = 0
+        return data
+
+
 class RequestHeaderRateLimiter(DefaultHandler):
     """Custom PRAW request handler for rate-limiting requests.
 

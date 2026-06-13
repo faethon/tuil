@@ -41,6 +41,7 @@ from .oauth import OAuthHelper
 from .terminal import Terminal
 from .content import RequestHeaderRateLimiter
 from .objects import curses_session, patch_webbrowser, replace_domain
+from .empty_page import EmptyPage
 from .subreddit_page import SubredditPage
 from .submission_page import SubmissionPage
 from .exceptions import ConfigError, SubredditError, SubmissionError
@@ -262,6 +263,8 @@ def main():
             with term.loader('Loading subreddit'):
                 try:
                     page = SubredditPage(reddit, term, config, oauth, name)
+                except praw.errors.Forbidden as e:
+                    page = EmptyPage(reddit, term, config, oauth)
                 except Exception as e:
                     # If we can't load the subreddit that was requested, try
                     # to load the "popular" page instead so at least the
