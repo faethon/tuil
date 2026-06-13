@@ -773,7 +773,7 @@ interactions:
       Cookie: [edgebucket=CK2vz0CRJGSndiGfGp]
       User-Agent: [tuir test suite PRAW/3.6.1 Python/3.7.0 b'Darwin-17.7.0-x86_64-i386-64bit']
     method: POST
-    uri: https://www.reddit.com/api/v1/access_token/
+    uri: https://www.reddit.com/api/v1/access_token
   response:
     body: {string: '{"access_token": "36515184-FBx26-6StXufu99xoMzZF7zj620", "token_type":
         "bearer", "expires_in": 3600, "scope": "edit history identity mysubreddits
