@@ -2,6 +2,7 @@
 RTV/TUIR Changelog
 ==================
 
+.. _1.32.2: https://gitlab.com/Chocimier/tuir/tree/v1.32.2
 .. _1.32.1: https://gitlab.com/Chocimier/tuir/tree/v1.32.1
 .. _1.32.0: https://gitlab.com/Chocimier/tuir/tree/v1.32.0
 .. _1.31.1: https://gitlab.com/Chocimier/tuir/tree/v1.31.1
@@ -51,6 +52,14 @@ RTV/TUIR Changelog
 .. _1.2.2: http://github.com/michael-lazar/rtv/releases/tag/v1.2.2
 .. _1.2.1: http://github.com/michael-lazar/rtv/releases/tag/v1.2.1
 .. _1.2: http://github.com/michael-lazar/rtv/releases/tag/v1.2
+
+--------------------
+1.32.2_ (2026-06-13)
+--------------------
+
+Features
+
+* Add empty page to make logging in possible
 
 --------------------
 1.32.1_ (2026-06-11)
