@@ -6,6 +6,7 @@ Release Checklist
 3. Update the release notes in the [CHANGELOG.rst](CHANGELOG.rst).
 4. Update the contributor list by running [``scripts/build_authors.py``](scripts/build_authors.py).
 5. Re-generate the manpage by running [``scripts/build_manpage.py``](scripts/build_manpage.py).
+5. Run tests with [``scripts/ci.sh``](scripts/ci.sh).
 6. Commit all changes to the correct branch and tag the correct commit with its version.
 7. Clean out any old build/release files by running [``scripts/pip_clean.sh``](scripts/pip_clean.sh).
 8. Build the source tarball and binary wheel: ``$ python3 setup.py sdist bdist_wheel``
