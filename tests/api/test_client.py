@@ -638,18 +638,16 @@ def test_comment_actions():
     assert json.loads(responses.calls[-1].request.body) == {
         'comment_id': comment_id, 'save': True}
 
-    client.create_comment(view['post']['id'], 'hello', parent_id=comment_id,
-                          language_id=0)
+    client.create_comment(view['post']['id'], 'hello', parent_id=comment_id)
     assert json.loads(responses.calls[-1].request.body) == {
         'post_id': view['post']['id'],
         'content': 'hello',
         'parent_id': comment_id,
-        'language_id': 0,
     }
 
-    client.edit_comment(comment_id, 'edited', language_id=0)
+    client.edit_comment(comment_id, 'edited')
     assert json.loads(responses.calls[-1].request.body) == {
-        'comment_id': comment_id, 'content': 'edited', 'language_id': 0}
+        'comment_id': comment_id, 'content': 'edited'}
 
     client.delete_comment(comment_id)
     assert json.loads(responses.calls[-1].request.body) == {

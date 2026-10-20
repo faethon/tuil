@@ -16,6 +16,7 @@ Features
 Bugfixes
 
 * Use the v4 comment endpoints on Lemmy 1.0
+* Avoid ``language_not_allowed`` by omitting the default comment language
 * Include the server error cause in API error messages
 
 ------------------

@@ -808,7 +808,9 @@ class LemmyClient(object):
         }
         if parent_id is not None:
             data['parent_id'] = self._comment_id(parent_id)
-        language_id = self._language_id(language_id)
+        # Let Lemmy inherit the post or parent comment language.  Sending the
+        # site default can fail with language_not_allowed when a community
+        # restricts languages.
         if language_id is not None:
             data['language_id'] = language_id
         response = self._http.post(
@@ -822,7 +824,6 @@ class LemmyClient(object):
             'comment_id': self._comment_id(comment_id),
             'content': content,
         }
-        language_id = self._language_id(language_id)
         if language_id is not None:
             data['language_id'] = language_id
         response = self._http.put(

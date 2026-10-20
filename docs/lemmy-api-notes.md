@@ -276,8 +276,11 @@ Notes:
   while `all_languages` is a list of objects.
 - Private messages have no subject field. tuir's compose flow needs to drop
   the subject prompt for Lemmy.
-- Creating posts and comments requires `language_id`; use the site's default
-  discussion language or expose a config option.
+- Creating posts requires `language_id`; use the site's default or expose a
+  config option.  For comments, omit `language_id` unless the user explicitly
+  chooses one.  Lemmy inherits the post or parent comment language, and sending
+  the site default can fail with `language_not_allowed` when the community
+  restricts languages.
 
 ## Sort mapping
 
