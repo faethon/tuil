@@ -20,7 +20,7 @@ Features
 * Use the v4 API for community, post and user listings, inbox, private
   messages, saved, liked and hidden content on Lemmy 1.0
 * Resolve bare names for remote communities and users through search
-* Read legacy tuir configuration files and section names
+* Read legacy tuir configuration files, mailcap and themes
 * Hide and unhide posts on Lemmy 1.0
 * Use Lemmy terminology and ``/c/`` community paths throughout the interface
 

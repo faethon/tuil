@@ -493,6 +493,20 @@ def test_terminal_load_mailcaps(stdscr, config):
                 os.environ['MAILCAPS'] = env_mailcaps
 
 
+def test_terminal_loads_legacy_mailcap(stdscr, config, tmp_path):
+    legacy = tmp_path / 'mailcap'
+    legacy.write_text(
+        "image/x-test; true '%s'\n",
+        encoding='utf-8')
+    config.MAILCAP = str(tmp_path / 'missing-mailcap')
+    config.LEGACY_MAILCAP = str(legacy)
+
+    term = Terminal(stdscr, config=config)
+    term._load_mailcaps()
+
+    assert 'image/x-test' in term._mailcap_dict
+
+
 def test_terminal_open_browser_display(terminal):
 
     terminal._display = True

@@ -318,6 +318,8 @@ class Theme(object):
         themes.extend([Theme(use_color=True), Theme(use_color=False)])
         load_themes(Config.DEFAULT_THEMES, 'preset')
         load_themes(path, 'installed')
+        if path == Config.THEMES:
+            load_themes(Config.LEGACY_THEMES, 'installed')
 
         return themes, errors
 
@@ -377,6 +379,12 @@ class Theme(object):
         filename = os.path.join(path, '{0}.cfg'.format(name))
         if os.path.isfile(filename):
             return cls.from_file(filename, 'installed')
+
+        if path == Config.THEMES:
+            filename = os.path.join(
+                Config.LEGACY_THEMES, '{0}.cfg'.format(name))
+            if os.path.isfile(filename):
+                return cls.from_file(filename, 'installed')
 
         filename = os.path.join(Config.DEFAULT_THEMES, '{0}.cfg'.format(name))
         if os.path.isfile(filename):

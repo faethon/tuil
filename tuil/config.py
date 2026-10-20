@@ -33,9 +33,11 @@ class Config(object):
     CONFIG = os.path.join(TUIL_CONFIG_HOME, 'tuil.cfg')
     LEGACY_CONFIG = os.path.join(XDG_CONFIG_HOME, 'tuir', 'tuir.cfg')
     MAILCAP = os.path.join(TUIL_CONFIG_HOME, 'mailcap')
+    LEGACY_MAILCAP = os.path.join(XDG_CONFIG_HOME, 'tuir', 'mailcap')
     TOKEN = os.path.join(TUIL_DATA_HOME, 'token')
     HISTORY = os.path.join(TUIL_DATA_HOME, 'history.log')
     THEMES = os.path.join(TUIL_CONFIG_HOME, 'themes')
+    LEGACY_THEMES = os.path.join(XDG_CONFIG_HOME, 'tuir', 'themes')
 
     COMPACT_FORMAT = "%t\n" \
             "<%i|%s%v|%cC> %r%e %a %S %F"

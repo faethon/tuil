@@ -112,6 +112,9 @@ class Terminal(object):
             return
         mailcap = import_mailcap()
         mailcap_file = self.config.MAILCAP
+        if (not os.path.exists(mailcap_file)
+                and os.path.exists(self.config.LEGACY_MAILCAP)):
+            mailcap_file = self.config.LEGACY_MAILCAP
 
         if not os.path.exists(mailcap_file):
             self._mailcap_dict = mailcap.getcaps()

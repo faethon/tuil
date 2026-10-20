@@ -139,6 +139,10 @@ $ tuil --copy-mailcap
 Then enable the feature with `--enable-media` or by setting `enable_media = True`
 in `tuil.cfg`.
 
+An existing `~/.config/tuir/mailcap` or `~/.mailcap` is also read, so a tuir
+mailcap can be reused without copying it. To point to a file elsewhere, set
+the `MAILCAPS` environment variable to its path.
+
 ### Environment variables
 
 - `TUIL_EDITOR` - editor used for posts, comments and messages
@@ -153,8 +157,9 @@ programs. The clipboard command is configured with `clipboard_cmd` in
 
 List the installed themes with `tuil --list-themes`, select one with
 `tuil --theme NAME`, or cycle through them in the app with <kbd>F2</kbd> and
-<kbd>F3</kbd>. Theme files use the same attribute names as tuir; see
-[THEMES.md](THEMES.md).
+<kbd>F3</kbd>. Themes in `~/.config/tuil/themes` and the old
+`~/.config/tuir/themes` are both loaded. Theme files use the same attribute
+names as tuir; see [THEMES.md](THEMES.md).
 
 ## Development
 

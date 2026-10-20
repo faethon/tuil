@@ -113,6 +113,19 @@ def test_theme_element_selected_attributes():
     assert '@TitleBar' not in theme.elements
 
 
+def test_theme_legacy_directory(tmp_path, monkeypatch):
+    theme_file = tmp_path / 'legacy.cfg'
+    theme_file.write_text(
+        '[theme]\nUpvote = blue - bold\n',
+        encoding='utf-8')
+    monkeypatch.setattr(Config, 'LEGACY_THEMES', str(tmp_path))
+
+    theme = Theme.from_name('legacy')
+
+    assert theme.name == 'legacy'
+    assert theme.source == 'installed'
+
+
 def test_theme_default_cfg_matches_builtin():
 
     filename = os.path.join(Config.DEFAULT_THEMES, 'default.cfg.example')
