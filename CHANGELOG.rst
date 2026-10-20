@@ -6,7 +6,15 @@ TUIL is a Lemmy fork of tuir. The releases below 0.1.0 are inherited from
 tuir and RTV.
 
 ------------------
-0.1.0 (unreleased)
+0.1.1 (unreleased)
+------------------
+
+Features
+
+* Show the instance or ``user@instance`` in the title bar
+
+------------------
+0.1.0 (2026-10-20)
 ------------------
 
 Features
@@ -23,7 +31,6 @@ Features
 * Read legacy tuir configuration files, mailcap and themes
 * Hide and unhide posts on Lemmy 1.0
 * Use Lemmy terminology and ``/c/`` community paths throughout the interface
-* Show the instance or ``user@instance`` in the title bar
 
 Known limitations
 
