@@ -9,6 +9,12 @@ for Reddit. The layout, key bindings and configuration format are intentionally
 kept close to tuir. The Reddit/PRAW backend has been replaced with a native
 Lemmy API client.
 
+## DISCLAIMER 
+Development was made with the support of AI, including replacing the Reddit (PRAW)
+API calls with API calls for Lemmy. I made this tuir variant for Lemmy for personal 
+use. Everyone is free to use it if you find it useful. Don't blame me for
+using AI if that upsets you.
+
 ## Status
 
 TUIL is in early development and supports:
@@ -182,9 +188,6 @@ List the installed themes with `tuil --list-themes`, select one with
 names as tuir; see [THEMES.md](THEMES.md).
 
 ## Development
-
-Development was made with the support of AI, including reimplementing the
-Reddit API calls for Lemmy.
 
 ```bash
 $ .venv/bin/python -m pytest -q
