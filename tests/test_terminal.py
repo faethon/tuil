@@ -9,12 +9,12 @@ from textwrap import dedent
 import six
 import pytest
 
-from tuir.theme import Theme
-from tuir.terminal import Terminal
-from tuir.docs import (HELP, REPLY_FILE, COMMENT_EDIT_FILE, TOKEN,
+from tuil.theme import Theme
+from tuil.terminal import Terminal
+from tuil.docs import (HELP, REPLY_FILE, COMMENT_EDIT_FILE, TOKEN,
                       SUBMISSION_FILE, SUBMISSION_EDIT_FILE, MESSAGE_FILE)
-from tuir.exceptions import TemporaryFileError, BrowserError
-from tuir.objects import codecs_open
+from tuil.exceptions import TemporaryFileError, BrowserError
+from tuil.objects import codecs_open
 
 try:
     from unittest import mock
@@ -30,13 +30,13 @@ def test_terminal_properties(terminal, config):
     assert isinstance(terminal.gilded, six.text_type)
 
     terminal._display = None
-    with mock.patch('tuir.terminal.sys') as sys, \
+    with mock.patch('tuil.terminal.sys') as sys, \
             mock.patch.dict('os.environ', {'DISPLAY': ''}):
         sys.platform = 'linux'
         assert terminal.display is False
 
     terminal._display = None
-    with mock.patch('tuir.terminal.sys') as sys, \
+    with mock.patch('tuil.terminal.sys') as sys, \
             mock.patch('os.environ', {'DISPLAY': ''}), \
             mock.patch('webbrowser._tryorder', new=[]):
         sys.platform = 'darwin'
@@ -370,7 +370,7 @@ def test_terminal_open_link_mailcap(terminal):
     mock_mime_parser = MockMimeParser()
 
     with mock.patch.object(terminal, 'open_browser'), \
-            mock.patch('tuir.terminal.mime_parsers') as mime_parsers:
+            mock.patch('tuil.terminal.mime_parsers') as mime_parsers:
         mime_parsers.parsers = [mock_mime_parser]
 
         # Pass through to open_browser if media is disabled
@@ -511,7 +511,7 @@ def test_terminal_open_browser_display(terminal):
 def test_terminal_open_browser_display_no_response(terminal):
 
     terminal._display = True
-    with mock.patch('tuir.terminal.Process', autospec=True) as Process:
+    with mock.patch('tuil.terminal.Process', autospec=True) as Process:
         Process.return_value.is_alive.return_value = 1
         terminal.open_browser('http://www.test.com')
     assert isinstance(terminal.loader.exception, BrowserError)

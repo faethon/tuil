@@ -4,7 +4,7 @@ include AUTHORS.rst
 include README.md
 include COPYING
 include LICENSE.MIT
-include tuir/packages/mailcap/LICENSE
-include tuir.1
-include tuir/templates/*
-include tuir/themes/*
+include tuil/packages/mailcap/LICENSE
+include tuil.1
+include tuil/templates/*
+include tuil/themes/*

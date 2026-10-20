@@ -1,4 +1,4 @@
-from tuir import packages
+from tuil import packages
 
 
 def test_praw3_package():

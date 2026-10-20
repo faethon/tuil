@@ -6,14 +6,14 @@ desktop:https://gitlab.com/Chocimier/tuir:{version}\
 """
 
 SUMMARY = """
-TUIR (Terminal UI for Reddit) is a terminal interface to view and interact with reddit.
+TUIL (Terminal UI for Reddit) is a terminal interface to view and interact with reddit.
 """
 
 USAGE = """\
-tuir [URL] [-s SUBREDDIT]
+tuil [URL] [-s SUBREDDIT]
 
-  $ tuir https://www.reddit.com/r/programming/comments/7h9l31
-  $ tuir -s linux
+  $ tuil https://www.reddit.com/r/programming/comments/7h9l31
+  $ tuil -s linux
 """
 
 CONTROLS = """

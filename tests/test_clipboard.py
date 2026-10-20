@@ -5,8 +5,8 @@ import sys
 
 import pytest
 
-from tuir.clipboard import copy
-from tuir.exceptions import ProgramError
+from tuil.clipboard import copy
+from tuil.exceptions import ProgramError
 
 
 try:

@@ -21,18 +21,18 @@ class Config(object):
     PACKAGE = os.path.dirname(__file__)
     HOME = os.path.expanduser('~')
     TEMPLATES = os.path.join(PACKAGE, 'templates')
-    DEFAULT_CONFIG = os.path.join(TEMPLATES, 'tuir.cfg')
+    DEFAULT_CONFIG = os.path.join(TEMPLATES, 'tuil.cfg')
     DEFAULT_MAILCAP = os.path.join(TEMPLATES, 'mailcap')
     DEFAULT_THEMES = os.path.join(PACKAGE, 'themes')
     XDG_CONFIG_HOME = os.getenv('XDG_CONFIG_HOME', os.path.join(HOME, '.config'))
     XDG_DATA_HOME = os.getenv('XDG_DATA_HOME', os.path.join(HOME, '.local', 'share'))
-    TUIR_CONFIG_HOME = os.path.join(XDG_CONFIG_HOME, 'tuir')
-    TUIR_DATA_HOME = os.path.join(XDG_DATA_HOME, 'tuir')
-    CONFIG = os.path.join(TUIR_CONFIG_HOME, 'tuir.cfg')
-    MAILCAP = os.path.join(TUIR_CONFIG_HOME, 'mailcap')
-    TOKEN = os.path.join(TUIR_DATA_HOME, 'refresh-token')
-    HISTORY = os.path.join(TUIR_DATA_HOME, 'history.log')
-    THEMES = os.path.join(TUIR_CONFIG_HOME, 'themes')
+    TUIL_CONFIG_HOME = os.path.join(XDG_CONFIG_HOME, 'tuil')
+    TUIL_DATA_HOME = os.path.join(XDG_DATA_HOME, 'tuil')
+    CONFIG = os.path.join(TUIL_CONFIG_HOME, 'tuil.cfg')
+    MAILCAP = os.path.join(TUIL_CONFIG_HOME, 'mailcap')
+    TOKEN = os.path.join(TUIL_DATA_HOME, 'refresh-token')
+    HISTORY = os.path.join(TUIL_DATA_HOME, 'history.log')
+    THEMES = os.path.join(TUIL_CONFIG_HOME, 'themes')
 
     COMPACT_FORMAT = "%t\n" \
             "<%i|%s%v|%cC> %r%e %a %S %F"
@@ -121,7 +121,7 @@ class Config(object):
     @classmethod
     def get_file(cls, filename=None):
         """
-        Load settings from an tuir configuration file.
+        Load settings from an tuil configuration file.
         """
 
         if filename is None:
@@ -137,19 +137,19 @@ class Config(object):
                     read_method = config.readfp  # pylint: disable=E1101
                 read_method(fp)
 
-        return cls._parse_tuir_file(config)
+        return cls._parse_tuil_file(config)
 
     @staticmethod
-    def _parse_tuir_file(config):
-        tuir = {}
+    def _parse_tuil_file(config):
+        tuil = {}
         section = ''
 
-        if config.has_section('tuir'):
-            tuir = dict(config.items('tuir'))
-            section = 'tuir'
+        if config.has_section('tuil'):
+            tuil = dict(config.items('tuil'))
+            section = 'tuil'
         elif config.has_section('rtv'):
             # Backwards compatibility for rtv configs, bug #13
-            tuir = dict(config.items('rtv'))
+            tuil = dict(config.items('rtv'))
             section = 'rtv'
 
         # convert non-string params to their typed representation
@@ -162,7 +162,7 @@ class Config(object):
             'enable_media': partial(config.getboolean, section),
             'history_size': partial(config.getint, section),
             'oauth_redirect_port': partial(config.getint, section),
-            'oauth_scope': lambda x: tuir[x].split(','),
+            'oauth_scope': lambda x: tuil[x].split(','),
             'max_comment_cols': partial(config.getint, section),
             'max_pager_cols': partial(config.getint, section),
             'hide_username': partial(config.getboolean, section),
@@ -172,9 +172,9 @@ class Config(object):
         }
 
         for key, func in params.items():
-            if key in tuir:
+            if key in tuil:
                 try:
-                    tuir[key] = func(key)
+                    tuil[key] = func(key)
                 except:
                     import pdb; pdb.set_trace()
                     raise
@@ -186,7 +186,7 @@ class Config(object):
         for name, keys in bindings.items():
             bindings[name] = [key.strip() for key in keys.split(',')]
 
-        return tuir, bindings
+        return tuil, bindings
 
     @staticmethod
     def _ensure_filepath(filename):
@@ -201,7 +201,7 @@ class Config(object):
 
 def build_parser():
     parser = argparse.ArgumentParser(
-        prog='tuir', description=docs.SUMMARY,
+        prog='tuil', description=docs.SUMMARY,
         epilog=docs.CONTROLS,
         usage=docs.USAGE,
         formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -246,7 +246,7 @@ def build_parser():
         help='The user for this session; simple multi-account support')
     parser.add_argument(
         '--copy-config', dest='copy_config', action='store_const', const=True,
-        help='Copy the default configuration to {HOME}/.config/tuir/tuir.cfg')
+        help='Copy the default configuration to {HOME}/.config/tuil/tuil.cfg')
     parser.add_argument(
         '--copy-mailcap', dest='copy_mailcap', action='store_const', const=True,
         help='Copy an example mailcap configuration to {HOME}/.mailcap')
@@ -254,7 +254,7 @@ def build_parser():
         '--enable-media', dest='enable_media', action='store_const', const=True,
         help='Open external links using programs defined in the mailcap config')
     parser.add_argument(
-        '-V', '--version', action='version', version='tuir ' + __version__)
+        '-V', '--version', action='version', version='tuil ' + __version__)
     parser.add_argument(
         '--no-flash', dest='flash', action='store_const', const=False,
         help='Disable screen flashing')
@@ -273,7 +273,7 @@ def copy_default_mailcap(filename=Config.MAILCAP):
 
 def copy_default_config(filename=Config.CONFIG):
     """
-    Copy the default tuir user configuration to the specified file.
+    Copy the default tuil user configuration to the specified file.
     """
     return _copy_settings_file(Config.DEFAULT_CONFIG, filename, 'config')
 

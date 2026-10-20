@@ -56,7 +56,7 @@ def open_url_silent(url, force_new_browser_window):
     # This used to be done using subprocess.Popen().
     # It was switched to multiprocessing.Process so that we
     # can re-use the webbrowser instance that has been patched
-    # by TUIR. It's also safer because it doesn't inject
+    # by TUIL. It's also safer because it doesn't inject
     # python code through the command line.
 
     # Suppress stdout/stderr from the browser, see
@@ -505,10 +505,10 @@ class Terminal(object):
 
         Most urls are parsed using their file extension, but special cases
         exist for websites that are prevalent on reddit such as Imgur and
-        Gfycat. If there are no valid mailcap definitions, TUIR will fall back
+        Gfycat. If there are no valid mailcap definitions, TUIL will fall back
         to using the default webbrowser.
 
-        TUIR checks for certain mailcap fields to determine how to open a link:
+        TUIL checks for certain mailcap fields to determine how to open a link:
             - If ``copiousoutput`` is specified, the curses application will
               be paused and stdout will be piped to the system pager.
             - If `needsterminal`` is specified, the curses application will
@@ -542,7 +542,7 @@ class Terminal(object):
         copious_output = 'copiousoutput' in entry
 
         if needs_terminal or copious_output:
-            # Blocking, pause tuir until the process returns
+            # Blocking, pause tuil until the process returns
             with self.suspend():
                 os.system('clear')
                 p = subprocess.Popen(
@@ -647,7 +647,7 @@ class Terminal(object):
         http://bugs.python.org/issue22277 for a better description of the
         problem.
 
-        For console browsers (e.g. w3m), TUIR will suspend and display the
+        For console browsers (e.g. w3m), TUIL will suspend and display the
         browser window within the same terminal. This mode is triggered either
         when
 
@@ -691,14 +691,14 @@ class Terminal(object):
     def open_pager(self, data, wrap=None):
         """
         View a long block of text using an external pager / viewer.  The setting
-        of the TUIR_PAGER variable will be used if set, otherwise the system's
-        default pager is chosen, finally defaulting to 'less' if both TUIR_PAGER
+        of the TUIL_PAGER variable will be used if set, otherwise the system's
+        default pager is chosen, finally defaulting to 'less' if both TUIL_PAGER
         and PAGER is unset in the calling environment.
 
         The data string will be piped directly to the pager.
         """
 
-        pager = os.getenv('TUIR_PAGER')
+        pager = os.getenv('TUIL_PAGER')
         if pager is None:
             pager = os.getenv('PAGER') or 'less'
         command = shlex.split(pager)
@@ -738,7 +738,7 @@ class Terminal(object):
             text (str): The text that the user entered into the editor.
         """
 
-        with NamedTemporaryFile(prefix='tuir_', suffix='.txt', delete=False) as fp:
+        with NamedTemporaryFile(prefix='tuil_', suffix='.txt', delete=False) as fp:
             # Create a tempory file and grab the name, but close immediately so
             # we can re-open using the right encoding
             filepath = fp.name
@@ -747,7 +747,7 @@ class Terminal(object):
             fp.write(data)
         _logger.info('File created: %s', filepath)
 
-        editor = (os.getenv('TUIR_EDITOR') or
+        editor = (os.getenv('TUIL_EDITOR') or
                   os.getenv('VISUAL') or
                   os.getenv('EDITOR') or
                   'nano')
@@ -791,7 +791,7 @@ class Terminal(object):
         web browser.
         """
 
-        urlview = os.getenv('TUIR_URLVIEWER') or 'urlview'
+        urlview = os.getenv('TUIL_URLVIEWER') or 'urlview'
         command = shlex.split(urlview)
         try:
             with self.suspend():
@@ -963,7 +963,7 @@ class Terminal(object):
     @staticmethod
     def strip_instructions(text):
         """
-        Remove instructional HTML comment tags inserted by TUIR.
+        Remove instructional HTML comment tags inserted by TUIL.
 
         We used to use # to annotate comments, but it conflicted with the
         header tag for markdown, which some people use to format their posts.

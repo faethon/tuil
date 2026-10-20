@@ -5,7 +5,7 @@ import curses
 
 import pytest
 
-from tuir.page import Page, PageController, logged_in
+from tuil.page import Page, PageController, logged_in
 
 try:
     from unittest import mock

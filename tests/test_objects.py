@@ -11,8 +11,8 @@ import pytest
 import requests
 from six.moves import reload_module
 
-from tuir import exceptions
-from tuir.objects import Controller, Navigator, Command, KeyMap, \
+from tuil import exceptions
+from tuil.objects import Controller, Navigator, Command, KeyMap, \
     curses_session, patch_webbrowser, replace_domain, preferred_reddit_domain
 
 try:

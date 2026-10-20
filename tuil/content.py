@@ -1097,7 +1097,7 @@ class RequestHeaderRateLimiter(DefaultHandler):
 
         # In PRAW's convention, these variables were bound to the
         # class so the cache could be shared among all of the ``reddit``
-        # instances. In TUIR's use-case there is only ever a single reddit
+        # instances. In TUIL's use-case there is only ever a single reddit
         # instance so it made sense to clean up the globals and transfer them
         # to method variables
         self.cache = {}

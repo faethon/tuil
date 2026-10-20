@@ -1,10 +1,10 @@
-.TH "TUIR" "1" "June 13, 2026" "Version 1.32.2" "Usage and Commands"
+.TH "TUIL" "1" "October 20, 2026" "Version 0.1.0" "Usage and Commands"
 .SH NAME
-TUIR - Terminal UI for Reddit
+TUIL - Terminal UI for Reddit
 .SH SYNOPSIS
-tuir [URL] [\-s SUBREDDIT]
+tuil [URL] [\-s SUBREDDIT]
 .SH DESCRIPTION
-TUIR (Terminal UI for Reddit) is a terminal interface to view and interact with reddit.
+TUIL (Terminal UI for Reddit) is a terminal interface to view and interact with reddit.
 .SH OPTIONS
 .TP
 \fBURL\fR
@@ -60,7 +60,7 @@ The user for this session; simple multi\-account support
 
 .TP
 \fB\-\-copy\-config\fR
-Copy the default configuration to {HOME}/.config/tuir/tuir.cfg
+Copy the default configuration to {HOME}/.config/tuil/tuil.cfg
 
 .TP
 \fB\-\-copy\-mailcap\fR
@@ -93,27 +93,27 @@ Press \fBright\fR to view the selected submission and \fBleft\fR to return.
 Press \fB?\fR to open the help screen.
 .SH FILES
 .TP
-.BR $XDG_CONFIG_HOME/tuir/tuir.cfg
+.BR $XDG_CONFIG_HOME/tuil/tuil.cfg
 The configuration file can be used to customize default program settings.
 .TP
-.BR $XDG_DATA_HOME/tuir/refresh-token
+.BR $XDG_DATA_HOME/tuil/refresh-token
 After you login to reddit, your most recent OAuth refresh token will be stored
 for future sessions.
 .TP
-.BR $XDG_DATA_HOME/tuir/history.log
+.BR $XDG_DATA_HOME/tuil/history.log
 This file stores URLs that have been recently opened in order to
 visually highlight them as "seen".
 .SH ENVIRONMENT
 .TP
-.BR TUIR_EDITOR
+.BR TUIL_EDITOR
 Text editor to use when editing comments and submissions. Will fallback to
 \fI$EDITOR\fR.
 .TP
-.BR TUIR_URLVIEWER
+.BR TUIL_URLVIEWER
 Url viewer to use to extract links from comments.  Requires a compatible
 program to be installed.
 .TP
-.BR TUIR_BROWSER
+.BR TUIL_BROWSER
 Web browser to use when opening links. Will fallback to \fI$BROWSER\fR.
 .SH AUTHOR
 Michael Lazar <lazar.michael22@gmail.com> (2017).

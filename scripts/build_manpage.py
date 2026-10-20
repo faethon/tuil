@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Internal tool used to automatically generate an up-to-date version of the tuir
+Internal tool used to automatically generate an up-to-date version of the tuil
 man page. Currently this script should be manually ran after each version bump.
 In the future, it would be nice to have this functionality built into setup.py.
 
@@ -17,8 +17,8 @@ _filepath = os.path.dirname(os.path.relpath(__file__))
 ROOT = os.path.abspath(os.path.join(_filepath, '..'))
 sys.path.insert(0, ROOT)
 
-import tuir
-from tuir import config
+import tuil
+from tuil import config
 
 
 def main():
@@ -30,7 +30,7 @@ def main():
 
     data = {}
     print('Fetching version')
-    data['version'] = tuir.__version__
+    data['version'] = tuil.__version__
     print('Fetching release date')
     data['release_date'] = datetime.utcnow().strftime('%B %d, %Y')
     print('Fetching synopsis')
@@ -65,18 +65,18 @@ def main():
         options += '\n'.join(('.TP', flag, description, '\n'))
     data['options'] = options
     print('Fetching license')
-    data['license'] = tuir.__license__
+    data['license'] = tuil.__license__
     print('Fetching copyright')
-    data['copyright'] = tuir.__copyright__
+    data['copyright'] = tuil.__copyright__
     # Escape dashes is all of the sections
     data = {k: v.replace('-', r'\-') for k, v in data.items()}
-    print('Reading from %s/scripts/tuir.1.template' % ROOT)
-    with open(os.path.join(ROOT, 'scripts/tuir.1.template')) as fp:
+    print('Reading from %s/scripts/tuil.1.template' % ROOT)
+    with open(os.path.join(ROOT, 'scripts/tuil.1.template')) as fp:
         template = fp.read()
     print('Populating template')
     out = template.format(**data)
-    print('Writing to %s/tuir.1' % ROOT)
-    with open(os.path.join(ROOT, 'tuir.1'), 'w') as fp:
+    print('Writing to %s/tuil.1' % ROOT)
+    with open(os.path.join(ROOT, 'tuil.1'), 'w') as fp:
         fp.write(out)
 
 

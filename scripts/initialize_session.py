@@ -3,10 +3,10 @@ Initialize an authenticated instance of PRAW to interact with.
 
 $ python -i initialize_session.py
 """
-from tuir.docs import AGENT
-from tuir.packages import praw
-from tuir.content import RequestHeaderRateLimiter
-from tuir.config import Config
+from tuil.docs import AGENT
+from tuil.packages import praw
+from tuil.content import RequestHeaderRateLimiter
+from tuil.config import Config
 
 config = Config()
 config.load_refresh_token()

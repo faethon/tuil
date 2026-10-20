@@ -2,12 +2,12 @@
 
 ## Installing Themes
 
-You can install custom themes by copying them into your **~/.config/tuir/themes/**
+You can install custom themes by copying them into your **~/.config/tuil/themes/**
 directory. The name of the theme will match the name of the file.
 
 ```
-$ cp my-custom-theme.cfg ~/.config/tuir/themes/
-$ tuir --theme my-custom-theme
+$ cp my-custom-theme.cfg ~/.config/tuil/themes/
+$ tuil --theme my-custom-theme
 ```
 
 If you've created a cool theme and would like to share it with the community,
@@ -31,7 +31,7 @@ Color support on modern terminals can be split into 4 categories:
 The 16 system colors, along with the default foreground and background,
 can usually be customized through your terminal's profile settings. The
 6x6x6 color palette and grayscale colors are constant RGB values across
-all terminals. TUIR's default theme only uses the 8 primary system colors,
+all terminals. TUIL's default theme only uses the 8 primary system colors,
 which is why it matches the "look and feel" of the terminal that you're
 running it in.
 
@@ -62,9 +62,9 @@ it will be set automatically by you terminal. Often, problems with
 terminal colors can be traced back to somebody hardcoding
 ``TERM=xterm-256color`` in their .bashrc file.
 
-## Understanding TUIR Themes
+## Understanding TUIL Themes
 
-Here's an example of what an TUIR theme file looks like:
+Here's an example of what an TUIL theme file looks like:
 
 ```
 [theme]
@@ -162,7 +162,7 @@ Attributes can be mixed together using the + symbol. For example,
 
 ### Modifiers
 
-TUIR themes use special "modifer" elements to define the default
+TUIL themes use special "modifer" elements to define the default
 application style. This allows you to do things like set the default
 background color without needing to set ``<background>`` on every
 single element. The three modifier elements are:

@@ -168,7 +168,7 @@ class OAuthHelper(object):
                 else:
                     if not autologin:
                         # Only show the welcome message if explicitly logging
-                        # in, not when TUIR first launches.
+                        # in, not when TUIL first launches.
                         welcome_message = 'Welcome {}!'.format(self.reddit.user.name)
 
             if welcome_message:

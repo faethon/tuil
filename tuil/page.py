@@ -237,7 +237,7 @@ class Page(object):
         Move the cursor to the last item on the page.
         """
 
-        # If the page is empty, don't try to go to the bottom, tuir will
+        # If the page is empty, don't try to go to the bottom, tuil will
         # crash when rendering
         if self.content.range[1] < 0:
             return
@@ -761,7 +761,7 @@ class Page(object):
         # Setting the terminal title will break emacs or systems without
         # X window.
         if os.getenv('DISPLAY') and not os.getenv('INSIDE_EMACS'):
-            title += ' - tuir {0}'.format(__version__)
+            title += ' - tuil {0}'.format(__version__)
             title = self.term.clean(title)
             if six.PY3:
                 # In py3 you can't write bytes to stdout

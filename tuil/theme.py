@@ -134,10 +134,10 @@ class Theme(object):
             name (str): A unique string that describes the theme
             source (str): A string that describes the source of the theme:
                 built-in - Should only be used when Theme() is called directly
-                preset - Themes packaged with tuir
-                installed - Themes in ~/.config/tuir/themes/
+                preset - Themes packaged with tuil
+                installed - Themes in ~/.config/tuil/themes/
                 custom - When a filepath is explicitly provided, e.g.
-                    ``tuir --theme=/path/to/theme_file.cfg``
+                    ``tuil --theme=/path/to/theme_file.cfg``
             elements (dict): The theme's element map, should be in the same
                 format as Theme.DEFAULT_THEME.
         """

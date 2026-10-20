@@ -14,7 +14,7 @@ r"""
 /_/ |_|\___/\__,_/\__,_/_/\__/
 
 
-(TUIR)
+(TUIL)
 """
 
 from __future__ import unicode_literals

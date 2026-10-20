@@ -10,23 +10,23 @@ class ConfigError(Exception):
     "There was a problem with the configuration"
 
 
-class TUIRError(Exception):
-    "Base TUIR error class"
+class TUILError(Exception):
+    "Base TUIL error class"
 
 
-class AccountError(TUIRError):
+class AccountError(TUILError):
     "Could not access user account"
 
 
-class SubmissionError(TUIRError):
+class SubmissionError(TUILError):
     "Submission could not be loaded"
 
 
-class SubredditError(TUIRError):
+class SubredditError(TUILError):
     "Subreddit could not be loaded"
 
 
-class NoSubmissionsError(TUIRError):
+class NoSubmissionsError(TUILError):
     "No submissions for the given page"
 
     def __init__(self, name):
@@ -35,29 +35,29 @@ class NoSubmissionsError(TUIRError):
         super(NoSubmissionsError, self).__init__(message)
 
 
-class SubscriptionError(TUIRError):
+class SubscriptionError(TUILError):
     "Content could not be fetched"
 
 
-class InboxError(TUIRError):
+class InboxError(TUILError):
     "Content could not be fetched"
 
 
-class ProgramError(TUIRError):
+class ProgramError(TUILError):
     "Problem executing an external program"
 
 
-class BrowserError(TUIRError):
+class BrowserError(TUILError):
     "Could not open a web browser tab"
 
 
-class TemporaryFileError(TUIRError):
+class TemporaryFileError(TUILError):
     "Indicates that an error has occurred and the file should not be deleted"
 
 
-class MailcapEntryNotFound(TUIRError):
+class MailcapEntryNotFound(TUILError):
     "A valid mailcap entry could not be coerced from the given url"
 
 
-class InvalidRefreshToken(TUIRError):
+class InvalidRefreshToken(TUILError):
     "The refresh token is corrupt and cannot be used to login"

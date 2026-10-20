@@ -44,31 +44,31 @@ def long_description():
 
 
 setuptools.setup(
-    name='tuir-continued',
+    name='tuil',
     version=version,
-    description='A simple terminal viewer for Reddit (Terminal UI for Reddit)',
+    description='A terminal-first Lemmy reader (based on tuir)',
     long_description=long_description(),
     long_description_content_type='text/markdown',
     url='https://gitlab.com/Chocimier/tuir',
     author='Chocimier',
     author_email='chocimier@tlen.pl',
     license='GPL-3.0-only',
-    keywords='reddit terminal praw curses',
+    keywords='lemmy fediverse terminal curses',
     packages=[
-        'tuir',
-        'tuir.packages',
-        'tuir.packages.mailcap',
-        'tuir.packages.praw',
+        'tuil',
+        'tuil.packages',
+        'tuil.packages.mailcap',
+        'tuil.packages.praw',
     ],
     package_data={
-        'tuir': ['templates/*', 'themes/*'],
-        'tuir.packages.praw': ['praw.ini']
+        'tuil': ['templates/*', 'themes/*'],
+        'tuil.packages.praw': ['praw.ini']
     },
-    data_files=[("share/man/man1", ["tuir.1"])],
+    data_files=[("share/man/man1", ["tuil.1"])],
     install_requires=install_requires,
     tests_require=tests_require,
     extras_require=extras_require,
-    entry_points={'console_scripts': ['tuir=tuir.__main__:main']},
+    entry_points={'console_scripts': ['tuil=tuil.__main__:main']},
     classifiers=[
         'Intended Audience :: End Users/Desktop',
         'Environment :: Console :: Curses',
@@ -76,7 +76,6 @@ setuptools.setup(
         'Operating System :: POSIX',
         'Natural Language :: English',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',

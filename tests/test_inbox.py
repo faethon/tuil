@@ -2,12 +2,12 @@
 from __future__ import unicode_literals
 
 import pytest
-from tuir.packages.praw.errors import InvalidUser
+from tuil.packages.praw.errors import InvalidUser
 
-from tuir import exceptions
-from tuir.docs import FOOTER_INBOX
-from tuir.inbox_page import InboxPage
-from tuir.submission_page import SubmissionPage
+from tuil import exceptions
+from tuil.docs import FOOTER_INBOX
+from tuil.inbox_page import InboxPage
+from tuil.submission_page import SubmissionPage
 
 try:
     from unittest import mock

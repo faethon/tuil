@@ -13,8 +13,8 @@ build
 coverage.xml
 dist
 htmlcov/
-tuir.egg-info
-tuir_continued.egg-info
+tuil.egg-info
+*.egg-info
 tests/refresh-token
 venv/
 tags

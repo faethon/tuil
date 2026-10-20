@@ -2,11 +2,11 @@
 from __future__ import unicode_literals
 
 import pytest
-from tuir.packages.praw.errors import InvalidUser
+from tuil.packages.praw.errors import InvalidUser
 
-from tuir import exceptions
-from tuir.docs import FOOTER_EMPTY
-from tuir.empty_page import EmptyPage
+from tuil import exceptions
+from tuil.docs import FOOTER_EMPTY
+from tuil.empty_page import EmptyPage
 
 try:
     from unittest import mock

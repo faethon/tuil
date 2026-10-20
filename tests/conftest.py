@@ -11,16 +11,16 @@ import pytest
 from vcr import VCR
 from six.moves.urllib.parse import urlparse, parse_qs
 
-from tuir.oauth import OAuthHelper, OAuthHandler, OAuthHTTPServer
-from tuir.content import RequestHeaderRateLimiter
-from tuir.config import Config
-from tuir.packages import praw
-from tuir.terminal import Terminal
-from tuir.empty_page import EmptyPage
-from tuir.subreddit_page import SubredditPage
-from tuir.submission_page import SubmissionPage
-from tuir.subscription_page import SubscriptionPage
-from tuir.inbox_page import InboxPage
+from tuil.oauth import OAuthHelper, OAuthHandler, OAuthHTTPServer
+from tuil.content import RequestHeaderRateLimiter
+from tuil.config import Config
+from tuil.packages import praw
+from tuil.terminal import Terminal
+from tuil.empty_page import EmptyPage
+from tuil.subreddit_page import SubredditPage
+from tuil.submission_page import SubmissionPage
+from tuil.subscription_page import SubscriptionPage
+from tuil.inbox_page import InboxPage
 
 try:
     from unittest import mock
@@ -41,7 +41,7 @@ for name in ['vcr.matchers', 'vcr.stubs']:
 def pytest_addoption(parser):
     parser.addoption('--record-mode', dest='record_mode', default='none')
     parser.addoption('--refresh-token', dest='refresh_token',
-                     default='~/.local/share/tuir/refresh-token')
+                     default='~/.local/share/tuil/refresh-token')
 
 
 class MockStdscr(mock.MagicMock):
@@ -50,6 +50,15 @@ class MockStdscr(mock.MagicMock):
     coordinates and allowing for the creation of subwindows with the same
     properties as stdscr.
     """
+
+    # ``curses.textpad`` decodes key presses using the window's encoding.
+    # Python 3.14 requires this to be a real string instead of a Mock.
+    encoding = 'utf-8'
+
+    def instr(self, *args):
+        # curses.textpad reads the contents of the window when gathering
+        # input. Return blank cells instead of a Mock object.
+        return b' '
 
     def getyx(self):
         return self.y, self.x
@@ -186,9 +195,9 @@ def reddit(vcr, request):
             os.remove(filename)
 
     with vcr.use_cassette(cassette_name):
-        with patch('tuir.packages.praw.Reddit.get_access_information'):
+        with patch('tuil.packages.praw.Reddit.get_access_information'):
             handler = RequestHeaderRateLimiter()
-            reddit = praw.Reddit(user_agent='tuir test suite',
+            reddit = praw.Reddit(user_agent='tuil test suite',
                                  decode_html_entities=False,
                                  disable_update_check=True,
                                  handler=handler)

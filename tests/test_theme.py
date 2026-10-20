@@ -7,9 +7,9 @@ from tempfile import mkdtemp, NamedTemporaryFile
 
 import pytest
 
-from tuir.theme import Theme
-from tuir.config import Config
-from tuir.exceptions import ConfigError
+from tuil.theme import Theme
+from tuil.config import Config
+from tuil.exceptions import ConfigError
 
 try:
     from unittest import mock

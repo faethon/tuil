@@ -1,1 +1,1 @@
-tuir/__version__.py
+tuil/__version__.py

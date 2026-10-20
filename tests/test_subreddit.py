@@ -9,9 +9,9 @@ import sys
 import six
 import pytest
 
-from tuir import __version__
-from tuir.subreddit_page import SubredditPage
-from tuir.packages.praw.errors import NotFound, HTTPException
+from tuil import __version__
+from tuil.subreddit_page import SubredditPage
+from tuil.packages.praw.errors import NotFound, HTTPException
 from requests.exceptions import ReadTimeout
 
 try:
@@ -107,13 +107,13 @@ def test_subreddit_title(subreddit_page, terminal, capsys):
         subreddit_page.draw()
         out, _ = capsys.readouterr()
         assert isinstance(out, six.text_type)
-        assert out == '\x1b]2;hello ? - tuir {}\x07'.format(__version__)
+        assert out == '\x1b]2;hello ? - tuil {}\x07'.format(__version__)
 
         terminal.config['ascii'] = False
         subreddit_page.draw()
         out, _ = capsys.readouterr()
         assert isinstance(out, six.text_type)
-        assert out == '\x1b]2;hello ❤ - tuir {}\x07'.format(__version__)
+        assert out == '\x1b]2;hello ❤ - tuil {}\x07'.format(__version__)
 
     with mock.patch.dict('os.environ', {'DISPLAY': ''}):
         subreddit_page.draw()
@@ -317,7 +317,7 @@ def test_subreddit_open(subreddit_page, terminal, config):
         assert terminal.open_link.called
         config.history.add.assert_called_with(data['url_full'])
 
-    # Open the selected link within tuir
+    # Open the selected link within tuil
     data = subreddit_page.content.get(subreddit_page.nav.absolute_index)
     with mock.patch.object(subreddit_page, 'open_submission'), \
             mock.patch.object(config.history, 'add'):
@@ -408,7 +408,7 @@ def test_subreddit_open_subscriptions(subreddit_page, refresh_token):
     assert subreddit_page.selected_page
     assert subreddit_page.active
 
-    with mock.patch('tuir.page.Page.loop') as loop:
+    with mock.patch('tuil.page.Page.loop') as loop:
         subreddit_page.handle_selected_page()
         assert loop.called
 
@@ -462,7 +462,7 @@ def test_subreddit_open_multireddits(subreddit_page, refresh_token):
     assert subreddit_page.selected_page
     assert subreddit_page.active
 
-    with mock.patch('tuir.page.Page.loop') as loop:
+    with mock.patch('tuil.page.Page.loop') as loop:
         subreddit_page.handle_selected_page()
         assert loop.called
 
@@ -889,9 +889,9 @@ class MockProcess():
 
 def test_subreddit_open_in_browser(subreddit_page, terminal):
     subreddit_page.refresh_content(order='ignore', name='/r/front/hot')
-    terminal.config.MAILCAP = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tuir', 'templates', 'mailcap')
+    terminal.config.MAILCAP = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tuil', 'templates', 'mailcap')
     with mock.patch('os.system'), \
-            mock.patch('tuir.terminal.Process', side_effect=MockProcess), \
+            mock.patch('tuil.terminal.Process', side_effect=MockProcess), \
             mock.patch('webbrowser.open_new_tab') as new_tab:
         for i in range(8):
             subreddit_page.controller.trigger('o')
@@ -914,9 +914,9 @@ def test_subreddit_open_in_browser(subreddit_page, terminal):
 def test_subreddit_open_with_mailcap(subreddit_page, terminal):
     subreddit_page.refresh_content(order='ignore', name='/r/front/hot')
     terminal.config['enable_media'] = True
-    terminal.config.MAILCAP = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tuir', 'templates', 'mailcap')
+    terminal.config.MAILCAP = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tuil', 'templates', 'mailcap')
     with mock.patch('os.system'), \
-            mock.patch('tuir.terminal.Process', side_effect=MockProcess), \
+            mock.patch('tuil.terminal.Process', side_effect=MockProcess), \
             mock.patch('subprocess.Popen', side_effect=MockPopen) as popen, \
             mock.patch('webbrowser.open_new_tab') as new_tab, \
             mock.patch('six.moves.input'):
@@ -931,10 +931,10 @@ def test_subreddit_open_with_mailcap(subreddit_page, terminal):
             ['https://twitter.com/elonmusk/status/908108029777686528'],
         ]
         assert [list(i.args) for i in popen.mock_calls] == [
-            [["curl -s 'https://i.redd.it/czlc1ff2tqlz.jpg' | convert -resize 80x80 - jpg:/tmp/tuir.jpg && img2xterm /tmp/tuir.jpg"]],
+            [["curl -s 'https://i.redd.it/czlc1ff2tqlz.jpg' | convert -resize 80x80 - jpg:/tmp/tuil.jpg && img2xterm /tmp/tuil.jpg"]],
             [["mpv -vo drm -quiet 'https://i.imgur.com/ok9H05N.mp4'"]],
             [["mpv -vo drm -quiet 'https://i.imgur.com/qrWbOue.mp4'"]],
-            [["curl -s 'https://i.redd.it/3lld01w00qlz.gif' | convert -resize 80x80 - jpg:/tmp/tuir.jpg && img2xterm /tmp/tuir.jpg"]],
-            [["curl -s 'https://i.imgur.com/Kt6HUl8.jpg' | convert -resize 80x80 - jpg:/tmp/tuir.jpg && img2xterm /tmp/tuir.jpg"]],
-            [["curl -s 'https://i.redd.it/2rbvjstdfplz.jpg' | convert -resize 80x80 - jpg:/tmp/tuir.jpg && img2xterm /tmp/tuir.jpg"]],
+            [["curl -s 'https://i.redd.it/3lld01w00qlz.gif' | convert -resize 80x80 - jpg:/tmp/tuil.jpg && img2xterm /tmp/tuil.jpg"]],
+            [["curl -s 'https://i.imgur.com/Kt6HUl8.jpg' | convert -resize 80x80 - jpg:/tmp/tuil.jpg && img2xterm /tmp/tuil.jpg"]],
+            [["curl -s 'https://i.redd.it/2rbvjstdfplz.jpg' | convert -resize 80x80 - jpg:/tmp/tuil.jpg && img2xterm /tmp/tuil.jpg"]],
         ]

@@ -5,7 +5,7 @@ import os
 import codecs
 from tempfile import NamedTemporaryFile
 
-from tuir.config import Config, copy_default_config, copy_default_mailcap, _copy_settings_file
+from tuil.config import Config, copy_default_config, copy_default_mailcap, _copy_settings_file
 
 try:
     from unittest import mock
@@ -19,8 +19,8 @@ def test_copy_default_mailcap():
     """Make sure the default config file was included in the package"""
 
     with NamedTemporaryFile() as fp:
-        with mock.patch('tuir.config.six.moves.input', return_value='y'), \
-             mock.patch('tuir.config._copy_settings_file') as _copy_settings_file:
+        with mock.patch('tuil.config.six.moves.input', return_value='y'), \
+             mock.patch('tuil.config._copy_settings_file') as _copy_settings_file:
 
             copy_default_mailcap(fp.name)
             _copy_settings_file.assert_called_with(Config.DEFAULT_MAILCAP, fp.name, 'mailcap')
@@ -30,8 +30,8 @@ def test_copy_default_config():
     """Make sure the default config file was included in the package"""
 
     with NamedTemporaryFile(suffix='.cfg') as fp:
-        with mock.patch('tuir.config.six.moves.input', return_value='y'), \
-             mock.patch('tuir.config._copy_settings_file') as _copy_settings_file:
+        with mock.patch('tuil.config.six.moves.input', return_value='y'), \
+             mock.patch('tuil.config._copy_settings_file') as _copy_settings_file:
 
             copy_default_config(fp.name)
             _copy_settings_file.assert_called_with(Config.DEFAULT_CONFIG, fp.name, 'config')
@@ -41,7 +41,7 @@ def test_copy_default_config_cancel():
     """Pressing ``n`` should cancel the copy"""
 
     with NamedTemporaryFile(suffix='.cfg') as fp:
-        with mock.patch('tuir.config.six.moves.input', return_value='n'):
+        with mock.patch('tuil.config.six.moves.input', return_value='n'):
             copy_default_config(fp.name)
             assert not fp.read()
 
@@ -50,7 +50,7 @@ def test_copy_config_interrupt():
     """Pressing ``Ctrl-C`` should cancel the copy"""
 
     with NamedTemporaryFile(suffix='.cfg') as fp:
-        with mock.patch('tuir.config.six.moves.input') as func:
+        with mock.patch('tuil.config.six.moves.input') as func:
             func.side_effect = KeyboardInterrupt
             copy_default_config(fp.name)
             assert not fp.read()
@@ -58,7 +58,7 @@ def test_copy_config_interrupt():
 
 def test__copy_settings_file():
     with NamedTemporaryFile() as fp:
-        with mock.patch('tuir.config.six.moves.input', return_value='y'):
+        with mock.patch('tuil.config.six.moves.input', return_value='y'):
             # Doesn't matter what values we actually use, as long as they
             # are sane
             _copy_settings_file(Config.DEFAULT_CONFIG, fp.name, 'config')
@@ -71,7 +71,7 @@ def test__copy_settings_file():
 
 def test__copy_settings_file_makedirs():
     with NamedTemporaryFile() as fp:
-        with mock.patch('tuir.config.six.moves.input', return_value='y'), \
+        with mock.patch('tuil.config.six.moves.input', return_value='y'), \
              mock.patch('os.path.exists', return_value=False),            \
              mock.patch('os.makedirs'):
 
@@ -102,7 +102,7 @@ def test_config_interface():
 def test_config_get_args():
     """Ensure that command line arguments are parsed properly"""
 
-    args = ['tuir',
+    args = ['tuil',
             'https://reddit.com/permalink •',
             '-s', 'cfb',
             '--log', 'logfile.log',
@@ -118,7 +118,7 @@ def test_config_get_args():
             '--no-flash',
             '--no-autologin']
 
-    with mock.patch('sys.argv', ['tuir']):
+    with mock.patch('sys.argv', ['tuil']):
         config_dict = Config.get_args()
         config = Config(**config_dict)
         assert config.config == {}
@@ -147,14 +147,14 @@ def test_config_get_args():
 def test_config_link_deprecated():
 
     # Should still be able to specify the link using the old "-l"
-    args = ['tuir', '-l', 'https://reddit.com/option']
+    args = ['tuil', '-l', 'https://reddit.com/option']
     with mock.patch('sys.argv', args):
         config_dict = Config.get_args()
         config = Config(**config_dict)
         assert config['link'] == 'https://reddit.com/option'
 
     # But the positional argument should take preference
-    args = ['tuir', 'https://reddit.com/arg', '-l', 'https://reddit.com/option']
+    args = ['tuil', 'https://reddit.com/arg', '-l', 'https://reddit.com/option']
     with mock.patch('sys.argv', args):
         config_dict = Config.get_args()
         config = Config(**config_dict)
@@ -196,9 +196,9 @@ def test_config_from_file():
         assert config.config == {}
         assert config.keymap._keymap == default_keymap
 
-        # [tuir]
+        # [tuil]
         rows = ['{0}={1}'.format(key, val) for key, val in args.items()]
-        data = '\n'.join(['[tuir]'] + rows)
+        data = '\n'.join(['[tuil]'] + rows)
         fp.write(codecs.encode(data, 'utf-8'))
 
         # [bindings]

@@ -8,9 +8,9 @@ from collections import OrderedDict
 import six
 import pytest
 
-from tuir import config, exceptions
-from tuir.packages import praw
-from tuir.content import (
+from tuil import config, exceptions
+from tuil.packages import praw
+from tuil.content import (
     Content, SubmissionContent, SubredditContent, SubscriptionContent,
     RequestHeaderRateLimiter)
 

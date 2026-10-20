@@ -15,15 +15,15 @@ from collections import Counter
 from vcr import VCR
 from six.moves.urllib.parse import urlparse, parse_qs
 
-from tuir.theme import Theme, ThemeList
-from tuir.config import Config
-from tuir.packages import praw
-from tuir.oauth import OAuthHelper
-from tuir.terminal import Terminal
-from tuir.objects import curses_session
-from tuir.subreddit_page import SubredditPage
-from tuir.submission_page import SubmissionPage
-from tuir.subscription_page import SubscriptionPage
+from tuil.theme import Theme, ThemeList
+from tuil.config import Config
+from tuil.packages import praw
+from tuil.oauth import OAuthHelper
+from tuil.terminal import Terminal
+from tuil.objects import curses_session
+from tuil.subreddit_page import SubredditPage
+from tuil.submission_page import SubmissionPage
+from tuil.subscription_page import SubscriptionPage
 
 try:
     from unittest import mock

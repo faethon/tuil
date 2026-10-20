@@ -1,5 +1,5 @@
 [run]
-source = tuir
+source = tuil
 omit = 
     */__main__.py
     */packages/praw/*

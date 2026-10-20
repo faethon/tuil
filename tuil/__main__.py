@@ -13,7 +13,7 @@ import warnings
 import six
 import requests
 
-# Need to check for curses compatibility before performing the tuir imports
+# Need to check for curses compatibility before performing the tuil imports
 try:
     import curses
 except ImportError:
@@ -28,9 +28,9 @@ except ImportError:
 # references, it needs to be done before the webbrowser module is imported
 # for the first time.
 webbrowser_import_warning = ('webbrowser' in sys.modules)
-TUIR_BROWSER, BROWSER = os.environ.get('TUIR_BROWSER'), os.environ.get('BROWSER')
-if TUIR_BROWSER:
-    os.environ['BROWSER'] = TUIR_BROWSER
+TUIL_BROWSER, BROWSER = os.environ.get('TUIL_BROWSER'), os.environ.get('BROWSER')
+if TUIL_BROWSER:
+    os.environ['BROWSER'] = TUIL_BROWSER
 
 from . import docs
 from . import packages
@@ -51,8 +51,8 @@ _logger = logging.getLogger(__name__)
 
 
 # Pycharm debugging note:
-# You can use pycharm to debug a curses application by launching tuir in a
-# console window (python -m tuir) and using pycharm to attach to the remote
+# You can use pycharm to debug a curses application by launching tuil in a
+# console window (python -m tuil) and using pycharm to attach to the remote
 # process. On Ubuntu, you may need to allow ptrace permissions by setting
 # ptrace_scope to 0 in /etc/sysctl.d/10-ptrace.conf.
 # http://blog.mellenthin.de/archives/2010/10/18/gdb-attach-fails
@@ -69,7 +69,7 @@ def main():
 
     # Set the terminal title
     if os.getenv('DISPLAY'):
-        title = 'tuir {0}'.format(__version__)
+        title = 'tuil {0}'.format(__version__)
         sys.stdout.write('\x1b]2;{0}\x07'.format(title))
         sys.stdout.flush()
 
@@ -80,8 +80,8 @@ def main():
     if args.get('user'):
         #simple multi-account support
         user = args.get('user')
-        token_file = os.path.join(Config.TUIR_DATA_HOME, user + '.refresh-token')
-        history_file = os.path.join(Config.TUIR_DATA_HOME, user + '.history.log')
+        token_file = os.path.join(Config.TUIL_DATA_HOME, user + '.refresh-token')
+        history_file = os.path.join(Config.TUIL_DATA_HOME, user + '.history.log')
         config = Config(history_file, token_file)
     else:
         #single-account
@@ -170,8 +170,8 @@ def main():
     user_agent = docs.AGENT.format(version=__version__)
 
     debug_info = [
-        'tuir version: tuir {}'.format(__version__),
-        'tuir module path: {}'.format(os.path.abspath(__file__)),
+        'tuil version: tuil {}'.format(__version__),
+        'tuil module path: {}'.format(os.path.abspath(__file__)),
         'python version: {}'.format(sys.version.replace('\n', ' ')),
         'python executable: {}'.format(sys.executable),
         'praw version: {}'.format(praw_info),
@@ -183,10 +183,10 @@ def main():
         ('EDITOR', os.getenv('EDITOR')),
         ('LANG', os.getenv('LANG')),
         ('PAGER', os.getenv('PAGER')),
-        ('TUIR_BROWSER', TUIR_BROWSER),
-        ('TUIR_EDITOR', os.getenv('TUIR_EDITOR')),
-        ('TUIR_PAGER', os.getenv('TUIR_PAGER')),
-        ('TUIR_URLVIEWER', os.getenv('TUIR_URLVIEWER')),
+        ('TUIL_BROWSER', TUIL_BROWSER),
+        ('TUIL_EDITOR', os.getenv('TUIL_EDITOR')),
+        ('TUIL_PAGER', os.getenv('TUIL_PAGER')),
+        ('TUIL_URLVIEWER', os.getenv('TUIL_URLVIEWER')),
         ('TERM', os.getenv('TERM')),
         ('VISUAL', os.getenv('VISUAL')),
         ('XDG_CONFIG_HOME', os.getenv('XDG_CONFIG_HOME')),
@@ -287,7 +287,7 @@ def main():
         exit_message = '\n'.join([
             debug_text,
             traceback.format_exc(),
-            'tuir has crashed. Please report this traceback at:',
+            'tuil has crashed. Please report this traceback at:',
             'https://gitlab.com/Chocimier/tuir/issues\n'])
         sys.stderr.write(exit_message)
         return 1  # General error exception code

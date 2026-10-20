@@ -3,9 +3,9 @@ from __future__ import unicode_literals
 
 import requests
 
-from tuir.oauth import OAuthHelper, OAuthHandler
-from tuir.exceptions import InvalidRefreshToken
-from tuir.packages.praw.errors import OAuthException
+from tuil.oauth import OAuthHelper, OAuthHandler
+from tuil.exceptions import InvalidRefreshToken
+from tuil.packages.praw.errors import OAuthException
 
 
 try:
@@ -128,8 +128,8 @@ def test_oauth_authorize(oauth, reddit, stdscr, refresh_token):
     # Because we use `from .helpers import open_browser` we have to patch the
     # function in the destination oauth module and not the helpers module
     with mock.patch('uuid.UUID.hex', new_callable=mock.PropertyMock) as uuid, \
-            mock.patch('tuir.terminal.Terminal.open_browser') as open_browser, \
-            mock.patch('tuir.oauth.OAuthHTTPServer') as http_server,           \
+            mock.patch('tuil.terminal.Terminal.open_browser') as open_browser, \
+            mock.patch('tuil.oauth.OAuthHTTPServer') as http_server,           \
             mock.patch.object(oauth.reddit, 'user'),                          \
             mock.patch('time.sleep'):
 
