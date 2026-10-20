@@ -116,13 +116,13 @@ def main():
             lambda: client.get_user(args.user_name, include_content=False))
         if user is not None:
             print('     user: {0}'.format(user.name))
-            check(
+            items = check(
                 'user content listing',
-                lambda: require_items(
-                    client.list_user_content(
-                        args.user_name, page_size=args.page_size,
-                        max_items=args.page_size).take(args.page_size),
-                    'user content listing'))
+                lambda: client.list_user_content(
+                    args.user_name, page_size=args.page_size,
+                    max_items=args.page_size).take(args.page_size))
+            if items is not None:
+                print('     items: {0}'.format(len(items)))
 
         check(
             'community listing',

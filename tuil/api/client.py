@@ -12,6 +12,7 @@ from urllib.parse import urlsplit
 from .errors import (
     BadRequestError,
     InvalidResponseError,
+    LemmyError,
     NotFoundError,
     UnsupportedFeatureError,
 )
@@ -161,21 +162,37 @@ class LemmyClient(object):
         The JWT is kept in memory on this client.  Persisting it is the job of
         the application layer.
         """
-        payload = self._http.post('/user/login', {
+        if self._v4_capable is None:
+            self.supports_v4()
+        data = {
             'username_or_email': username_or_email,
             'password': password,
             'totp_2fa_token': totp_2fa_token,
-        })
+        }
+        if self._use_v4():
+            data['stay_logged_in'] = True
+            payload = self._http.post(
+                '/account/auth/login', data, api_version=4)
+            path = '/account/auth/login'
+        else:
+            payload = self._http.post('/user/login', data)
+            path = '/user/login'
         jwt = payload.get('jwt')
         if not jwt:
             raise InvalidResponseError(
                 'Login response did not contain a JWT',
-                payload=payload, url=self.api_url + '/user/login')
+                payload=payload, url=self.api_url + path)
         self._http.set_token(jwt)
         self._invalidate_me()
         return self.me(refresh=True)
 
     def logout(self):
+        if self.is_logged_in and self._use_v4():
+            try:
+                self._http.post(
+                    '/account/auth/logout', api_version=4)
+            except LemmyError:
+                pass
         self._http.clear_token()
         self._invalidate_me()
 

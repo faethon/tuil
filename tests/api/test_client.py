@@ -417,7 +417,11 @@ def test_login_and_authenticated_request():
     assert client.user_id == 34
     assert client.me().name == 'dessalines'
 
-    login_body = json.loads(responses.calls[0].request.body)
+    login_call = next(
+        call for call in responses.calls
+        if call.request.method == 'POST'
+    )
+    login_body = json.loads(login_call.request.body)
     assert login_body == {
         'username_or_email': 'dessalines',
         'password': 'secret',
@@ -431,6 +435,35 @@ def test_login_and_authenticated_request():
     client.logout()
     assert client.is_logged_in is False
     assert client.token is None
+
+
+@responses.activate
+def test_v4_login_uses_account_endpoint():
+    add_json4(responses.POST, '/account/auth/login', {
+        'jwt': 'v4-jwt',
+        'registration_created': False,
+        'verify_email_sent': False,
+    })
+    add_json4(responses.GET, '/site', site_with_user())
+    add_json4(responses.POST, '/account/auth/logout', {'success': True})
+    client = LemmyClient('lemmy.ml', api_version=4)
+
+    user = client.login('dessalines', 'secret', totp_2fa_token=None)
+
+    assert user.name == 'dessalines'
+    assert client.token == 'v4-jwt'
+    login_body = json.loads(responses.calls[0].request.body)
+    assert login_body == {
+        'username_or_email': 'dessalines',
+        'password': 'secret',
+        'totp_2fa_token': None,
+        'stay_logged_in': True,
+    }
+
+    client.logout()
+    assert client.is_logged_in is False
+    assert responses.calls[-1].request.url == (
+        INSTANCE + '/api/v4/account/auth/logout')
 
 
 @responses.activate
