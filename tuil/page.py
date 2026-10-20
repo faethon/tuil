@@ -762,18 +762,8 @@ class Page(object):
             return 'Logged in@{}'.format(instance)
         return '{}@{}'.format(user.name, instance)
 
-    def _draw_header(self):
-        """
-        Draw the title bar at the top of the screen
-        """
-        n_rows, n_cols = self.term.stdscr.getmaxyx()
-
-        # Note: 2 argument form of derwin breaks PDcurses on Windows 7!
-        window = self.term.stdscr.derwin(1, n_cols, self._row, 0)
-        window.erase()
-        # curses.bkgd expects bytes in py2 and unicode in py3
-        window.bkgd(str(' '), self.term.attr('TitleBar'))
-
+    def _content_title(self):
+        """Return the title bar text for the current content."""
         sub_name = self.content.name
         sub_name = sub_name.replace('/c/front', 'Front Page')
 
@@ -800,6 +790,28 @@ class Page(object):
         query = self.content.query
         if query:
             sub_name = 'Searching {0}: {1}'.format(sub_name, query)
+
+        member_count = getattr(self.content, 'member_count', None)
+        if member_count is not None:
+            member_count = int(member_count)
+            noun = 'member' if member_count == 1 else 'members'
+            sub_name = '{} ({:,} {})'.format(
+                sub_name, member_count, noun)
+        return sub_name
+
+    def _draw_header(self):
+        """
+        Draw the title bar at the top of the screen
+        """
+        n_rows, n_cols = self.term.stdscr.getmaxyx()
+
+        # Note: 2 argument form of derwin breaks PDcurses on Windows 7!
+        window = self.term.stdscr.derwin(1, n_cols, self._row, 0)
+        window.erase()
+        # curses.bkgd expects bytes in py2 and unicode in py3
+        window.bkgd(str(' '), self.term.attr('TitleBar'))
+
+        sub_name = self._content_title()
         self.term.add_line(window, sub_name, 0, 0)
 
         # Set the terminal title

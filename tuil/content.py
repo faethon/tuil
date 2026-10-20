@@ -618,7 +618,7 @@ class SubredditContent(Content):
     """
 
     def __init__(self, config, name, submissions, loader, order=None,
-                 query=None, filter_nsfw=False, client=None):
+                 query=None, filter_nsfw=False, client=None, community=None):
 
         self.config = config
         self.name = name
@@ -629,6 +629,7 @@ class SubredditContent(Content):
         self._submissions = submissions
         self._submission_data = []
         self._client = client
+        self.community = community
 
         if self.config['look_and_feel'] == 'default':
             self.max_title_rows = 4
@@ -643,6 +644,12 @@ class SubredditContent(Content):
             if self.order:
                 full_name += '/' + self.order
             raise exceptions.NoSubmissionsError(full_name)
+
+    @property
+    def member_count(self):
+        if self.community is None:
+            return None
+        return self.community.subscribers
 
     @classmethod
     def from_name(cls, client, config, name, loader, order=None, query=None):
@@ -662,6 +669,10 @@ class SubredditContent(Content):
         display_order = parsed['order_full']
         period = parsed['period']
         display_name = parsed['display_name']
+
+        community = None
+        if kind == 'community':
+            community = client.get_community(resource)
 
         if query:
             submissions = cls._search_submissions(
@@ -694,7 +705,8 @@ class SubredditContent(Content):
         filter_nsfw = False
         return cls(config, display_name, submissions, loader,
                    order=display_order, query=query,
-                   filter_nsfw=filter_nsfw, client=client)
+                   filter_nsfw=filter_nsfw, client=client,
+                   community=community)
 
     @classmethod
     def _search_submissions(cls, client, query, parsed, period):

@@ -12,6 +12,7 @@ tuir and RTV.
 Features
 
 * Search communities with the ``F`` key
+* Show the community member count in the title bar
 
 Bugfixes
 

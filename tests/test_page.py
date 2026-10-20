@@ -129,6 +129,22 @@ def test_page_identity_text(reddit, terminal, config, oauth):
     assert page._identity_text() == 'Logged in@lemmy.ml'
 
 
+def test_page_content_title_member_count(reddit, terminal, config, oauth):
+    page = Page(reddit, terminal, config, oauth)
+    page.content = mock.MagicMock()
+    page.content.name = '/c/linux'
+    page.content.query = None
+
+    page.content.member_count = 68180
+    assert page._content_title() == '/c/linux (68,180 members)'
+
+    page.content.member_count = 1
+    assert page._content_title() == '/c/linux (1 member)'
+
+    page.content.member_count = None
+    assert page._content_title() == '/c/linux'
+
+
 def test_page_community_search(reddit, terminal, config, oauth):
     page = Page(reddit, terminal, config, oauth)
 

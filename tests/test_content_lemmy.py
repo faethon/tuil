@@ -52,6 +52,8 @@ class FakeClient(object):
         self.communities = [
             Community(self, item)
             for item in fixture('community_list.json')['communities']]
+        self.community = Community(
+            self, fixture('community.json')['community_view'])
 
     @property
     def is_logged_in(self):
@@ -97,6 +99,10 @@ class FakeClient(object):
     def list_comments(self, **kwargs):
         self.calls.append(('list_comments', kwargs))
         return iter(self.comments)
+
+    def get_community(self, community):
+        self.calls.append(('get_community', community))
+        return self.community
 
     def get_post(self, post_id, comment_id=None):
         self.calls.append(('get_post', post_id, comment_id))
@@ -287,6 +293,7 @@ def test_community_and_user_listings(config):
     client = FakeClient()
     content = SubredditContent.from_name(client, config, 'linux', Loader())
     assert content.name == '/c/linux'
+    assert content.member_count == 68180
     assert client.calls[-1][1]['community'] == 'linux'
 
     content = SubredditContent.from_name(
