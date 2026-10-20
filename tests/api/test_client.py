@@ -304,6 +304,22 @@ def test_community_details():
 
 
 @responses.activate
+def test_community_cache_merges_v3_counts():
+    view = community_view()
+    add_json(responses.GET, '/community/list', {
+        'communities': [view],
+    })
+    client = LemmyClient('lemmy.ml')
+
+    client.list_communities(
+        type_='All', page_size=1).take(1)
+    community = client.get_community(view['community']['name'])
+
+    assert community.subscribers == view['counts']['subscribers']
+    assert len(responses.calls) == 1
+
+
+@responses.activate
 def test_user_details_and_content():
     add_json(responses.GET, '/user', fixture('user.json'))
     client = LemmyClient('lemmy.ml')
@@ -780,11 +796,13 @@ def v4_post_item():
     post = dict(view['post'])
     post['published_at'] = post.pop('published')
     post.update(view['counts'])
+    community = dict(view['community'])
+    community['subscribers'] = 123
     return {
         'type_': 'post',
         'post': post,
         'creator': view['creator'],
-        'community': view['community'],
+        'community': community,
         'post_actions': {
             'read_at': '2026-10-20T09:30:00Z',
             'saved_at': '2026-10-20T09:30:00Z',
@@ -1067,6 +1085,7 @@ def test_community_cache_preserves_listing_data():
     assert community.id == post_view(0)['community']['id']
     assert community.name == post_view(0)['community']['name']
     assert community.title == post_view(0)['community']['title']
+    assert community.subscribers == 123
 
 
 @responses.activate

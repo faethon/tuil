@@ -392,7 +392,7 @@ class LemmyClient(object):
         else:
             name = self._normalize_name(community)
             cached = self._community_cache.get('name:' + name.lower())
-            if cached:
+            if cached and 'subscribers' in cached:
                 return Community(self, {'community': cached})
             params = {'name': name}
 
@@ -867,7 +867,7 @@ class LemmyClient(object):
 
     def _community_from_view(self, item):
         item = item or {}
-        self._remember_community(item.get('community') or item)
+        self._remember_community(item)
         return Community(self, item)
 
     @staticmethod
@@ -891,7 +891,14 @@ class LemmyClient(object):
         if not isinstance(data, dict):
             return
         if isinstance(data.get('community'), dict):
-            data = data['community']
+            view = data
+            data = dict(data['community'])
+            counts = view.get('counts') or {}
+            for key in ('subscribers', 'posts', 'comments',
+                        'users_active_day', 'users_active_week',
+                        'users_active_month', 'users_active_half_year'):
+                if key not in data and key in counts:
+                    data[key] = counts[key]
         name = data.get('name')
         identifier = data.get('id')
         if not name and identifier is None:
