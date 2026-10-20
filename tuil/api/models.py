@@ -43,6 +43,18 @@ def image_proxy_target(url):
     return url
 
 
+def qualified_community_name(data):
+    """Return ``name@instance`` for a community actor, when available."""
+    data = data or {}
+    name = data.get('name')
+    actor = data.get('actor_id') or data.get('ap_id')
+    if name and actor:
+        host = urlsplit(actor).netloc
+        if host:
+            return '{}@{}'.format(name, host)
+    return name
+
+
 class Model(object):
     """Base class for API objects."""
 
@@ -149,6 +161,10 @@ class Post(Model):
     @property
     def community_name(self):
         return self.community_data.get('name')
+
+    @property
+    def community_qualified_name(self):
+        return qualified_community_name(self.community_data)
 
     @property
     def community_title(self):
@@ -435,6 +451,10 @@ class Comment(Model):
     @property
     def community_name(self):
         return self.community_data.get('name')
+
+    @property
+    def community_qualified_name(self):
+        return qualified_community_name(self.community_data)
 
     @property
     def published(self):

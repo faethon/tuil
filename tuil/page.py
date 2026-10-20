@@ -299,7 +299,8 @@ class Page(object):
         """
         data = self.get_selected_item()
         if 'subreddit' in data:
-            subreddit = data['subreddit']
+            subreddit = (data.get('subreddit_qualified')
+                         or data['subreddit'])
             self.selected_page = self.open_subreddit_page(subreddit)
         else:
             self.term.flash()

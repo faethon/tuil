@@ -356,7 +356,8 @@ class SubmissionPage(Page):
 
         attr = self.term.attr('SubmissionSubreddit')
         self.term.add_space(win)
-        self.term.add_line(win, '/c/{subreddit}'.format(**data), attr=attr)
+        self.term.add_line(
+            win, '/c/{subreddit_qualified}'.format(**data), attr=attr)
 
         attr = self.term.attr('Created')
         self.term.add_space(win)

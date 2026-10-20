@@ -15,6 +15,7 @@ Features
 * Show the community member count in the title bar
 * Show member counts in community search results
 * Sort community search results by name or member count
+* Show ``community@instance`` in feed and post labels
 
 Bugfixes
 

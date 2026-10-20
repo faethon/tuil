@@ -187,7 +187,8 @@ class Content(object):
         Parse a Lemmy post and return a dict ready for the terminal.
 
         The ``subreddit`` key is kept for compatibility with the page layer;
-        it contains the bare community name.
+        it contains the bare community name.  ``subreddit_qualified`` contains
+        the ``name@instance`` form used for display and navigation.
         """
         title = post.title or '[deleted]'
         text = post.body or ''
@@ -210,6 +211,8 @@ class Content(object):
             'author': author,
             'permalink': permalink,
             'subreddit': post.community_name or '[unknown]',
+            'subreddit_qualified': (
+                post.community_qualified_name or '[unknown]'),
             'flair': '',
             'url_full': post.link_url or permalink,
             'likes': post.my_vote,

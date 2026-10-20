@@ -424,9 +424,10 @@ class SubredditPage(Page):
                                    attr=self.term.attr('SubmissionAuthor'))
                 last_was_space = False
             elif item == "%S":
-                self.term.add_line(win, "/c/" + data['subreddit'],
-                                   row=offset, col=col,
-                                   attr=self.term.attr('SubmissionSubreddit'))
+                self.term.add_line(
+                    win, "/c/" + data['subreddit_qualified'],
+                    row=offset, col=col,
+                    attr=self.term.attr('SubmissionSubreddit'))
                 last_was_space = False
             elif item == "%u":
                 self.term.add_line(win, self._url_str(data),
@@ -649,7 +650,8 @@ class SubredditPage(Page):
             self.term.add_space(win)
 
             attr = self.term.attr('SubmissionSubreddit')
-            self.term.add_line(win, '/c/{subreddit}'.format(**data), attr=attr)
+            self.term.add_line(
+                win, '/c/{subreddit_qualified}'.format(**data), attr=attr)
 
             if data['flair']:
                 attr = self.term.attr('SubmissionFlair')

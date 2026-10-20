@@ -174,6 +174,8 @@ def test_strip_submission_link_and_selfpost():
     assert link['url_type'] == 'external'
     assert link['url_full'].endswith('.webm')
     assert link['comments'] == 0
+    assert link['subreddit'] == 'test'
+    assert link['subreddit_qualified'] == 'test@lemmy.ml'
 
     selfpost = Content.strip_submission(Post(client, post_data(2)))
     assert selfpost['url_type'] == 'selfpost'

@@ -145,6 +145,20 @@ def test_page_content_title_member_count(reddit, terminal, config, oauth):
     assert page._content_title() == '/c/linux'
 
 
+def test_page_open_subreddit_uses_qualified_name(reddit, terminal, config,
+                                                 oauth):
+    page = Page(reddit, terminal, config, oauth)
+    page.get_selected_item = lambda: {
+        'subreddit': 'linux',
+        'subreddit_qualified': 'linux@lemmy.ml',
+    }
+
+    with mock.patch.object(page, 'open_subreddit_page') as open_page:
+        page.open_subreddit()
+
+    open_page.assert_called_once_with('linux@lemmy.ml')
+
+
 def test_page_community_search(reddit, terminal, config, oauth):
     page = Page(reddit, terminal, config, oauth)
 
