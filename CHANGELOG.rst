@@ -27,6 +27,7 @@ Features
 Known limitations
 
 * Hiding posts requires Lemmy 1.0 or newer
+* User-page sorting is unavailable on Lemmy 1.0
 * Multireddits, domain listings and gold are not available
 
 .. _1.32.2: https://gitlab.com/Chocimier/tuir/tree/v1.32.2

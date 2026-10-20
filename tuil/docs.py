@@ -228,6 +228,16 @@ Enter your message below this instruction block:
 {token}-->
 """.format(token=TOKEN, formatting_help=FORMATTING_HELP)
 
+MESSAGE_EDIT_FILE = """<!--{token}
+Editing a private message.
+The message is shown below, update it and save the file.
+
+{formatting_help}
+{token}-->
+
+{{content}}
+""".format(token=TOKEN, formatting_help=FORMATTING_HELP)
+
 TIME_ORDER_MENU = """
 Posts from:
   [1] Past hour

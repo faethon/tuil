@@ -96,6 +96,10 @@ fail, so tuil resolves them through the version-appropriate `/search`, then
 requests the canonical object by id.  Communities and people seen in listings
 are cached by name and id for later navigation.
 
+`/api/v4/person/content` has no sort parameter and the v3 user endpoint is
+unavailable on 1.0, so user-page sort controls cannot change the order there.
+Community, post and search listings do support sorting.
+
 Response fields also changed in v4.  Vote, save and read state now live in
 `post_actions`, `comment_actions`, `community_actions` and `person_actions`;
 counts live directly on posts, comments and communities.  Timestamps use

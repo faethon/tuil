@@ -408,7 +408,7 @@ class Page(object):
     @logged_in
     def delete_item(self):
         """
-        Delete a post or comment.
+        Delete a post, comment or sent private message.
         """
         data = self.get_selected_item()
         user = self.reddit.user
@@ -433,7 +433,7 @@ class Page(object):
     @logged_in
     def edit(self):
         """
-        Edit a post or comment.
+        Edit a post, comment or sent private message.
         """
         data = self.get_selected_item()
         user = self.reddit.user
@@ -449,6 +449,9 @@ class Page(object):
             content = data['body']
             info = docs.COMMENT_EDIT_FILE.format(
                 content=content, id=data['object'].id)
+        elif data['type'] == 'Message':
+            content = data['body']
+            info = docs.MESSAGE_EDIT_FILE.format(content=content)
         else:
             self.term.flash()
             return

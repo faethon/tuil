@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import curses
+from contextlib import contextmanager
 
 import pytest
 
@@ -90,6 +91,30 @@ def test_page_unauthenticated(reddit, terminal, config, oauth):
             message = 'Not logged in'.encode('utf-8')
             terminal.stdscr.subwin.addstr.assert_called_with(1, 1, message)
             terminal.stdscr.subwin.addstr.reset_mock()
+
+
+def test_page_edit_private_message(reddit, terminal, config, oauth):
+    reddit.logged_in = True
+    page = Page(reddit, terminal, config, oauth)
+    message = mock.MagicMock()
+    data = {
+        'type': 'Message',
+        'author': 'tester',
+        'body': 'old body',
+        'object': message,
+    }
+    page.get_selected_item = lambda: data
+
+    @contextmanager
+    def editor(_info):
+        yield 'new body'
+
+    with mock.patch.object(terminal, 'open_editor', side_effect=editor), \
+            mock.patch.object(page, 'reload_page'), \
+            mock.patch('tuil.page.time.sleep'):
+        page.edit()
+
+    message.edit.assert_called_once_with('new body')
 
 
 def test_page_prompt_comment(reddit, terminal, config, oauth):

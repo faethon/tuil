@@ -28,6 +28,8 @@ and hidden content on 1.0.
 
 Multireddits, domain listings and Reddit gold are not part of Lemmy. Post
 hiding is available on Lemmy 1.0; on 0.19 the key binding shows an error.
+User-page sorting is unavailable on Lemmy 1.0 because the v4 API returns a
+fixed order.
 
 ## Installation
 
