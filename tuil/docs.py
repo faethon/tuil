@@ -68,6 +68,7 @@ https://github.com/faethon/tuil
   f     : Open a prompt to search the current community for a text string
   t     : Join this community
   T     : Leave this community
+  SPACE : Hide or unhide the selected post (Lemmy 1.0+)
   v     : Open the community for the selected post
   V     : Open the author's user page for the selected post
 
@@ -111,6 +112,7 @@ https://github.com/faethon/tuil
   /u/me/saved                  - View your saved content
   /u/me/upvoted                - View your upvoted content
   /u/me/downvoted              - View your downvoted content
+  /u/me/hidden                 - View your hidden posts (Lemmy 1.0+)
   /u/alice                     - View a user's posts and comments
   /u/alice/submitted           - View a user's posts
   /u/alice/comments            - View a user's comments

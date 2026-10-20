@@ -263,6 +263,9 @@ class Content(object):
             'type': 'SavedComment',
             'level': None,
             'title': title,
+            'body': body,
+            'text': body,
+            'html': body,
             'comments': None,
             'url_full': comment.permalink,
             'url': comment.permalink,
@@ -1132,7 +1135,9 @@ class InboxContent(Content):
     def from_user(cls, client, loader, order='all'):
         if not client.is_logged_in:
             raise exceptions.AccountError('Not logged in')
-        username = getattr(client.me(), 'name', None)
+        me = client.me()
+        username = getattr(me, 'name', None)
+        me_id = getattr(me, 'id', None)
 
         if order == 'all':
             items = cls._all_items(client, unread_only=False)
@@ -1158,7 +1163,30 @@ class InboxContent(Content):
         else:
             raise exceptions.InboxError('Invalid order %s' % order)
 
+        items = cls._filter_items(
+            items, order, me_id, client.supports_v4())
+
         return cls(order, iter(items), loader, username=username)
+
+    @classmethod
+    def _filter_items(cls, items, order, user_id, v4):
+        if v4 and order in ('comments', 'posts'):
+            wanted = 'comment' if order == 'comments' else 'post'
+            items = [item for item in items
+                     if getattr(item, 'data_type', None) == wanted]
+        if order != 'sent':
+            items = [item for item in items
+                     if not cls._is_sent_message(item, user_id)]
+        return items
+
+    @staticmethod
+    def _is_sent_message(item, user_id):
+        """Return True for the sender's copy of a private message."""
+        if user_id is None:
+            return False
+        is_message = (isinstance(item, PrivateMessage)
+                      or getattr(item, 'is_private_message', False))
+        return is_message and getattr(item, 'creator_id', None) == user_id
 
     @staticmethod
     def _all_items(client, unread_only=False):

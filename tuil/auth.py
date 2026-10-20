@@ -47,9 +47,14 @@ class AuthHelper(object):
             self.client.logout()
             self.config.delete_refresh_token()
             return False
-        except Exception:
+        except Exception as exc:
+            # Keep the token so that a temporary network failure does not
+            # force the user to authenticate again.
+            _logger.exception('Could not restore the saved Lemmy session')
             self.client.logout()
-            raise
+            self.term.show_notification(
+                'Could not restore session: {}'.format(exc), style='Error')
+            return False
 
         if not user:
             self.client.logout()

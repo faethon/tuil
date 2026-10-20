@@ -3,9 +3,9 @@
 !.pylintrc
 !.gitignore
 !.gitattributes
-!.gitlab
+!.github
+!.github/**
 !.coveragerc
-!.gitlab-ci.yml
 *~
 *.pyc
 *.log

@@ -74,8 +74,10 @@ for message in client.list_messages(unread_only=True):
 ```
 
 The client detects the instance version and uses API v3 on Lemmy 0.19 or API
-v4 on Lemmy 1.0 for the inbox.  The page layer sees the same object interface
-on both versions:
+v4 on Lemmy 1.0 for listings, the inbox, saved/liked/hidden content and read
+state.  Bare community and user names are resolved to ids through search, so
+remote names work on both versions.  The page layer sees the same object
+interface on both versions:
 
 ```python
 for notification in client.list_notifications(unread_only=True):

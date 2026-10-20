@@ -10,7 +10,12 @@ import pytest
 from tuil import exceptions
 from tuil.api import Comment, Notification, Post, PrivateMessage
 from tuil.api.paging import Pager
-from tuil.content import Content, SubmissionContent, SubredditContent
+from tuil.content import (
+    Content,
+    InboxContent,
+    SubmissionContent,
+    SubredditContent,
+)
 
 FIXTURES = Path(__file__).parent / 'api' / 'fixtures'
 
@@ -313,6 +318,35 @@ def test_saved_comment_in_user_listing_is_rendered(config):
     data = content.get(0)
     assert data['type'] == 'SavedComment'
     assert '[Comment]' in data['title']
+    assert data['body'] == data['text']
+    assert data['html'] == data['body']
+
+
+def test_sent_message_detection():
+    sent = type('Message', (), {
+        'is_private_message': True,
+        'creator_id': 7,
+    })()
+    received = type('Message', (), {
+        'is_private_message': True,
+        'creator_id': 2,
+    })()
+    comment = type('Comment', (), {'creator_id': 7})()
+
+    assert InboxContent._is_sent_message(sent, 7) is True
+    assert InboxContent._is_sent_message(received, 7) is False
+    assert InboxContent._is_sent_message(comment, 7) is False
+    assert InboxContent._is_sent_message(sent, None) is False
+
+    comment_reply = type('Item', (), {'data_type': 'comment'})()
+    post_reply = type('Item', (), {'data_type': 'post'})()
+    items = [comment_reply, post_reply, sent, received]
+    assert InboxContent._filter_items(items, 'comments', 7, True) == [
+        comment_reply]
+    assert InboxContent._filter_items(items, 'posts', 7, True) == [
+        post_reply]
+    assert InboxContent._filter_items(items, 'all', 7, True) == [
+        comment_reply, post_reply, received]
 
 
 def test_strip_private_message():

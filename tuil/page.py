@@ -368,7 +368,7 @@ class Page(object):
             body = data['text']
             description = 'post'
             reply = data['object'].reply
-        elif data['type'] in ('Comment', 'InboxComment'):
+        elif data['type'] in ('Comment', 'InboxComment', 'SavedComment'):
             body = data['body']
             description = 'comment'
             reply = data['object'].reply
@@ -445,7 +445,7 @@ class Page(object):
             content = data['text']
             info = docs.SUBMISSION_EDIT_FILE.format(
                 content=content, id=data['object'].id)
-        elif data['type'] == 'Comment':
+        elif data['type'] in ('Comment', 'SavedComment'):
             content = data['body']
             info = docs.COMMENT_EDIT_FILE.format(
                 content=content, id=data['object'].id)

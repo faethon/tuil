@@ -22,8 +22,10 @@ TUIL is in early development and supports:
 - Status bar themes, custom key bindings and mailcap media handling
 
 Most functionality works with Lemmy 0.19.x and Lemmy 1.0. The client uses the
-older v3 API on 0.19 instances and switches to v4 for saved content, the inbox,
-mentions, private messages, read state, saved and hidden content on 1.0.
+older v3 API on 0.19 instances and switches to v4 for community, post and user
+listings, the inbox, mentions, private messages, read state, and saved, liked
+and hidden content on 1.0.
+
 Multireddits, domain listings and Reddit gold are not part of Lemmy. Post
 hiding is available on Lemmy 1.0; on 0.19 the key binding shows an error.
 

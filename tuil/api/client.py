@@ -7,8 +7,14 @@ v4 on Lemmy 1.0.  Every list method returns a
 """
 
 import re
+from urllib.parse import urlsplit
 
-from .errors import InvalidResponseError
+from .errors import (
+    BadRequestError,
+    InvalidResponseError,
+    NotFoundError,
+    UnsupportedFeatureError,
+)
 from .http import LemmyHTTP
 from .models import (
     Comment,
@@ -35,6 +41,52 @@ COMMENT_SORTS = ('Hot', 'Top', 'New', 'Old', 'Controversial')
 LISTING_TYPES = ('All', 'Local', 'Subscribed', 'ModeratorView')
 SEARCH_TYPES = ('All', 'Comments', 'Posts', 'Communities', 'Users', 'Url')
 
+V4_LISTING_TYPES = {
+    'All': 'all',
+    'Local': 'local',
+    'Subscribed': 'subscribed',
+    'ModeratorView': 'moderator_view',
+    'Suggested': 'suggested',
+}
+V4_POST_SORTS = {
+    'Active': 'active',
+    'Hot': 'hot',
+    'New': 'new',
+    'Old': 'old',
+    'Top': 'top',
+    'MostComments': 'most_comments',
+    'NewComments': 'new_comments',
+    'Controversial': 'controversial',
+    'Scaled': 'scaled',
+}
+V4_TOP_SECONDS = {
+    'TopSixHour': 6 * 60 * 60,
+    'TopTwelveHour': 12 * 60 * 60,
+    'TopDay': 24 * 60 * 60,
+    'TopWeek': 7 * 24 * 60 * 60,
+    'TopMonth': 30 * 24 * 60 * 60,
+    'TopThreeMonths': 90 * 24 * 60 * 60,
+    'TopSixMonths': 180 * 24 * 60 * 60,
+    'TopNineMonths': 270 * 24 * 60 * 60,
+    'TopYear': 365 * 24 * 60 * 60,
+    'TopAll': 0,
+}
+V4_COMMUNITY_SORTS = {
+    'Active': 'active_monthly',
+    'Hot': 'hot',
+    'New': 'new',
+    'Old': 'old',
+    'TopAll': 'subscribers',
+    'TopDay': 'active_daily',
+    'TopWeek': 'active_weekly',
+    'TopMonth': 'active_monthly',
+    'TopSixMonths': 'active_six_months',
+    'MostComments': 'comments',
+    'MostPosts': 'posts',
+    'NameAsc': 'name_asc',
+    'NameDesc': 'name_desc',
+}
+
 MAX_PAGE_SIZE = 50
 
 
@@ -52,6 +104,8 @@ class LemmyClient(object):
         self._my_user_loaded = False
         self._server_major = None
         self._v4_capable = None
+        self._community_cache = {}
+        self._person_cache = {}
 
     @property
     def instance(self):
@@ -146,9 +200,16 @@ class LemmyClient(object):
 
     def site(self):
         """Fetch instance metadata, including the logged-in user if any."""
-        return Site(self, self._http.get('/site'))
+        site = Site(self, self._http.get('/site'))
+        self._set_server_version(site.version)
+        return site
 
     get_site = site
+
+    def _set_server_version(self, version):
+        match = re.match(r'\s*(\d+)', str(version or ''))
+        self._server_major = int(match.group(1)) if match else 0
+        self._v4_capable = self._server_major >= 1
 
     def version(self):
         return self.site().version
@@ -158,11 +219,14 @@ class LemmyClient(object):
         if self._http.api_version >= 4:
             return True
         if self._v4_capable is None:
-            version = self.version() or ''
-            match = re.match(r'\s*(\d+)', str(version))
-            self._server_major = int(match.group(1)) if match else 0
-            self._v4_capable = self._server_major >= 1
+            self._set_server_version(self.version())
         return self._v4_capable
+
+    def _use_v4(self):
+        """Use v4 without triggering a site lookup for uninitialised clients."""
+        if self._http.api_version >= 4:
+            return True
+        return self._v4_capable is True
 
     # ------------------------------------------------------------------
     # Posts and comments
@@ -174,10 +238,31 @@ class LemmyClient(object):
         """Iterate over posts.
 
         ``community`` and ``creator`` may be model instances, numeric ids or
-        (for communities) names.  Community names are passed to Lemmy without
-        an extra lookup.
+        names.  On Lemmy 1.0 names are resolved to ids because the v4 list
+        endpoint does not reliably resolve unqualified federated names.
         """
         self._check_page_size(page_size)
+        if self._use_v4():
+            if saved_only or liked_only or disliked_only:
+                raise UnsupportedFeatureError(
+                    'Use list_saved() or list_liked() on Lemmy 1.0')
+            params = {
+                'type_': V4_LISTING_TYPES.get(type_, type_),
+                'show_read': True,
+            }
+            if community is not None:
+                params['community_id'] = self._community_id(community)
+            if creator is not None:
+                params['creator_id'] = self._person_id(creator)
+            sort, seconds = self._v4_post_sort(sort)
+            if sort is not None:
+                params['sort'] = sort
+            if seconds is not None:
+                params['time_range_seconds'] = seconds
+            return self._cursor_pager(
+                '/post/list', params, page_size, max_items,
+                self._post_from_view)
+
         params = {
             'type_': type_,
             'sort': sort,
@@ -193,7 +278,7 @@ class LemmyClient(object):
             elif str(community).isdigit():
                 params['community_id'] = int(community)
             else:
-                params['community_name'] = str(community)
+                params['community_id'] = self._community_id(community)
         if creator is not None:
             if isinstance(creator, User):
                 params['creator_id'] = creator.id
@@ -206,7 +291,7 @@ class LemmyClient(object):
 
         return self._pager(
             '/post/list', 'posts', params, page_size, max_items,
-            lambda item: Post(self, item))
+            self._post_from_view)
 
     def get_post(self, post_id, comment_id=None):
         post_id = self._post_id(post_id)
@@ -214,7 +299,7 @@ class LemmyClient(object):
         if comment_id is not None:
             params['comment_id'] = self._comment_id(comment_id)
         data = self._http.get('/post', params=params)
-        return Post(self, data.get('post_view') or {})
+        return self._post_from_view(data.get('post_view') or {})
 
     def list_comments(self, *, post=None, community=None, sort=None,
                       max_depth=None, parent_id=None, saved_only=None,
@@ -245,12 +330,12 @@ class LemmyClient(object):
 
         return self._pager(
             '/comment/list', 'comments', params, page_size, max_items,
-            lambda item: Comment(self, item))
+            self._comment_from_view)
 
     def get_comment(self, comment_id):
         comment_id = self._comment_id(comment_id)
         data = self._http.get('/comment', params={'id': comment_id})
-        return Comment(self, data.get('comment_view') or {})
+        return self._comment_from_view(data.get('comment_view') or {})
 
     # ------------------------------------------------------------------
     # Communities and people
@@ -259,6 +344,16 @@ class LemmyClient(object):
     def list_communities(self, *, type_=None, sort=None, show_nsfw=None,
                          page_size=50, max_items=None):
         self._check_page_size(page_size)
+        if self._use_v4():
+            params = {
+                'type_': V4_LISTING_TYPES.get(type_, type_),
+                'sort': V4_COMMUNITY_SORTS.get(sort, sort),
+                'show_nsfw': show_nsfw,
+            }
+            return self._cursor_pager(
+                '/community/list', params, page_size, max_items,
+                self._community_from_view)
+
         params = {
             'type_': type_,
             'sort': sort,
@@ -266,30 +361,62 @@ class LemmyClient(object):
         }
         return self._pager(
             '/community/list', 'communities', params, page_size, max_items,
-            lambda item: Community(self, item))
+            self._community_from_view)
 
     def get_community(self, community):
-        params = {}
+        use_v4 = self._use_v4()
+        name = None
         if isinstance(community, Community):
-            params['id'] = community.id
+            params = {'id': community.id}
         elif isinstance(community, int):
-            params['id'] = community
+            params = {'id': community}
         elif str(community).isdigit():
-            params['id'] = int(community)
+            params = {'id': int(community)}
         else:
-            params['name'] = str(community)
-        data = self._http.get('/community', params=params)
-        return Community(
-            self, data.get('community_view') or {}, details=data)
+            name = self._normalize_name(community)
+            cached = self._community_cache.get('name:' + name.lower())
+            if cached:
+                return Community(self, cached)
+            params = {'name': name}
+
+        try:
+            data = self._http.get(
+                '/community', params=params,
+                api_version=4 if use_v4 else None)
+        except (BadRequestError, NotFoundError):
+            if name is None or '@' in name:
+                raise
+            found = self._search_community(name)
+            if not found:
+                raise
+            data = self._http.get(
+                '/community', params={'id': found['id']},
+                api_version=4 if use_v4 else None)
+
+        view = data.get('community_view') or {}
+        self._remember_community(view.get('community'))
+        return Community(self, view, details=data)
 
     def get_user(self, user, *, sort=None, page_size=50, include_content=True):
         self._check_page_size(page_size)
-        params = {'sort': sort, 'limit': page_size}
-        params.update(self._person_params(user))
-        data = self._http.get('/user', params=params)
+        if self._use_v4():
+            data = self._person_data(user)
+            view = data.get('person_view') or {}
+            posts = comments = []
+            if include_content:
+                posts = self.list_user_posts(
+                    user, sort=sort, page_size=page_size).take(page_size)
+                comments = self.list_user_comments(
+                    user, sort=sort, page_size=page_size).take(page_size)
+            moderates = data.get('moderates') or []
+            return User(self, view, posts=posts, comments=comments,
+                        moderates=moderates)
+
+        data = self._fetch_user_v3(
+            user, {'sort': sort, 'limit': page_size})
         view = data.get('person_view') or {}
-        posts = [Post(self, item) for item in data.get('posts') or []]
-        comments = [Comment(self, item)
+        posts = [self._post_from_view(item) for item in data.get('posts') or []]
+        comments = [self._comment_from_view(item)
                     for item in data.get('comments') or []]
         moderates = data.get('moderates') or []
         if not include_content:
@@ -299,39 +426,52 @@ class LemmyClient(object):
 
     def list_user_posts(self, user, *, sort=None, page_size=50,
                         max_items=None):
+        if self._use_v4():
+            return self._user_content_v4(
+                user, 'posts', page_size, max_items)
         return self._user_content_pager(
             user, 'posts', sort, page_size, max_items,
-            lambda item: Post(self, item))
+            self._post_from_view)
 
     def list_user_comments(self, user, *, sort=None, page_size=50,
                            max_items=None):
+        if self._use_v4():
+            return self._user_content_v4(
+                user, 'comments', page_size, max_items)
         return self._user_content_pager(
             user, 'comments', sort, page_size, max_items,
-            lambda item: Comment(self, item))
+            self._comment_from_view)
 
     def list_user_content(self, user, *, sort=None, page_size=50,
                           max_items=None):
         """Iterate over a user's posts and comments.
 
         The v3 ``/user`` endpoint returns both lists for each page, so the
-        combined pager yields posts followed by comments.  The UI only needs
-        one item at a time, and this keeps paging correct without losing either
-        kind of content.
+        combined pager yields posts followed by comments.  The v4 API provides
+        a single cursor-paginated endpoint for both kinds of content.
         """
         self._check_page_size(page_size)
-        person_params = self._person_params(user)
+        if self._use_v4():
+            return self._user_content_v4(user, 'all', page_size, max_items)
 
         def fetch(page):
-            params = {'sort': sort, 'page': page, 'limit': page_size}
-            params.update(person_params)
-            data = self._http.get('/user', params=params)
+            data = self._fetch_user_v3(
+                user, {'sort': sort, 'page': page, 'limit': page_size})
             posts = data.get('posts') or []
             comments = data.get('comments') or []
-            items = [Post(self, item) for item in posts]
-            items.extend(Comment(self, item) for item in comments)
+            items = [self._post_from_view(item) for item in posts]
+            items.extend(self._comment_from_view(item) for item in comments)
             return items, bool(posts or comments)
 
         return Pager(fetch, max_items=max_items)
+
+    def _user_content_v4(self, user, type_, page_size, max_items):
+        self._check_page_size(page_size)
+        params = self._person_params(user)
+        params['type_'] = type_
+        return self._cursor_pager(
+            '/person/content', params, page_size, max_items,
+            self._combined_item)
 
     def list_saved(self, *, type_=None, page_size=50, max_items=None):
         """Iterate over saved posts and comments through the v4 API."""
@@ -359,8 +499,8 @@ class LemmyClient(object):
 
     def _combined_item(self, item):
         if item.get('type_') == 'comment':
-            return Comment(self, item)
-        return Post(self, item)
+            return self._comment_from_view(item)
+        return self._post_from_view(item)
 
     def _user_content_pager(self, user, key, sort, page_size, max_items,
                             factory):
@@ -406,7 +546,7 @@ class LemmyClient(object):
             elif str(community).isdigit():
                 params['community_id'] = int(community)
             else:
-                params['community_name'] = str(community)
+                params['community_id'] = self._community_id(community)
         if creator is not None:
             params['creator_id'] = self._person_id(creator)
         return SearchResults(self, self._http.get('/search', params=params))
@@ -512,21 +652,26 @@ class LemmyClient(object):
         data = self._http.post('/private_message', {
             'content': content,
             'recipient_id': self._person_id(recipient),
-        })
+        }, api_version=4 if self.supports_v4() else None)
         return PrivateMessage(self, data.get('private_message_view') or {})
 
     def edit_message(self, message_id, content):
         data = self._http.put('/private_message', {
             'private_message_id': message_id,
             'content': content,
-        })
+        }, api_version=4 if self.supports_v4() else None)
         return PrivateMessage(self, data.get('private_message_view') or {})
 
     def delete_message(self, message_id, deleted=True):
-        data = self._http.post('/private_message/delete', {
+        payload = {
             'private_message_id': message_id,
             'deleted': bool(deleted),
-        })
+        }
+        if self.supports_v4():
+            data = self._http.delete(
+                '/private_message', payload, api_version=4)
+        else:
+            data = self._http.post('/private_message/delete', payload)
         return PrivateMessage(self, data.get('private_message_view') or {})
 
     # ------------------------------------------------------------------
@@ -684,6 +829,204 @@ class LemmyClient(object):
     # Helpers
     # ------------------------------------------------------------------
 
+    def _post_from_view(self, item):
+        item = item or {}
+        self._remember_person(item.get('creator'))
+        self._remember_community(item.get('community'))
+        return Post(self, item)
+
+    def _comment_from_view(self, item):
+        item = item or {}
+        self._remember_person(item.get('creator'))
+        self._remember_community(item.get('community'))
+        return Comment(self, item)
+
+    def _community_from_view(self, item):
+        item = item or {}
+        self._remember_community(item.get('community') or item)
+        return Community(self, item)
+
+    @staticmethod
+    def _normalize_name(value):
+        value = str(value or '').strip()
+        if '://' in value:
+            value = urlsplit(value).path.rstrip('/').split('/')[-1]
+        return value.lstrip('!@')
+
+    @staticmethod
+    def _qualified_name(data, name):
+        actor = data.get('ap_id') or data.get('actor_id')
+        if not actor or not name:
+            return None
+        host = urlsplit(actor).netloc
+        return '{}@{}'.format(name, host) if host else None
+
+    def _remember_community(self, data):
+        if isinstance(data, Community):
+            data = data.community
+        if not isinstance(data, dict):
+            return
+        if isinstance(data.get('community'), dict):
+            data = data['community']
+        name = data.get('name')
+        identifier = data.get('id')
+        if not name and identifier is None:
+            return
+        if identifier is not None:
+            self._community_cache['id:' + str(identifier)] = data
+        if name:
+            self._community_cache['name:' + str(name).lower()] = data
+            qualified = self._qualified_name(data, name)
+            if qualified:
+                self._community_cache[
+                    'name:' + qualified.lower()] = data
+
+    def _remember_person(self, data):
+        if isinstance(data, User):
+            data = data.person
+        if not isinstance(data, dict):
+            return
+        if isinstance(data.get('person'), dict):
+            data = data['person']
+        name = data.get('name')
+        identifier = data.get('id')
+        if not name and identifier is None:
+            return
+        if identifier is not None:
+            self._person_cache['id:' + str(identifier)] = data
+        if name:
+            self._person_cache['name:' + str(name).lower()] = data
+            qualified = self._qualified_name(data, name)
+            if qualified:
+                self._person_cache['name:' + qualified.lower()] = data
+
+    @staticmethod
+    def _select_exact(views, name):
+        exact = [
+            view for view in views
+            if (view.get('name') or '').lower() == name.lower()
+        ]
+        if not exact:
+            return None
+        exact.sort(key=lambda view: not view.get('local'))
+        return exact[0]
+
+    def _search_community(self, name):
+        if self._use_v4():
+            data = self._http.get(
+                '/search',
+                params={
+                    'search_term': name,
+                    'type_': 'communities',
+                    'limit': 50,
+                },
+                api_version=4)
+        else:
+            data = self._http.get(
+                '/search',
+                params={'q': name, 'type_': 'Communities', 'limit': 50})
+        views = [
+            item.get('community') or {}
+            for item in data.get('communities') or []
+        ]
+        return self._select_exact(views, name)
+
+    def _search_person(self, name):
+        if self._use_v4():
+            data = self._http.get(
+                '/search',
+                params={
+                    'search_term': name,
+                    'type_': 'users',
+                    'limit': 50,
+                },
+                api_version=4)
+            key = 'persons'
+        else:
+            data = self._http.get(
+                '/search',
+                params={'q': name, 'type_': 'Users', 'limit': 50})
+            key = 'users'
+        views = [
+            item.get('person') or {}
+            for item in data.get(key) or []
+        ]
+        return self._select_exact(views, name)
+
+    def _fetch_user_v3(self, person, params):
+        params = dict(params)
+        params.update(self._person_params(person))
+        try:
+            data = self._http.get('/user', params=params)
+        except (BadRequestError, NotFoundError):
+            if 'username' not in params:
+                raise
+            found = self._search_person(
+                self._normalize_name(person))
+            if not found:
+                raise
+            self._remember_person(found)
+            params.pop('username', None)
+            params['person_id'] = found['id']
+            data = self._http.get('/user', params=params)
+        view = data.get('person_view') or {}
+        self._remember_person(view.get('person'))
+        return data
+
+    def _person_data(self, person):
+        use_v4 = self._use_v4()
+        name = None
+        if isinstance(person, User):
+            data = person.person
+            self._remember_person(data)
+            return {'person_view': {'person': data}}
+        if isinstance(person, int):
+            params = {'person_id': person}
+            cached = self._person_cache.get('id:' + str(person))
+            if cached:
+                return {'person_view': {'person': cached}}
+        elif str(person).isdigit():
+            params = {'person_id': int(person)}
+            cached = self._person_cache.get('id:' + str(person))
+            if cached:
+                return {'person_view': {'person': cached}}
+        else:
+            name = self._normalize_name(person)
+            cached = self._person_cache.get('name:' + name.lower())
+            if cached:
+                return {'person_view': {'person': cached}}
+            params = {'username': name}
+
+        try:
+            data = self._http.get(
+                '/person' if use_v4 else '/user',
+                params=params,
+                api_version=4 if use_v4 else None)
+        except NotFoundError:
+            if not use_v4 or name is None or '@' in name:
+                raise
+            found = self._search_person(name)
+            if not found:
+                raise
+            data = self._http.get(
+                '/person', params={'person_id': found['id']},
+                api_version=4)
+        view = data.get('person_view') or {}
+        self._remember_person(view.get('person'))
+        return data
+
+    @staticmethod
+    def _v4_post_sort(sort):
+        if not sort:
+            return None, None
+        if sort in V4_TOP_SECONDS:
+            return 'top', V4_TOP_SECONDS[sort]
+        if sort in V4_POST_SORTS:
+            return V4_POST_SORTS[sort], None
+        if sort in V4_POST_SORTS.values():
+            return sort, None
+        raise ValueError('Unknown post sort: {}'.format(sort))
+
     def _pager(self, path, key, params, page_size, max_items, factory):
         self._check_page_size(page_size)
 
@@ -742,7 +1085,11 @@ class LemmyClient(object):
             return community
         if str(community).isdigit():
             return int(community)
-        return self.get_community(str(community)).id
+        name = self._normalize_name(community)
+        cached = self._community_cache.get('name:' + name.lower())
+        if cached and cached.get('id') is not None:
+            return cached['id']
+        return self.get_community(name).id
 
     def _person_id(self, person):
         if isinstance(person, User):
@@ -751,6 +1098,9 @@ class LemmyClient(object):
             return person
         if str(person).isdigit():
             return int(person)
+        if self._use_v4():
+            data = self._person_data(person)
+            return (data.get('person_view') or {}).get('person', {}).get('id')
         return self.get_user(str(person), include_content=False).id
 
     def _person_params(self, person):
@@ -760,7 +1110,13 @@ class LemmyClient(object):
             return {'person_id': person}
         if str(person).isdigit():
             return {'person_id': int(person)}
-        return {'username': str(person)}
+        if self._use_v4():
+            return {'person_id': self._person_id(person)}
+        name = self._normalize_name(person)
+        cached = self._person_cache.get('name:' + name.lower())
+        if cached and cached.get('id') is not None:
+            return {'person_id': cached['id']}
+        return {'username': name}
 
     @staticmethod
     def _post_id(post):

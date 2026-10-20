@@ -163,6 +163,11 @@ class LemmyHTTP(object):
             'PUT', path, params=params, json_body=data,
             api_version=api_version)
 
+    def delete(self, path, data=None, *, params=None, api_version=None):
+        return self.request(
+            'DELETE', path, params=params, json_body=data,
+            api_version=api_version)
+
     def request(self, method, path, *, params=None, json_body=None,
                 cache=None, api_version=None):
         method = method.upper()

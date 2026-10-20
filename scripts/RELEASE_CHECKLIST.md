@@ -12,6 +12,7 @@ Release Checklist
 9. Build the source tarball and binary wheel: ``$ python3 setup.py sdist bdist_wheel``
 10. Smoke test the new release on Python 3.
 11. Push the unpublished changes and the tag.
-12. Upload the packages to PyPI: ``$ twine upload dist/*``
-13. Verify that the upload was successful: ``$ pip install tuil --upgrade --force-reinstall``
+12. Create a GitHub release and attach the packages:
+    ``$ gh release create vX.Y.Z dist/* --title vX.Y.Z --notes-file CHANGELOG.rst``
+13. Optionally upload the packages to PyPI: ``$ twine upload dist/*``
 14. Delete any old and unused branches that have been merged.

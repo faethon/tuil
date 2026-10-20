@@ -40,6 +40,7 @@ text formats are recognized:
 - ``/u/me/saved`` - View your saved content
 - ``/u/me/upvoted`` - View your upvoted content
 - ``/u/me/downvoted`` - View your downvoted content
+- ``/u/me/hidden`` - View your hidden posts (Lemmy 1.0 or newer)
 - ``/u/alice`` - View a user's posts and comments
 - ``/u/alice/submitted`` - View a user's posts
 - ``/u/alice/comments`` - View a user's comments
@@ -71,6 +72,7 @@ The following actions can be performed when viewing a community:
 - <kbd>f</kbd> - Open a prompt to search the current community for a text string
 - <kbd>t</kbd> - Join this community
 - <kbd>T</kbd> - Leave this community
+- <kbd>SPACE</kbd> - Hide or unhide the selected post (Lemmy 1.0 or newer)
 - <kbd>v</kbd> - Open the community for the selected post
 - <kbd>V</kbd> - Open the author's user page for the selected post
 
@@ -103,7 +105,7 @@ The following actions can be performed when viewing your inbox:
 - <kbd>c</kbd> - Reply to the selected comment or message
 - <kbd>w</kbd> - Mark the selected comment or message as read
 
-## Unavailable Reddit Features
+## Features Not in Lemmy
 
 Multireddits, domain listings and gilded posts are specific to Reddit and are
 not available in Lemmy. Their legacy key bindings show an error or do nothing.

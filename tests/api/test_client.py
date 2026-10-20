@@ -30,6 +30,7 @@ from tuil.api.paging import Pager
 FIXTURES = Path(__file__).parent / 'fixtures'
 INSTANCE = 'https://lemmy.ml'
 API = INSTANCE + '/api/v3'
+API4 = INSTANCE + '/api/v4'
 
 
 def fixture(name):
@@ -880,6 +881,145 @@ def test_v4_version_detection():
 
 
 @responses.activate
+def test_v3_browsing_resolves_community_name_through_search():
+    community = dict(post_view()['community'])
+
+    def community_callback(request):
+        query = request_query(request)
+        if 'name' in query:
+            return (400, {'Content-Type': 'application/json'},
+                    json.dumps({'error': 'couldnt_find_community'}))
+        return (200, {'Content-Type': 'application/json'},
+                json.dumps({'community_view': {'community': community}}))
+
+    responses.add_callback(
+        responses.GET, re.compile(re.escape(API + '/community') + r'\?.*'),
+        callback=community_callback)
+    add_json(responses.GET, '/search', {
+        'communities': [{'community': community}],
+    })
+    add_json(responses.GET, '/post/list', {
+        'posts': [post_view()],
+    })
+    client = LemmyClient('lemmy.ml')
+
+    posts = client.list_posts(
+        type_='All', sort='Hot', community='test', page_size=1).take(1)
+
+    assert posts[0].community_name == community['name']
+    queries = [request_query(call.request) for call in responses.calls]
+    assert queries[0]['name'] == ['test']
+    assert queries[1]['type_'] == ['Communities']
+    assert queries[2]['id'] == [str(community['id'])]
+    assert queries[3]['community_id'] == [str(community['id'])]
+
+
+@responses.activate
+def test_v3_user_content_resolves_remote_username():
+    person = user_view()['person']
+    data = fixture('user.json')
+
+    def user_callback(request):
+        query = request_query(request)
+        if 'username' in query:
+            return (404, {'Content-Type': 'application/json'},
+                    json.dumps({'error': 'couldnt_find_person'}))
+        return (200, {'Content-Type': 'application/json'}, json.dumps(data))
+
+    responses.add_callback(
+        responses.GET, re.compile(re.escape(API + '/user') + r'\?.*'),
+        callback=user_callback)
+    add_json(responses.GET, '/search', {
+        'users': [{'person': person}],
+    })
+    client = LemmyClient('lemmy.ml')
+
+    items = client.list_user_content('dessalines', page_size=2).take(2)
+
+    assert items
+    queries = [request_query(call.request) for call in responses.calls]
+    assert queries[0]['username'] == ['dessalines']
+    assert queries[1]['type_'] == ['Users']
+    assert queries[2]['person_id'] == [str(person['id'])]
+    assert 'username' not in queries[2]
+
+
+@responses.activate
+def test_v4_browsing_resolves_community_and_sorts():
+    community = dict(post_view()['community'])
+
+    def community_callback(request):
+        query = request_query(request)
+        if 'name' in query:
+            return (404, {'Content-Type': 'application/json'},
+                    json.dumps({'error': 'not_found'}))
+        return (200, {'Content-Type': 'application/json'},
+                json.dumps({'community_view': {'community': community}}))
+
+    responses.add_callback(
+        responses.GET, re.compile(re.escape(API4 + '/community') + r'\?.*'),
+        callback=community_callback)
+    add_json4(responses.GET, '/search', {
+        'communities': [{'community': community}],
+    })
+    add_json4(responses.GET, '/post/list', {
+        'items': [v4_post_item()],
+    })
+    client = LemmyClient('lemmy.ml', api_version=4)
+
+    posts = client.list_posts(
+        type_='All', sort='TopDay', community='test', page_size=1).take(1)
+
+    assert posts[0].title == post_view(0)['post']['name']
+    assert posts[0].community_id == community['id']
+    queries = [request_query(call.request) for call in responses.calls]
+    assert queries[0]['name'] == ['test']
+    assert queries[1]['type_'] == ['communities']
+    assert queries[2]['id'] == [str(community['id'])]
+    assert queries[3]['community_id'] == [str(community['id'])]
+    assert queries[3]['type_'] == ['all']
+    assert queries[3]['sort'] == ['top']
+    assert queries[3]['time_range_seconds'] == ['86400']
+    assert queries[3]['show_read'] == ['true']
+
+
+@responses.activate
+def test_v4_person_content_resolves_remote_username():
+    person = user_view()['person']
+
+    def person_callback(request):
+        query = request_query(request)
+        if 'username' in query:
+            return (404, {'Content-Type': 'application/json'},
+                    json.dumps({'error': 'not_found'}))
+        return (200, {'Content-Type': 'application/json'},
+                json.dumps({'person_view': {'person': person}}))
+
+    responses.add_callback(
+        responses.GET, re.compile(re.escape(API4 + '/person') + r'\?.*'),
+        callback=person_callback)
+    add_json4(responses.GET, '/search', {
+        'persons': [{'person': person}],
+    })
+    add_json4(responses.GET, '/person/content', {
+        'items': [v4_post_item(), v4_comment_item()],
+        'next_page': 'person-2',
+    })
+    client = LemmyClient('lemmy.ml', api_version=4)
+
+    items = client.list_user_content('dessalines', page_size=2).take(2)
+
+    assert type(items[0]).__name__ == 'Post'
+    assert type(items[1]).__name__ == 'Comment'
+    queries = [request_query(call.request) for call in responses.calls]
+    assert queries[0]['username'] == ['dessalines']
+    assert queries[1]['type_'] == ['users']
+    assert queries[2]['person_id'] == [str(person['id'])]
+    assert queries[3]['person_id'] == [str(person['id'])]
+    assert queries[3]['type_'] == ['all']
+
+
+@responses.activate
 def test_v4_hidden_and_liked_content():
     hidden_post = v4_post_item()
     hidden_post['post_actions']['hidden_at'] = '2026-10-20T10:00:00Z'
@@ -912,3 +1052,30 @@ def test_v4_hidden_and_liked_content():
     hidden[0].unhide()
     assert json.loads(responses.calls[-1].request.body) == {
         'post_id': hidden[0].id, 'hide': False}
+
+
+@responses.activate
+def test_v4_private_message_writes():
+    view = message_view()
+    add_json4(responses.POST, '/private_message',
+              {'private_message_view': view})
+    add_json4(responses.PUT, '/private_message',
+              {'private_message_view': view})
+    add_json4(responses.DELETE, '/private_message',
+              {'private_message_view': view})
+    client = LemmyClient('lemmy.ml', api_version=4)
+    recipient_id = view['recipient']['id']
+
+    message = client.send_message(recipient_id, 'hello')
+    assert message.content == view['private_message']['content']
+    assert json.loads(responses.calls[-1].request.body) == {
+        'content': 'hello', 'recipient_id': recipient_id}
+
+    client.edit_message(message.id, 'edited')
+    assert json.loads(responses.calls[-1].request.body) == {
+        'private_message_id': message.id, 'content': 'edited'}
+
+    client.delete_message(message.id)
+    assert responses.calls[-1].request.method == 'DELETE'
+    assert json.loads(responses.calls[-1].request.body) == {
+        'private_message_id': message.id, 'deleted': True}

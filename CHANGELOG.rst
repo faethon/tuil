@@ -17,7 +17,9 @@ Features
 * Vote, save, post, reply, edit and delete
 * Join and leave communities
 * Read the inbox and private messages
-* Use the v4 API for inbox, saved, liked and hidden content on Lemmy 1.0
+* Use the v4 API for community, post and user listings, inbox, private
+  messages, saved, liked and hidden content on Lemmy 1.0
+* Resolve bare names for remote communities and users through search
 * Hide and unhide posts on Lemmy 1.0
 * Use Lemmy terminology and ``/c/`` community paths throughout the interface
 

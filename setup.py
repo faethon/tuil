@@ -1,5 +1,4 @@
 import sys
-import codecs
 import setuptools
 
 from version import __version__ as version
@@ -39,7 +38,7 @@ else:
 
 
 def long_description():
-    with codecs.open('README.md', encoding='utf8') as f:
+    with open('README.md', encoding='utf8') as f:
         return f.read()
 
 
@@ -62,11 +61,12 @@ setuptools.setup(
     ],
     package_data={
         'tuil': ['templates/*', 'themes/*'],
+        'tuil.packages.mailcap': ['LICENSE', 'mailcap.txt'],
     },
     data_files=[("share/man/man1", ["tuil.1"])],
     install_requires=install_requires,
-    tests_require=tests_require,
     extras_require=extras_require,
+    python_requires='>=3.10',
     entry_points={'console_scripts': ['tuil=tuil.__main__:main']},
     classifiers=[
         'Intended Audience :: End Users/Desktop',

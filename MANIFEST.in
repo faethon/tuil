@@ -2,9 +2,17 @@ include version.py
 include CHANGELOG.rst
 include AUTHORS.rst
 include README.md
+include CONTROLS.md
+include THEMES.md
+include CONTRIBUTING.rst
+include requirements.txt
 include COPYING
 include LICENSE.MIT
 include tuil/packages/mailcap/LICENSE
+include tuil/packages/mailcap/mailcap.txt
 include tuil.1
+recursive-include docs *.md
+recursive-include tests *.py *.json
+recursive-include scripts *.py *.sh *.md
 include tuil/templates/*
 include tuil/themes/*

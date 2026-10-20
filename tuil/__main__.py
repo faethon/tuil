@@ -69,8 +69,12 @@ def main():
         sys.stdout.write('\x1b]2;{0}\x07'.format(title))
         sys.stdout.flush()
 
-    args = Config.get_args()
-    fargs, bindings = Config.get_file(args.get('config'))
+    try:
+        args = Config.get_args()
+        fargs, bindings = Config.get_file(args.get('config'))
+    except ConfigError as exc:
+        print(exc)
+        return 1
 
     # Apply the file config first, then overwrite with any command line args
     if args.get('user'):
@@ -166,7 +170,7 @@ def main():
         'python version: {}'.format(sys.version.replace('\n', ' ')),
         'python executable: {}'.format(sys.executable),
         'Lemmy instance: {}'.format(config['instance'] or 'lemmy.ml'),
-        'Lemmy API: v3',
+        'Lemmy API: v3, switching to v4 on Lemmy 1.0',
         'locale, encoding: {}, {}'.format(default_locale, encoding),
         'Environment Variables']
     for name, value in [
@@ -281,6 +285,8 @@ def main():
     finally:
         # Try to save the browsing history
         config.save_history()
+        if not config['persistent']:
+            config.delete_refresh_token()
         # Ensure sockets are closed to prevent a ResourceWarning
         if 'client' in locals() and client is not None:
             client.close()

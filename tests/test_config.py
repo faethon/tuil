@@ -6,7 +6,10 @@ import json
 import codecs
 from tempfile import NamedTemporaryFile
 
+import pytest
+
 from tuil.config import Config, copy_default_config, copy_default_mailcap, _copy_settings_file
+from tuil.exceptions import ConfigError
 
 try:
     from unittest import mock
@@ -229,6 +232,24 @@ def test_config_from_file():
         assert config.keymap.get('UPVOTE') == ['']
 
 
+def test_config_invalid_boolean_reports_error():
+    with NamedTemporaryFile(suffix='.cfg', mode='w') as fp:
+        fp.write('[tuil]\npersistent = maybe\n')
+        fp.flush()
+        with pytest.raises(ConfigError) as exc:
+            Config.get_file(filename=fp.name)
+    assert 'persistent' in str(exc.value)
+
+
+def test_config_malformed_file_reports_error():
+    with NamedTemporaryFile(suffix='.cfg', mode='w') as fp:
+        fp.write('not a section\n')
+        fp.flush()
+        with pytest.raises(ConfigError) as exc:
+            Config.get_file(filename=fp.name)
+    assert fp.name in str(exc.value)
+
+
 def test_config_refresh_token():
     """Ensure that the refresh token can be loaded, saved, and removed"""
 
@@ -238,6 +259,7 @@ def test_config_refresh_token():
         # Write a new token to the file
         config.refresh_token = 'secret_value'
         config.save_refresh_token()
+        assert os.stat(fp.name).st_mode & 0o777 == 0o600
 
         # Load a valid token from the file
         config.refresh_token = None

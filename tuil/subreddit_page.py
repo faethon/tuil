@@ -228,8 +228,9 @@ class SubredditPage(Page):
         """
         # Check that the community can be posted to
         name = self.content.name
-        if '+' in name or name in ('/c/all', '/c/front', '/c/local', '/c/subscribed',
-                    '/r/all', '/r/front', '/r/me', '/u/saved'):
+        if ('u/' in name or '+' in name
+                or name in ('/c/all', '/c/front', '/c/local',
+                            '/c/subscribed', '/r/all', '/r/front', '/r/me')):
             self.term.show_notification("Can't post to {0}".format(name))
             return
 
@@ -263,7 +264,14 @@ class SubredditPage(Page):
         if data.get('type') != 'Submission':
             self.term.flash()
             return
-        supports_v4 = getattr(self.reddit, 'supports_v4', lambda: False)()
+        try:
+            supports_v4 = getattr(
+                self.reddit, 'supports_v4', lambda: False)()
+        except Exception as exc:
+            self.term.show_notification(
+                'Could not check hiding support: {}'.format(exc),
+                style='Error')
+            return
         if not supports_v4:
             self.term.show_notification(
                 'Hiding posts requires Lemmy 1.0 or newer', style='Error')

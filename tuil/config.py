@@ -11,6 +11,7 @@ import six
 from six.moves import configparser
 
 from . import docs, __version__
+from .exceptions import ConfigError
 from .objects import KeyMap, codecs_open
 
 
@@ -129,6 +130,7 @@ class Config(object):
         }
         with open(self.token_file, 'w+') as fp:
             json.dump(data, fp)
+        os.chmod(self.token_file, 0o600)
 
     def delete_refresh_token(self):
         legacy = self._legacy_token_file()
@@ -189,7 +191,11 @@ class Config(object):
                 except AttributeError:
                     # deprecated since 3.2, removed in 3.12
                     read_method = config.readfp  # pylint: disable=E1101
-                read_method(fp)
+                try:
+                    read_method(fp)
+                except configparser.Error as exc:
+                    raise ConfigError(
+                        'Could not parse {}: {}'.format(filename, exc))
 
         return cls._parse_tuil_file(config)
 
@@ -226,9 +232,10 @@ class Config(object):
             if key in tuil:
                 try:
                     tuil[key] = func(key)
-                except:
-                    import pdb; pdb.set_trace()
-                    raise
+                except (ValueError, configparser.Error) as exc:
+                    raise ConfigError(
+                        "Invalid value for '{}' in [{}]: {}".format(
+                            key, section or 'tuil', exc))
 
         bindings = {}
         if config.has_section('bindings'):
@@ -300,10 +307,12 @@ def build_parser():
         help='The user for this session; simple multi-account support')
     parser.add_argument(
         '--copy-config', dest='copy_config', action='store_const', const=True,
-        help='Copy the default configuration to {HOME}/.config/tuil/tuil.cfg')
+        help='Copy the default configuration to '
+             '$XDG_CONFIG_HOME/tuil/tuil.cfg')
     parser.add_argument(
         '--copy-mailcap', dest='copy_mailcap', action='store_const', const=True,
-        help='Copy an example mailcap configuration to {HOME}/.mailcap')
+        help='Copy an example mailcap configuration to '
+             '$XDG_CONFIG_HOME/tuil/mailcap')
     parser.add_argument(
         '--enable-media', dest='enable_media', action='store_const', const=True,
         help='Open external links using programs defined in the mailcap config')

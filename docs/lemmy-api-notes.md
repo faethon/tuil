@@ -15,8 +15,18 @@ Most public instances still run 0.19.x, so v3 is the first target.
 
 ## API v3 on Lemmy 1.0
 
-The backwards-compatible v3 API on 1.0 covers browsing, login, voting,
-saving, posting and commenting, but not the inbox and read-state endpoints:
+The backwards-compatible v3 API on 1.0 covers login, voting, saving, posting,
+commenting and searching, but not the inbox and read-state endpoints.  Listing
+endpoints have two additional traps:
+
+- v3 list endpoints still accept old query parameters, but several now require
+  lowercase enum values.  For example `type_=All` works on
+  `/api/v3/post/list`, while `/api/v3/community/list` returns 400.
+- Federated names must be fully qualified.  `/api/v3/post/list?community_name=test`
+  and `/api/v3/community?name=test` fail or return an empty list for a remote
+  community, while `community_name=test@lemmy.ml` and `community_id=892` work.
+  The same applies to remote people.  tuil resolves bare names through
+  `/api/v3/search` and then uses the returned id.
 
 | Endpoint | 0.19.20 | 1.0 nightly |
 |---|---|---|
@@ -40,10 +50,10 @@ saving, posting and commenting, but not the inbox and read-state endpoints:
 | `POST /api/v3/comment/mark_as_read` | 401 anonymous | 404 |
 | `POST /api/v3/private_message/mark_as_read` | 401 anonymous | 404 |
 
-This is why tuil uses a v4 backend for full parity on 1.0: inbox, mentions,
-private messages, unread counters, saved content and read state.  v3 remains
-sufficient for 0.19 and for anonymous browsing on every instance.  The client
-checks the site version and switches only the affected endpoints.
+This is why tuil uses v4 for community, post and user listings on 1.0, and for
+inbox, mentions, private messages, unread counters, saved content and read
+state.  v3 remains sufficient for 0.19.  The client checks the site version and
+switches only the affected endpoints.
 
 ## API v4
 
@@ -52,6 +62,12 @@ page numbers with cursors.  The endpoints used by tuil are:
 
 | Purpose | Endpoint |
 |---|---|
+| Post listing | `GET /api/v4/post/list` |
+| Community listing | `GET /api/v4/community/list` |
+| Community lookup | `GET /api/v4/community` |
+| User details | `GET /api/v4/person` |
+| Person content | `GET /api/v4/person/content` |
+| Name resolution | `GET /api/v4/search` |
 | Inbox | `GET /api/v4/account/notification/list` |
 | Unread count | `GET /api/v4/account/unread_counts` |
 | Mark one notification | `POST /api/v4/account/notification/mark_as_read` |
@@ -60,7 +76,7 @@ page numbers with cursors.  The endpoints used by tuil are:
 | Upvoted/downvoted content | `GET /api/v4/account/liked` |
 | Hidden posts | `GET /api/v4/account/hidden` |
 | Hide or unhide a post | `POST /api/v4/post/hide` |
-| Person content | `GET /api/v4/person/content` |
+| Send/edit/delete a private message | `POST`/`PUT`/`DELETE /api/v4/private_message` |
 
 The notification list accepts `type_` (`reply`, `mention`, `subscribed`,
 `private_message`, `mod_action`, `all`), `unread_only`, `creator_id`, `limit`
@@ -70,8 +86,15 @@ object.  The `data.type_` field identifies the payload (`comment`, `post`,
 
 Private messages are special: filtering by `type_=private_message` returns both
 received and sent messages.  Adding `creator_id` returns both sides of a
-conversation with that person.  The UI filters the result locally for the
-"sent" view.
+conversation with that person.  The UI removes sender copies from the received
+views and keeps them for the "sent" view.
+
+All v4 enum values are lowercase.  Post sorts use `top` together with
+`time_range_seconds` instead of values such as `TopDay`; top of all time is
+`time_range_seconds=0`.  Unqualified names for federated communities and people
+fail, so tuil resolves them through the version-appropriate `/search`, then
+requests the canonical object by id.  Communities and people seen in listings
+are cached by name and id for later navigation.
 
 Response fields also changed in v4.  Vote, save and read state now live in
 `post_actions`, `comment_actions`, `community_actions` and `person_actions`;

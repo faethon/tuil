@@ -617,7 +617,7 @@ class Community(Model):
 
     @property
     def actor_id(self):
-        return self.community.get('actor_id')
+        return self.community.get('actor_id') or self.community.get('ap_id')
 
     @property
     def permalink(self):
@@ -792,7 +792,7 @@ class User(Model):
 
     @property
     def actor_id(self):
-        return self.person.get('actor_id')
+        return self.person.get('actor_id') or self.person.get('ap_id')
 
     @property
     def bio(self):
@@ -1130,6 +1130,13 @@ class Notification(Model):
                 self.post_id, content,
                 parent_id=(self.data.get('comment') or {}).get('id'))
         return self._client.create_comment(self.post_id, content)
+
+    def delete(self):
+        if not self.is_private_message:
+            raise UnsupportedFeatureError(
+                'Only private messages can be deleted from the inbox')
+        message = self.data.get('private_message') or {}
+        return self._client.delete_message(message.get('id'), True)
 
 
 class _CommentInboxItem(Model):
