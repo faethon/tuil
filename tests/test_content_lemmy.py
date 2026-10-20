@@ -145,6 +145,7 @@ def test_subscription_search_qualifies_and_deduplicates():
         'search', 'tech',
         {'type_': 'Communities', 'page': 1, 'limit': 50})
     assert content.get(0)['name'] == '/c/technology@lemmy.world'
+    assert content.get(0)['title'] == 'Technology (88,892 members)'
     assert content.get(1)['name'] == '/c/piracy@lemmy.dbzer0.com'
     with pytest.raises(IndexError):
         content.get(2)

@@ -13,6 +13,7 @@ Features
 
 * Search communities with the ``F`` key
 * Show the community member count in the title bar
+* Show member counts in community search results
 
 Bugfixes
 

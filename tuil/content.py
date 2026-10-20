@@ -1137,6 +1137,14 @@ class SubscriptionContent(Content):
         host = urlparse(actor).netloc if actor else ''
         if host:
             data['name'] = '/c/{0}@{1}'.format(community.name, host)
+
+        members = community.subscribers
+        noun = 'member' if members == 1 else 'members'
+        count = '({:,} {})'.format(members, noun)
+        if data['title']:
+            data['title'] = '{} {}'.format(data['title'], count)
+        else:
+            data['title'] = count
         return data
 
     @property
