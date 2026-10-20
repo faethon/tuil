@@ -33,6 +33,23 @@ fixed order.
 
 ## Installation
 
+### From PyPI
+
+Install the `tuir-lemmy` distribution with uv. The installed command is still
+`tuil`.
+
+```bash
+$ uv tool install tuir-lemmy
+$ tuil
+```
+
+The same distribution can be installed with pip or pipx:
+
+```bash
+$ pip install tuir-lemmy
+$ pipx install tuir-lemmy
+```
+
 ### From source
 
 Python 3.10 or newer is required.

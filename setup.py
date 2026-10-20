@@ -43,7 +43,7 @@ def long_description():
 
 
 setuptools.setup(
-    name='tuil',
+    name='tuir-lemmy',
     version=version,
     description='A terminal-first Lemmy reader',
     long_description=long_description(),
