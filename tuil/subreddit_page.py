@@ -259,8 +259,25 @@ class SubredditPage(Page):
     @SubredditController.register(Command('SUBREDDIT_HIDE'))
     @logged_in
     def hide(self):
-        self.term.show_notification(
-            'Hiding posts is not available in Lemmy API v3', style='Error')
+        data = self.get_selected_item()
+        if data.get('type') != 'Submission':
+            self.term.flash()
+            return
+        supports_v4 = getattr(self.reddit, 'supports_v4', lambda: False)()
+        if not supports_v4:
+            self.term.show_notification(
+                'Hiding posts requires Lemmy 1.0 or newer', style='Error')
+            return
+
+        hidden = data['hidden']
+        post = data['object']
+        with self.term.loader('Unhiding' if hidden else 'Hiding'):
+            if hidden:
+                post.unhide()
+            else:
+                post.hide()
+        if not self.term.loader.exception:
+            self.refresh_content()
 
     @SubredditController.register(Command('SUBREDDIT_JOIN'))
     @logged_in

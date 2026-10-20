@@ -525,6 +525,7 @@ def test_vote_save_and_read_state():
     post_id = post_view()['post']['id']
     add_json(responses.POST, '/post/like', {'post_view': post_view()})
     add_json(responses.PUT, '/post/save', {'post_view': post_view()})
+    add_json(responses.GET, '/site', fixture('site.json'))
     add_json(responses.POST, '/post/mark_as_read', {})
     client = LemmyClient('lemmy.ml')
 
@@ -680,6 +681,7 @@ def test_inbox():
 def test_model_read_state_updates_locally():
     from tuil.api.models import Post
     view = post_view()
+    add_json(responses.GET, '/site', fixture('site.json'))
     add_json(responses.POST, '/post/mark_as_read', {})
     client = LemmyClient('lemmy.ml')
     post = Post(client, view)
@@ -875,3 +877,38 @@ def test_v4_version_detection():
     # The version lookup is cached.
     assert client.supports_v4() is True
     assert len(responses.calls) == 1
+
+
+@responses.activate
+def test_v4_hidden_and_liked_content():
+    hidden_post = v4_post_item()
+    hidden_post['post_actions']['hidden_at'] = '2026-10-20T10:00:00Z'
+    liked_post = v4_post_item()
+    liked_comment = v4_comment_item()
+    add_json4(responses.GET, '/account/hidden', {
+        'items': [hidden_post],
+    })
+    add_json4(responses.GET, '/account/liked', {
+        'items': [liked_post, liked_comment],
+        'next_page': 'liked-2',
+    })
+    add_json4(responses.POST, '/post/hide', {
+        'post_view': hidden_post,
+    })
+    client = LemmyClient('lemmy.ml', api_version=4)
+
+    hidden = client.list_hidden().take(1)
+    assert hidden[0].hidden is True
+    assert hidden[0].id == hidden_post['post']['id']
+
+    liked = client.list_liked(
+        like_type='disliked_only', type_='comments', page_size=2).take(2)
+    assert type(liked[0]).__name__ == 'Post'
+    assert type(liked[1]).__name__ == 'Comment'
+    query = request_query(responses.calls[-1].request)
+    assert query['like_type'] == ['disliked_only']
+    assert query['type_'] == ['comments']
+
+    hidden[0].unhide()
+    assert json.loads(responses.calls[-1].request.body) == {
+        'post_id': hidden[0].id, 'hide': False}

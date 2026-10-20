@@ -336,12 +336,16 @@ class Post(Model):
             self.id, content, language_id=language_id)
 
     def hide(self):
-        raise UnsupportedFeatureError(
-            'Hiding posts is not available in Lemmy API v3')
+        if not self._client.supports_v4():
+            raise UnsupportedFeatureError(
+                'Hiding posts requires Lemmy 1.0 or newer')
+        return self._replace(self._client.hide_post(self.id, True))
 
     def unhide(self):
-        raise UnsupportedFeatureError(
-            'Hiding posts is not available in Lemmy API v3')
+        if not self._client.supports_v4():
+            raise UnsupportedFeatureError(
+                'Hiding posts requires Lemmy 1.0 or newer')
+        return self._replace(self._client.hide_post(self.id, False))
 
 
 class Comment(Model):

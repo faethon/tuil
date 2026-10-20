@@ -745,19 +745,27 @@ class SubredditContent(Content):
             if not own:
                 raise exceptions.SubredditError(
                     'Unavailable resource: {0}'.format(resource))
+            supports_v4 = getattr(client, 'supports_v4', lambda: False)()
             if room == 'hidden':
-                raise exceptions.SubredditError(
-                    'Hidden posts are not available in Lemmy API v3')
+                if not supports_v4:
+                    raise exceptions.SubredditError(
+                        'Hidden posts require Lemmy 1.0 or newer')
+                return client.list_hidden(page_size=50)
             if room == 'saved':
-                supports_v4 = getattr(client, 'supports_v4', lambda: False)
-                if supports_v4():
+                if supports_v4:
                     return client.list_saved(page_size=50)
                 return client.list_posts(
                     saved_only=True, sort=sort, page_size=50)
             if room == 'upvoted':
+                if supports_v4:
+                    return client.list_liked(
+                        like_type='liked_only', page_size=50)
                 return client.list_posts(
                     liked_only=True, sort=sort, page_size=50)
             if room == 'downvoted':
+                if supports_v4:
+                    return client.list_liked(
+                        like_type='disliked_only', page_size=50)
                 return client.list_posts(
                     disliked_only=True, sort=sort, page_size=50)
 

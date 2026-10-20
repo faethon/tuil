@@ -17,12 +17,14 @@ Features
 * Vote, save, post, reply, edit and delete
 * Join and leave communities
 * Read the inbox and private messages
-* Use the v4 API for inbox, saved content and read state on Lemmy 1.0
+* Use the v4 API for inbox, saved, liked and hidden content on Lemmy 1.0
+* Hide and unhide posts on Lemmy 1.0
 * Use Lemmy terminology and ``/c/`` community paths throughout the interface
 
 Known limitations
 
-* Multireddits, domain listings, gold and post hiding are not available
+* Hiding posts requires Lemmy 1.0 or newer
+* Multireddits, domain listings and gold are not available
 
 .. _1.32.2: https://gitlab.com/Chocimier/tuir/tree/v1.32.2
 .. _1.32.1: https://gitlab.com/Chocimier/tuir/tree/v1.32.1

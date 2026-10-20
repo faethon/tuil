@@ -57,6 +57,9 @@ page numbers with cursors.  The endpoints used by tuil are:
 | Mark one notification | `POST /api/v4/account/notification/mark_as_read` |
 | Mark all notifications | `POST /api/v4/account/notification/mark_as_read/all` |
 | Saved posts and comments | `GET /api/v4/account/saved` |
+| Upvoted/downvoted content | `GET /api/v4/account/liked` |
+| Hidden posts | `GET /api/v4/account/hidden` |
+| Hide or unhide a post | `POST /api/v4/post/hide` |
 | Person content | `GET /api/v4/person/content` |
 
 The notification list accepts `type_` (`reply`, `mention`, `subscribed`,
@@ -77,6 +80,11 @@ counts live directly on posts, comments and communities.  Timestamps use
 
 The first page of a cursor-paginated endpoint carries a `next_page` token.
 Pass it unchanged as `page_cursor` to get the next page.  Do not parse it.
+
+`account/liked` accepts `like_type=liked_only|disliked_only` and
+`type_=all|comments|posts`; `account/saved` accepts the same `type_` filter.
+Both return the combined post/comment view with a `type_` discriminator.
+`post/hide` takes `{"post_id": 1, "hide": true}` and returns a `post_view`.
 
 ## Authentication
 

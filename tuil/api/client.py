@@ -335,16 +335,32 @@ class LemmyClient(object):
 
     def list_saved(self, *, type_=None, page_size=50, max_items=None):
         """Iterate over saved posts and comments through the v4 API."""
-        self._check_page_size(page_size)
-        params = {'type_': type_}
-
-        def factory(item):
-            if item.get('type_') == 'comment':
-                return Comment(self, item)
-            return Post(self, item)
-
         return self._cursor_pager(
-            '/account/saved', params, page_size, max_items, factory)
+            '/account/saved', {'type_': type_}, page_size, max_items,
+            self._combined_item)
+
+    def list_liked(self, *, like_type='liked_only', type_='all',
+                   page_size=50, max_items=None):
+        """Iterate over upvoted or downvoted posts and comments (v4)."""
+        if like_type not in ('liked_only', 'disliked_only'):
+            raise ValueError(
+                'like_type must be liked_only or disliked_only')
+        if type_ not in ('all', 'comments', 'posts'):
+            raise ValueError('type_ must be all, comments or posts')
+        return self._cursor_pager(
+            '/account/liked', {'like_type': like_type, 'type_': type_},
+            page_size, max_items, self._combined_item)
+
+    def list_hidden(self, *, page_size=50, max_items=None):
+        """Iterate over hidden posts through the v4 API."""
+        return self._cursor_pager(
+            '/account/hidden', {}, page_size, max_items,
+            lambda item: Post(self, item))
+
+    def _combined_item(self, item):
+        if item.get('type_') == 'comment':
+            return Comment(self, item)
+        return Post(self, item)
 
     def _user_content_pager(self, user, key, sort, page_size, max_items,
                             factory):
@@ -547,7 +563,20 @@ class LemmyClient(object):
         })
         return Comment(self, data.get('comment_view') or {})
 
+    def hide_post(self, post_id, hide=True):
+        data = self._http.post('/post/hide', {
+            'post_id': self._post_id(post_id),
+            'hide': bool(hide),
+        }, api_version=4)
+        return Post(self, data.get('post_view') or {})
+
     def mark_post_read(self, post_id, read=True):
+        if self.supports_v4():
+            data = self._http.post('/post/mark_as_read', {
+                'post_id': self._post_id(post_id),
+                'read': bool(read),
+            }, api_version=4)
+            return Post(self, data.get('post_view') or {})
         # The v3 endpoint returns an empty response.
         return self._http.post('/post/mark_as_read', {
             'post_id': self._post_id(post_id),
@@ -555,6 +584,11 @@ class LemmyClient(object):
         })
 
     def mark_posts_read(self, post_ids, read=True):
+        if self.supports_v4():
+            return self._http.post('/post/mark_as_read/many', {
+                'post_ids': [self._post_id(item) for item in post_ids],
+                'read': bool(read),
+            }, api_version=4)
         return self._http.post('/post/mark_as_read', {
             'post_ids': [self._post_id(item) for item in post_ids],
             'read': bool(read),

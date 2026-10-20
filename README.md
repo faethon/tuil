@@ -11,7 +11,7 @@ Lemmy API client.
 
 ## Status
 
-TUIL is in early development. It currently uses the Lemmy API v3 and supports:
+TUIL is in early development and supports:
 
 - Anonymous browsing of communities, posts, comments and users
 - Logging in with a username and password
@@ -23,9 +23,9 @@ TUIL is in early development. It currently uses the Lemmy API v3 and supports:
 
 Most functionality works with Lemmy 0.19.x and Lemmy 1.0. The client uses the
 older v3 API on 0.19 instances and switches to v4 for saved content, the inbox,
-mentions, private messages and read state on 1.0. Multireddits, domain
-listings, Reddit gold and post hiding are not part of Lemmy and are not
-available.
+mentions, private messages, read state, saved and hidden content on 1.0.
+Multireddits, domain listings and Reddit gold are not part of Lemmy. Post
+hiding is available on Lemmy 1.0; on 0.19 the key binding shows an error.
 
 ## Installation
 

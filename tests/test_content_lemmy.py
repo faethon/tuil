@@ -63,6 +63,14 @@ class FakeClient(object):
         self.calls.append(('list_saved', kwargs))
         return iter(self.posts + self.comments)
 
+    def list_liked(self, **kwargs):
+        self.calls.append(('list_liked', kwargs))
+        return iter(self.posts + self.comments)
+
+    def list_hidden(self, **kwargs):
+        self.calls.append(('list_hidden', kwargs))
+        return iter(self.posts)
+
     def list_user_comments(self, user, **kwargs):
         self.calls.append(('list_user_comments', user, kwargs))
         return iter(self.comments)
@@ -265,6 +273,27 @@ def test_saved_content_uses_v4_backend(config):
     assert client.calls[-1][0] == 'list_saved'
     assert content.get(0)['type'] == 'Submission'
     assert content.get(2)['type'] == 'SavedComment'
+
+
+def test_liked_and_hidden_content_use_v4(config):
+    client = FakeClient(logged_in=True, v4=True)
+    content = SubredditContent.from_name(
+        client, config, 'u/me/upvoted', Loader())
+    assert client.calls[-1][0] == 'list_liked'
+    assert client.calls[-1][1]['like_type'] == 'liked_only'
+    assert content.get(2)['type'] == 'SavedComment'
+
+    content = SubredditContent.from_name(
+        client, config, 'u/me/hidden', Loader())
+    assert client.calls[-1][0] == 'list_hidden'
+    assert content.get(0)['type'] == 'Submission'
+
+
+def test_hidden_content_requires_v4(config):
+    client = FakeClient(logged_in=True)
+    with pytest.raises(exceptions.SubredditError):
+        SubredditContent.from_name(
+            client, config, 'u/me/hidden', Loader())
 
 
 def test_search_is_paginated(config):

@@ -84,6 +84,12 @@ for notification in client.list_notifications(unread_only=True):
 
 for item in client.list_saved():
     print(item.__class__.__name__, item.id)
+
+for item in client.list_liked(like_type='liked_only'):
+    print(item.__class__.__name__, item.id)
+
+for post in client.list_hidden():
+    post.unhide()
 ```
 
 ## Errors

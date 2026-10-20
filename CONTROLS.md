@@ -105,6 +105,7 @@ The following actions can be performed when viewing your inbox:
 
 ## Unavailable Reddit Features
 
-Multireddits, domain listings, gilded posts and hiding posts are specific to
-Reddit and are not available in Lemmy. Their legacy key bindings show an error
-or do nothing.
+Multireddits, domain listings and gilded posts are specific to Reddit and are
+not available in Lemmy. Their legacy key bindings show an error or do nothing.
+Hiding a post with <kbd>Space</kbd> requires Lemmy 1.0 or newer; on 0.19 the
+key shows an error.
