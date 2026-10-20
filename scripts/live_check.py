@@ -188,7 +188,10 @@ def run_auth_checks(client, args, check, failures):
         for label, callback in (
                 ('inbox notifications', client.list_notifications),
                 ('saved content', client.list_saved),
-                ('liked content', client.list_liked),
+                ('upvoted content',
+                 lambda: client.list_liked(like_type='liked_only')),
+                ('downvoted content',
+                 lambda: client.list_liked(like_type='disliked_only')),
                 ('hidden content', client.list_hidden)):
             items = check(
                 label,
@@ -198,13 +201,17 @@ def run_auth_checks(client, args, check, failures):
             if items is not None:
                 print('     items: {0}'.format(len(items)))
     else:
-        items = check(
-            'saved posts',
-            lambda: client.list_posts(
-                saved_only=True, page_size=args.page_size,
-                max_items=args.page_size).take(args.page_size))
-        if items is not None:
-            print('     items: {0}'.format(len(items)))
+        for label, kwargs in (
+                ('saved posts', {'saved_only': True}),
+                ('upvoted posts', {'liked_only': True}),
+                ('downvoted posts', {'disliked_only': True})):
+            items = check(
+                label,
+                lambda kwargs=kwargs: client.list_posts(
+                    page_size=args.page_size, max_items=args.page_size,
+                    **kwargs).take(args.page_size))
+            if items is not None:
+                print('     items: {0}'.format(len(items)))
 
     def logout():
         client.logout()
