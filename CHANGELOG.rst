@@ -6,7 +6,15 @@ TUIL is a Lemmy fork of tuir. The releases below 0.1.0 are inherited from
 tuir and RTV.
 
 ------------------
-0.1.1 (unreleased)
+0.1.2 (unreleased)
+------------------
+
+Features
+
+* Search communities with the ``F`` key
+
+------------------
+0.1.1 (2026-10-20)
 ------------------
 
 Features

@@ -8,13 +8,20 @@ from pathlib import Path
 import pytest
 
 from tuil import exceptions
-from tuil.api import Comment, Notification, Post, PrivateMessage
+from tuil.api import (
+    Comment,
+    Community,
+    Notification,
+    Post,
+    PrivateMessage,
+)
 from tuil.api.paging import Pager
 from tuil.content import (
     Content,
     InboxContent,
     SubmissionContent,
     SubredditContent,
+    SubscriptionContent,
 )
 
 FIXTURES = Path(__file__).parent / 'api' / 'fixtures'
@@ -42,6 +49,9 @@ class FakeClient(object):
         self.posts = [Post(self, post_data(i)) for i in (0, 2)]
         self.comments = [Comment(self, comment_data(i)) for i in range(6)]
         self.post = Post(self, post_data(0))
+        self.communities = [
+            Community(self, item)
+            for item in fixture('community_list.json')['communities']]
 
     @property
     def is_logged_in(self):
@@ -98,7 +108,10 @@ class FakeClient(object):
 
     def search(self, query, **kwargs):
         self.calls.append(('search', query, kwargs))
-        return type('Results', (), {'posts': self.posts})()
+        return type('Results', (), {
+            'posts': self.posts,
+            'communities': self.communities,
+        })()
 
 
 class Loader(object):
@@ -112,6 +125,31 @@ class Loader(object):
 @pytest.fixture()
 def config():
     return {'look_and_feel': 'default', 'post_format': None}
+
+
+def test_subscription_search_qualifies_and_deduplicates():
+    client = FakeClient()
+    first = client.communities[0]
+    client.communities = [first, first, client.communities[1]]
+
+    content = SubscriptionContent.from_search(client, Loader(), 'tech')
+
+    assert content.name == 'Search Communities: tech'
+    assert client.calls[0] == (
+        'search', 'tech',
+        {'type_': 'Communities', 'page': 1, 'limit': 50})
+    assert content.get(0)['name'] == '/c/technology@lemmy.world'
+    assert content.get(1)['name'] == '/c/piracy@lemmy.dbzer0.com'
+    with pytest.raises(IndexError):
+        content.get(2)
+
+
+def test_subscription_search_rejects_empty_results():
+    client = FakeClient()
+    client.communities = []
+
+    with pytest.raises(exceptions.SubscriptionError):
+        SubscriptionContent.from_search(client, Loader(), 'missing')
 
 
 def test_strip_submission_link_and_selfpost():

@@ -129,6 +129,17 @@ def test_page_identity_text(reddit, terminal, config, oauth):
     assert page._identity_text() == 'Logged in@lemmy.ml'
 
 
+def test_page_community_search(reddit, terminal, config, oauth):
+    page = Page(reddit, terminal, config, oauth)
+
+    with mock.patch.object(
+            terminal, 'prompt_input', return_value='linux'), \
+            mock.patch.object(page, 'open_subscription_page') as open_page:
+        page.community_search()
+
+    open_page.assert_called_once_with('search', query='linux')
+
+
 def test_page_prompt_comment(reddit, terminal, config, oauth):
     page = Page(reddit, terminal, config, oauth)
 

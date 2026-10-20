@@ -48,6 +48,7 @@ https://github.com/faethon/tuil
   F3    : Cycle to the next color theme
   ?     : Show the help screen
   /     : Open a prompt to select a community
+  F     : Search for communities
 
 [Authenticated Commands]
   a     : Upvote
@@ -135,15 +136,15 @@ BANNER_INBOX = """
 """
 
 BANNER_EMPTY = """
-[?]Help [q]Quit [/]Prompt [i]Inbox [u]Login
+[?]Help [q]Quit [/]Prompt [F]Find [i]Inbox [u]Login
 """
 
 FOOTER_SUBREDDIT = """
-[?]Help [q]Quit [l]Comments [/]Prompt [u]Login [o]Open [c]Post [a/z]Vote [r]Refresh
+[?]Help [q]Quit [l]Comments [/]Prompt [F]Find [u]Login [o]Open [c]Post [a/z]Vote [r]Refresh
 """
 
 FOOTER_SUBREDDIT_LOGGED_IN = """
-[?]Help [q]Quit [l]Comments [/]Prompt [u]Logout [o]Open [c]Post [a/z]Vote [r]Refresh
+[?]Help [q]Quit [l]Comments [/]Prompt [F]Find [u]Logout [o]Open [c]Post [a/z]Vote [r]Refresh
 """
 
 FOOTER_SUBMISSION = """
@@ -151,7 +152,7 @@ FOOTER_SUBMISSION = """
 """
 
 FOOTER_SUBSCRIPTION = """
-[?]Help [q]Quit [h]Return [l]Select Community [r]Refresh
+[?]Help [q]Quit [h]Return [l]Select Community [F]Find [r]Refresh
 """
 
 FOOTER_INBOX = """

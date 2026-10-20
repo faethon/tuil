@@ -17,14 +17,20 @@ class SubscriptionPage(Page):
 
     name = 'subscription'
 
-    def __init__(self, reddit, term, config, oauth, content_type='subreddit'):
+    def __init__(self, reddit, term, config, oauth, content_type='subreddit',
+                 query=None):
         super(SubscriptionPage, self).__init__(reddit, term, config, oauth)
 
         self.controller = SubscriptionController(self, keymap=config.keymap)
-        self.content = SubscriptionContent.from_user(
-            reddit, term.loader, content_type)
+        self.content_type = 'search' if query else content_type
+        self.query = query
+        if query:
+            self.content = SubscriptionContent.from_search(
+                reddit, term.loader, query)
+        else:
+            self.content = SubscriptionContent.from_user(
+                reddit, term.loader, content_type)
         self.nav = Navigator(self.content.get)
-        self.content_type = content_type
 
     def handle_selected_page(self):
         """
@@ -43,8 +49,12 @@ class SubscriptionPage(Page):
             return
 
         with self.term.loader():
-            self.content = SubscriptionContent.from_user(
-                self.reddit, self.term.loader, self.content_type)
+            if self.query:
+                self.content = SubscriptionContent.from_search(
+                    self.reddit, self.term.loader, self.query)
+            else:
+                self.content = SubscriptionContent.from_user(
+                    self.reddit, self.term.loader, self.content_type)
         if not self.term.loader.exception:
             self.nav = Navigator(self.content.get)
 

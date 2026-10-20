@@ -1033,7 +1033,7 @@ class SubredditContent(Content):
 
 class SubscriptionContent(Content):
 
-    def __init__(self, name, subscriptions, loader):
+    def __init__(self, name, subscriptions, loader, qualified=False):
 
         self.name = name
         self.order = None
@@ -1041,6 +1041,7 @@ class SubscriptionContent(Content):
         self._loader = loader
         self._subscriptions = subscriptions
         self._subscription_data = []
+        self._qualified = qualified
 
         try:
             self.get(0)
@@ -1075,6 +1076,57 @@ class SubscriptionContent(Content):
 
         return cls(name, iter(items), loader)
 
+    @classmethod
+    def from_search(cls, client, loader, query, max_items=200):
+        """Search communities and present the results as a subscription list."""
+        query = str(query or '').strip()
+        if not query:
+            raise exceptions.SubscriptionError('A search query is required')
+
+        items = []
+        seen = set()
+        page = 1
+        while len(items) < max_items:
+            results = client.search(
+                query, type_='Communities', page=page, limit=50)
+            communities = results.communities
+            if not communities:
+                break
+
+            added = 0
+            for community in communities:
+                actor = getattr(community, 'actor_id', None) or ''
+                host = urlparse(actor).netloc.lower()
+                key = ((community.name or '').lower(),
+                       host or community.id)
+                if key in seen:
+                    continue
+                seen.add(key)
+                items.append(community)
+                added += 1
+                if len(items) >= max_items:
+                    break
+
+            if not added or len(communities) < 50:
+                break
+            page += 1
+
+        if not items:
+            raise exceptions.SubscriptionError(
+                'No communities found for {0}'.format(query))
+        return cls(
+            'Search Communities: {0}'.format(query), iter(items), loader,
+            qualified=True)
+
+    @classmethod
+    def strip_search_subscription(cls, community):
+        data = cls.strip_subscription(community)
+        actor = getattr(community, 'actor_id', None)
+        host = urlparse(actor).netloc if actor else ''
+        if host:
+            data['name'] = '/c/{0}@{1}'.format(community.name, host)
+        return data
+
     @property
     def range(self):
         return 0, len(self._subscription_data) - 1
@@ -1097,7 +1149,10 @@ class SubscriptionContent(Content):
             except StopIteration:
                 raise IndexError
             else:
-                data = self.strip_subscription(subscription)
+                if self._qualified:
+                    data = self.strip_search_subscription(subscription)
+                else:
+                    data = self.strip_subscription(subscription)
                 self._subscription_data.append(data)
 
         data = self._subscription_data[index]

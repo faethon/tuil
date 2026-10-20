@@ -118,6 +118,7 @@ the in-app help, or see [CONTROLS.md](CONTROLS.md) for the full key map.
 - <kbd>a</kbd>/<kbd>z</kbd> - upvote/downvote
 - <kbd>c</kbd> - create a post or reply
 - <kbd>w</kbd> - save/unsave
+- <kbd>F</kbd> - search for communities
 - <kbd>s</kbd> - view subscribed communities
 - <kbd>i</kbd> - view the inbox
 - <kbd>u</kbd> - log in or out

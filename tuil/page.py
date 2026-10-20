@@ -581,6 +581,21 @@ class Page(object):
             self.term.show_notification(
                 ['Copied to clipboard:', url], timeout=1)
 
+    @PageController.register(Command('COMMUNITY_SEARCH'))
+    def community_search(self):
+        """
+        Search for communities on the current instance.
+        """
+        query = self.term.prompt_input('Search communities: ')
+        if not query:
+            return
+        page = self.open_subscription_page('search', query=query)
+        if page is not None:
+            self.selected_page = page
+        elif self.term.loader.exception:
+            self.term.show_notification(
+                str(self.term.loader.exception), style='Error')
+
     @PageController.register(Command('SUBSCRIPTIONS'))
     @logged_in
     def subscriptions(self):
@@ -650,16 +665,21 @@ class Page(object):
         if not self.term.loader.exception:
             return page
 
-    def open_subscription_page(self, content_type):
+    def open_subscription_page(self, content_type, query=None):
         """
         Open an instance of the subscriptions page with the selected content.
         """
         from .subscription_page import SubscriptionPage
 
-        label = 'communities' if content_type == 'subreddit' else content_type
+        if query:
+            label = 'Searching communities'
+        else:
+            label = ('communities' if content_type == 'subreddit'
+                     else content_type)
         with self.term.loader('Loading {0}'.format(label)):
-            page = SubscriptionPage(self.reddit, self.term, self.config,
-                                    self.oauth, content_type=content_type)
+            page = SubscriptionPage(
+                self.reddit, self.term, self.config, self.oauth,
+                content_type=content_type, query=query)
         if not self.term.loader.exception:
             return page
 

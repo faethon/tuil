@@ -21,6 +21,7 @@
 - <kbd>F3</kbd> - Cycle to the next color theme
 - <kbd>?</kbd> - Show the help screen
 - <kbd>/</kbd> - Open a prompt to select a community
+- <kbd>F</kbd> - Search for communities
 
 The <kbd>/</kbd> key opens a text prompt at the bottom of the screen. You can use
 this to type in the name of the community that you want to open. The following
@@ -44,6 +45,10 @@ text formats are recognized:
 - ``/u/alice`` - View a user's posts and comments
 - ``/u/alice/submitted`` - View a user's posts
 - ``/u/alice/comments`` - View a user's comments
+
+The <kbd>F</kbd> key opens a separate prompt to search communities. The search is
+case-insensitive and accepts partial names. Select a result to open that
+community.
 
 ## Authenticated Commands
 
@@ -94,6 +99,7 @@ The following actions can be performed when viewing your subscribed communities:
 
 - <kbd>h</kbd> or <kbd>◄</kbd> - Close the community list and return to the previous page
 - <kbd>l</kbd> or <kbd>►</kbd> - Open the selected community
+- <kbd>F</kbd> - Search for communities
 
 ## Inbox Mode
 

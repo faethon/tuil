@@ -133,6 +133,13 @@ def main():
                     max_items=args.page_size).take(args.page_size),
                 'community listing'))
         check(
+            'community search',
+            lambda: require_items(
+                client.search(
+                    args.community, type_='Communities',
+                    limit=args.page_size).communities,
+                'community search'))
+        check(
             'search',
             lambda: require_items(
                 client.search(
