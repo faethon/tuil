@@ -18,10 +18,16 @@ from contextlib import contextmanager
 from six.moves.urllib_parse import urlparse, urlunparse
 
 import six
-import requests
 
 from . import exceptions
-from .packages import praw
+from .api.errors import (
+    APIError,
+    AuthenticationError,
+    NetworkError,
+    NotFoundError,
+    PermissionDeniedError,
+    RateLimitError,
+)
 
 
 _logger = logging.getLogger(__name__)
@@ -83,8 +89,11 @@ def replace_domain(url, new_domain, old_domain):
 
 
 def preferred_reddit_domain(url, config):
-    if config['copy_as_old']:
-        url = replace_domain(url, 'old.reddit.com', 'www.reddit.com')
+    """Compatibility name for the page layer.
+
+    Lemmy permalinks are already canonical for the configured instance, so no
+    domain rewriting is required.
+    """
     return url
 
 codecs_open = codecs.open if six.PY2 else open
@@ -184,14 +193,12 @@ class LoadScreen(object):
 
     EXCEPTION_MESSAGES = [
         (exceptions.TUILError, '{0}'),
-        (praw.errors.OAuthException, 'OAuth Error'),
-        (praw.errors.OAuthScopeRequired, 'Not logged in'),
-        (praw.errors.LoginRequired, 'Not logged in'),
-        (praw.errors.InvalidCaptcha, 'Error, captcha required'),
-        (praw.errors.InvalidSubreddit, '{0.args[0]}'),
-        (praw.errors.PRAWException, '{0.__class__.__name__}'),
-        (requests.exceptions.Timeout, 'HTTP request timed out'),
-        (requests.exceptions.RequestException, '{0.__class__.__name__}'),
+        (AuthenticationError, 'Not logged in'),
+        (PermissionDeniedError, 'Permission denied'),
+        (NotFoundError, 'Not found'),
+        (RateLimitError, 'Rate limited, try again later'),
+        (NetworkError, 'HTTP request failed'),
+        (APIError, '{0}'),
     ]
 
     def __init__(self, terminal):

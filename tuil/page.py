@@ -135,9 +135,9 @@ class Page(object):
     @PageController.register(Command('REFRESH'))
     def reload_page(self):
         """
-        Clear the PRAW cache to force the page the re-fetch content from reddit.
+        Clear the API cache to force the page to re-fetch content.
         """
-        self.reddit.handler.clear_cache()
+        self.reddit.clear_cache()
         self.refresh_content()
 
     @PageController.register(Command('EXIT'))
@@ -255,8 +255,9 @@ class Page(object):
         data = self.get_selected_item()
         if 'likes' not in data:
             self.term.flash()
-        elif getattr(data['object'], 'archived'):
-            self.term.show_notification("Voting disabled for archived post", style='Error')
+        elif (getattr(data['object'], 'archived', False)
+              or getattr(data['object'], 'locked', False)):
+            self.term.show_notification("Voting disabled for locked post", style='Error')
         elif data['likes']:
             with self.term.loader('Clearing vote'):
                 data['object'].clear_vote()
@@ -277,8 +278,9 @@ class Page(object):
         data = self.get_selected_item()
         if 'likes' not in data:
             self.term.flash()
-        elif getattr(data['object'], 'archived'):
-            self.term.show_notification("Voting disabled for archived post", style='Error')
+        elif (getattr(data['object'], 'archived', False)
+              or getattr(data['object'], 'locked', False)):
+            self.term.show_notification("Voting disabled for locked post", style='Error')
         elif data['likes'] or data['likes'] is None:
             with self.term.loader('Voting'):
                 data['object'].downvote()
@@ -319,7 +321,7 @@ class Page(object):
     @logged_in
     def save(self):
         """
-        Mark the currently selected item as saved through the reddit API.
+        Mark the currently selected item as saved through the Lemmy API.
         """
         data = self.get_selected_item()
         if 'saved' not in data:
@@ -365,7 +367,7 @@ class Page(object):
         if data['type'] == 'Submission':
             body = data['text']
             description = 'submission'
-            reply = data['object'].add_comment
+            reply = data['object'].reply
         elif data['type'] in ('Comment', 'InboxComment'):
             body = data['body']
             description = 'comment'
@@ -394,7 +396,7 @@ class Page(object):
 
             with self.term.loader('Posting {}'.format(description), delay=0):
                 reply(comment)
-                # Give reddit time to process the submission
+                # Give the instance time to process the submission
                 time.sleep(2.0)
 
             if self.term.loader.exception is None:
@@ -409,7 +411,8 @@ class Page(object):
         Delete a submission or comment.
         """
         data = self.get_selected_item()
-        if data.get('author') != self.reddit.user.name:
+        user = self.reddit.user
+        if not user or data.get('author') != user.name:
             self.term.flash()
             return
 
@@ -420,7 +423,7 @@ class Page(object):
 
         with self.term.loader('Deleting', delay=0):
             data['object'].delete()
-            # Give reddit time to process the request
+            # Give the instance time to process the request
             time.sleep(2.0)
 
         if self.term.loader.exception is None:
@@ -433,7 +436,8 @@ class Page(object):
         Edit a submission or comment.
         """
         data = self.get_selected_item()
-        if data.get('author') != self.reddit.user.name:
+        user = self.reddit.user
+        if not user or data.get('author') != user.name:
             self.term.flash()
             return
 
@@ -455,7 +459,10 @@ class Page(object):
                 return
 
             with self.term.loader('Editing', delay=0):
-                data['object'].edit(text)
+                if data['type'] == 'Submission':
+                    data['object'].edit(body=text)
+                else:
+                    data['object'].edit(text)
                 time.sleep(2.0)
 
             if self.term.loader.exception is None:
@@ -475,33 +482,25 @@ class Page(object):
                 self.term.show_notification('Canceled')
                 return
 
-            parts = text.split('\n', 2)
+            parts = text.split('\n', 1)
             if len(parts) == 1:
-                self.term.show_notification('Missing message subject')
-                return
-            elif len(parts) == 2:
                 self.term.show_notification('Missing message body')
                 return
 
-            recipient, subject, message = parts
+            recipient, message = parts
             recipient = recipient.strip()
-            subject = subject.strip()
             message = message.rstrip()
 
             if not recipient:
                 self.term.show_notification('Missing recipient')
-                return
-            elif not subject:
-                self.term.show_notification('Missing message subject')
                 return
             elif not message:
                 self.term.show_notification('Missing message body')
                 return
 
             with self.term.loader('Sending message', delay=0):
-                self.reddit.send_message(
-                    recipient, subject, message, raise_captcha_exception=True)
-                # Give reddit time to process the message
+                self.reddit.send_message(recipient, message)
+                # Give the instance time to process the message
                 time.sleep(2.0)
 
             if self.term.loader.exception:
@@ -526,7 +525,8 @@ class Page(object):
         else:
             html = data.get('html')
             if html:
-                extracted_links = self.content.extract_links(html)
+                extracted_links = self.content.extract_links(
+                    html, base_url=self.reddit.instance)
                 if not extracted_links:
                     # Only one selection to choose from, so just pick it
                     link = permalink
@@ -603,17 +603,18 @@ class Page(object):
         """
         name = self.term.prompt_input('Enter page: /')
         if name:
-            # Check if opening a submission url or a subreddit url
-            # Example patterns for submissions:
-            #     comments/571dw3
-            #     /comments/571dw3
-            #     /r/pics/comments/571dw3/
-            #     https://www.reddit.com/r/pics/comments/571dw3/at_disneyland
-            submission_pattern = re.compile(r'(^|/)comments/(?P<id>.+?)($|/)')
+            # Check if opening a post URL or a community URL.
+            # Example patterns for posts:
+            #     /post/123
+            #     https://lemmy.ml/post/123
+            #     https://lemmy.ml/c/linux/p/123/example
+            submission_pattern = re.compile(
+                r'(?:/post/|/p/|/comments/)(?P<id>\d+)')
 
             match = submission_pattern.search(name)
             if match:
-                url = 'https://www.reddit.com/comments/{0}'.format(match.group('id'))
+                url = '{0}/post/{1}'.format(
+                    self.reddit.instance, match.group('id'))
                 self.selected_page = self.open_submission_page(url)
             else:
                 self.selected_page = self.open_subreddit_page(name)

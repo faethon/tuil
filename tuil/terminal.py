@@ -304,7 +304,7 @@ class Terminal(object):
 
         Example:
             &amp;amp; -> returned directly from reddit's api
-            &amp;     -> returned after PRAW decodes the html characters
+            &amp;     -> returned after the API decodes the html characters
             &         -> returned after our second pass, this is the true value
         """
 

@@ -8,8 +8,9 @@ from collections import OrderedDict
 import os
 import six
 import pytest
-import requests
 from six.moves import reload_module
+
+from tuil.api.errors import NetworkError
 
 from tuil import exceptions
 from tuil.objects import Controller, Navigator, Command, KeyMap, \
@@ -62,7 +63,7 @@ def test_replace_domain(url, new, old, expected):
     ('http://old.reddit.com/u/me', False, 'http://old.reddit.com/u/me'),
     ('http://old.reddit.com/u/me', True, 'http://old.reddit.com/u/me'),
     ('https://www.reddit.com/u/me', False, 'https://www.reddit.com/u/me'),
-    ('https://www.reddit.com/u/me', True, 'https://old.reddit.com/u/me'),
+    ('https://www.reddit.com/u/me', True, 'https://www.reddit.com/u/me'),
     ('https://gitlab.com/Chocimier/tuir/', False, 'https://gitlab.com/Chocimier/tuir/'),
     ('https://gitlab.com/Chocimier/tuir/', True, 'https://gitlab.com/Chocimier/tuir/'),
 ])
@@ -104,11 +105,11 @@ def test_objects_load_screen_exception_handled(terminal, stdscr, use_ascii):
     # Raising a handled exception should get stored on the loaders
     with terminal.loader(delay=0):
         assert terminal.loader._animator.is_alive()
-        raise requests.ConnectionError()
+        raise NetworkError('HTTP request failed')
     assert not terminal.loader._is_running
     assert not terminal.loader._animator.is_alive()
-    assert isinstance(terminal.loader.exception, requests.ConnectionError)
-    error_message = 'ConnectionError'.encode('ascii' if use_ascii else 'utf-8')
+    assert isinstance(terminal.loader.exception, NetworkError)
+    error_message = 'HTTP request failed'.encode('ascii' if use_ascii else 'utf-8')
     stdscr.subwin.addstr.assert_called_with(1, 1, error_message)
 
 
@@ -177,10 +178,10 @@ def test_objects_load_screen_nested(terminal, use_ascii):
 
     with terminal.loader(message='Outer'):
         with terminal.loader(message='Inner'):
-            raise requests.ConnectionError()
+            raise NetworkError('HTTP request failed')
         assert False  # Should never be reached
 
-    assert isinstance(terminal.loader.exception, requests.ConnectionError)
+    assert isinstance(terminal.loader.exception, NetworkError)
     assert terminal.loader.depth == 0
     assert not terminal.loader._is_running
     assert not terminal.loader._animator.is_alive()
@@ -199,15 +200,15 @@ def test_objects_load_screen_nested_complex(terminal, stdscr, use_ascii):
 
         with terminal.loader():
             assert terminal.loader.depth == 2
-            raise requests.ConnectionError()
+            raise NetworkError('HTTP request failed')
 
         assert False  # Should never be reached
 
-    assert isinstance(terminal.loader.exception, requests.ConnectionError)
+    assert isinstance(terminal.loader.exception, NetworkError)
     assert terminal.loader.depth == 0
     assert not terminal.loader._is_running
     assert not terminal.loader._animator.is_alive()
-    error_message = 'ConnectionError'.encode('ascii' if use_ascii else 'utf-8')
+    error_message = 'HTTP request failed'.encode('ascii' if use_ascii else 'utf-8')
     stdscr.subwin.addstr.assert_called_once_with(1, 1, error_message)
 
 

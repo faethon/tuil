@@ -348,6 +348,32 @@ def test_user_content_pager_continues_past_empty_kind():
 
 
 @responses.activate
+def test_user_content_pager_combines_posts_and_comments():
+    pages = {
+        1: {'posts': [post_view(0)], 'comments': [comment_view(0)]},
+        2: {'posts': [], 'comments': []},
+    }
+    seen = []
+
+    def callback(request):
+        page = int(request_query(request)['page'][0])
+        seen.append(page)
+        return (200, {'Content-Type': 'application/json'},
+                json.dumps(pages[page]))
+
+    responses.add_callback(
+        responses.GET, re.compile(re.escape(API + '/user') + r'\?.*'),
+        callback=callback)
+    client = LemmyClient('lemmy.ml')
+    items = client.list_user_content('dessalines', page_size=2).take(10)
+
+    assert len(items) == 2
+    assert items[0].title == post_view(0)['post']['name']
+    assert items[1].content == comment_view(0)['comment']['content']
+    assert seen == [1, 2]
+
+
+@responses.activate
 def test_search_results():
     add_json(responses.GET, '/search', fixture('search.json'))
     client = LemmyClient('lemmy.ml')

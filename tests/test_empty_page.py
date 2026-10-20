@@ -2,9 +2,7 @@
 from __future__ import unicode_literals
 
 import pytest
-from tuil.packages.praw.errors import InvalidUser
 
-from tuil import exceptions
 from tuil.docs import FOOTER_EMPTY
 from tuil.empty_page import EmptyPage
 
@@ -15,7 +13,7 @@ except ImportError:
 
 
 
-def test_empty_page_construct(reddit, terminal, config, oauth, refresh_token):
+def test_empty_page_construct(reddit, terminal, config, oauth):
     window = terminal.stdscr.subwin
 
     with terminal.loader():
@@ -47,8 +45,10 @@ def test_empty_page_construct(reddit, terminal, config, oauth, refresh_token):
     assert page.content.range == (0, -1)
 
 
-def test_empty_page_open_inbox(empty_page, terminal, reddit):
+def test_empty_page_open_inbox(reddit, terminal, config, oauth):
+    with terminal.loader():
+        page = EmptyPage(reddit, terminal, config, oauth)
     with mock.patch.object(terminal, 'show_notification') as show_notification:
-        empty_page.controller.trigger('i')
-        assert empty_page.active
+        page.controller.trigger('i')
+        assert page.active
         show_notification.assert_called_with('Not logged in')

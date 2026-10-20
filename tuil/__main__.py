@@ -11,7 +11,6 @@ import logging
 import warnings
 
 import six
-import requests
 
 # Need to check for curses compatibility before performing the tuil imports
 try:
@@ -33,18 +32,15 @@ if TUIL_BROWSER:
     os.environ['BROWSER'] = TUIL_BROWSER
 
 from . import docs
-from . import packages
-from .packages import praw
+from .api import LemmyClient, normalize_instance
+from .auth import AuthHelper
 from .config import Config, copy_default_config, copy_default_mailcap
 from .theme import Theme
-from .oauth import OAuthHelper
 from .terminal import Terminal
-from .content import RequestHeaderRateLimiter
-from .objects import curses_session, patch_webbrowser, replace_domain
-from .empty_page import EmptyPage
+from .objects import curses_session, patch_webbrowser
 from .subreddit_page import SubredditPage
 from .submission_page import SubmissionPage
-from .exceptions import ConfigError, SubredditError, SubmissionError
+from .exceptions import ConfigError
 from .__version__ import __version__
 
 _logger = logging.getLogger(__name__)
@@ -155,18 +151,13 @@ def main():
         warnings.warn(text)
         config['ascii'] = True
 
-    if packages.__praw_bundled__:
-        praw_info = 'packaged, commit {}'.format(packages.__praw_hash__[:12])
-    else:
-        praw_info = 'system installed v{}'.format(praw.__version__)
-
     # Update the webbrowser module's default behavior
     patch_webbrowser()
     if webbrowser_import_warning:
         _logger.warning('webbrowser module was unexpectedly imported before'
                         '$BROWSER could be overwritten')
 
-    # Construct the reddit user agent
+    # Construct the Lemmy user agent
     user_agent = docs.AGENT.format(version=__version__)
 
     debug_info = [
@@ -174,7 +165,8 @@ def main():
         'tuil module path: {}'.format(os.path.abspath(__file__)),
         'python version: {}'.format(sys.version.replace('\n', ' ')),
         'python executable: {}'.format(sys.executable),
-        'praw version: {}'.format(praw_info),
+        'Lemmy instance: {}'.format(config['instance'] or 'lemmy.ml'),
+        'Lemmy API: v3',
         'locale, encoding: {}, {}'.format(default_locale, encoding),
         'Environment Variables']
     for name, value in [
@@ -218,63 +210,56 @@ def main():
                 theme = None
             term.set_theme(theme)
 
-            with term.loader('Initializing', catch_exception=False):
-                reddit = praw.Reddit(user_agent=user_agent,
-                                     decode_html_entities=False,
-                                     disable_update_check=True,
-                                     timeout=10,  # 10 second request timeout
-                                     handler=RequestHeaderRateLimiter())
+            instance = normalize_instance(config['instance'] or 'lemmy.ml')
+            config['instance'] = instance
+            client = None
+            try:
+                with term.loader('Connecting to {0}'.format(instance),
+                                 catch_exception=False):
+                    client = LemmyClient(
+                        instance, user_agent=user_agent, timeout=10,
+                        cache_ttl=300)
+                    client.site()
+            except Exception as e:
+                raise ConfigError(
+                    'Unable to connect to {0}: {1}'.format(instance, e))
 
-            # Dial the request cache up from 30 seconds to 5 minutes
-            # I'm trying this out to make navigation back and forth
-            # between pages quicker, it may still need to be fine tuned.
-            reddit.config.api_request_delay = 300
-
-            # Authorize on launch if the refresh token is present
-            oauth = OAuthHelper(reddit, term, config)
+            # Restore a saved session if possible.  A rejected token is
+            # discarded quietly and the client stays anonymous.
+            oauth = AuthHelper(client, term, config)
             if config['autologin'] and config.refresh_token:
-                oauth.authorize(autologin=True)
+                oauth.restore()
 
-            # Open the supplied submission link before opening the subreddit
+            # Open the supplied post link before opening the community.
             if config['link']:
-                # Expand shortened urls like https://redd.it/
-                # Praw won't accept the shortened versions, add the reddit
-                # headers to avoid a 429 response from reddit.com
-                url = requests.head(
-                    config['link'],
-                    headers=reddit.http.headers,
-                    allow_redirects=True
-                ).url
-
-                url = replace_domain(url, 'www.reddit.com', 'old.reddit.com')
-
                 page = None
-                with term.loader('Loading submission'):
+                with term.loader('Loading post'):
                     try:
-                        page = SubmissionPage(reddit, term, config, oauth, url)
+                        page = SubmissionPage(
+                            client, term, config, oauth, config['link'])
                     except Exception as e:
                         _logger.exception(e)
-                        raise SubmissionError('Unable to load {0}'.format(url))
+                        term.show_notification(
+                            'Unable to load {0}'.format(config['link']),
+                            style='Error')
                 while page:
                     page = page.loop()
 
             page = None
-            name = config['subreddit']
-            with term.loader('Loading subreddit'):
+            name = config['subreddit'] or 'front'
+            with term.loader('Loading {0}'.format(name)):
                 try:
-                    page = SubredditPage(reddit, term, config, oauth, name)
-                except praw.errors.Forbidden as e:
-                    page = EmptyPage(reddit, term, config, oauth)
+                    page = SubredditPage(client, term, config, oauth, name)
                 except Exception as e:
-                    # If we can't load the subreddit that was requested, try
-                    # to load the "popular" page instead so at least the
-                    # application still launches. This used to use the user's
-                    # front page, but some users have an empty front page.
+                    # If the requested page cannot be loaded, fall back to
+                    # the instance-wide listing so the application starts.
                     _logger.exception(e)
-                    page = SubredditPage(reddit, term, config, oauth, 'popular')
-                    raise SubredditError('Unable to load {0}'.format(name))
+                    term.show_notification(
+                        'Unable to load {0}'.format(name), style='Error')
+                    page = SubredditPage(
+                        client, term, config, oauth, 'all')
 
-            # Launch the subreddit page
+            # Launch the community page
             while page:
                 page = page.loop()
 
@@ -288,7 +273,7 @@ def main():
             debug_text,
             traceback.format_exc(),
             'tuil has crashed. Please report this traceback at:',
-            'https://gitlab.com/Chocimier/tuir/issues\n'])
+            'https://github.com/faethon/tuil/issues\n'])
         sys.stderr.write(exit_message)
         return 1  # General error exception code
     except KeyboardInterrupt:
@@ -297,8 +282,8 @@ def main():
         # Try to save the browsing history
         config.save_history()
         # Ensure sockets are closed to prevent a ResourceWarning
-        if 'reddit' in locals():
-            reddit.handler.http.close()
+        if 'client' in locals() and client is not None:
+            client.close()
 
 
 sys.exit(main())

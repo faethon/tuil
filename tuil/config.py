@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import os
+import json
 import shutil
 import argparse
 from functools import partial
@@ -50,6 +51,7 @@ class Config(object):
         # `refresh_token` and `history` are saved/loaded at separate locations,
         # so they are treated differently from the rest of the config options.
         self.refresh_token = None
+        self.token_instance = None
         self.history = OrderedSet()
 
     def __getitem__(self, item):
@@ -68,21 +70,42 @@ class Config(object):
         self.config.update(kwargs)
 
     def load_refresh_token(self):
-        if os.path.exists(self.token_file):
-            with open(self.token_file) as fp:
-                self.refresh_token = fp.read().strip()
+        self.refresh_token = None
+        self.token_instance = None
+        if not os.path.exists(self.token_file):
+            return
+        with open(self.token_file) as fp:
+            value = fp.read().strip()
+        if not value:
+            return
+        try:
+            data = json.loads(value)
+        except ValueError:
+            # Tokens written by older versions were stored as plain text.
+            self.refresh_token = value
+            return
+        if isinstance(data, dict):
+            self.refresh_token = data.get('token')
+            self.token_instance = data.get('instance')
         else:
-            self.refresh_token = None
+            self.refresh_token = value
 
     def save_refresh_token(self):
+        if not self.refresh_token:
+            return
         self._ensure_filepath(self.token_file)
+        data = {
+            'instance': self.token_instance or self['instance'],
+            'token': self.refresh_token,
+        }
         with open(self.token_file, 'w+') as fp:
-            fp.write(self.refresh_token)
+            json.dump(data, fp)
 
     def delete_refresh_token(self):
         if os.path.exists(self.token_file):
             os.remove(self.token_file)
         self.refresh_token = None
+        self.token_instance = None
 
     def load_history(self):
         if os.path.exists(self.history_file):
@@ -161,8 +184,6 @@ class Config(object):
             'clear_auth': partial(config.getboolean, section),
             'enable_media': partial(config.getboolean, section),
             'history_size': partial(config.getint, section),
-            'oauth_redirect_port': partial(config.getint, section),
-            'oauth_scope': lambda x: tuil[x].split(','),
             'max_comment_cols': partial(config.getint, section),
             'max_pager_cols': partial(config.getint, section),
             'hide_username': partial(config.getboolean, section),
@@ -209,8 +230,11 @@ def build_parser():
         'link', metavar='URL', nargs='?',
         help='[optional] Full URL of a submission to open')
     parser.add_argument(
-        '-s', dest='subreddit',
-        help='Name of the subreddit that will be loaded on start')
+        '-i', '--instance', dest='instance',
+        help='Lemmy instance to use, for example lemmy.ml')
+    parser.add_argument(
+        '-s', '--community', dest='subreddit',
+        help='Community or listing that will be loaded on start')
     parser.add_argument(
         '-l', dest='link_deprecated',
         help=argparse.SUPPRESS)  # Deprecated, use the positional arg instead

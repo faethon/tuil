@@ -92,15 +92,13 @@ def test_page_unauthenticated(reddit, terminal, config, oauth):
             terminal.stdscr.subwin.addstr.reset_mock()
 
 
-def test_page_authenticated(reddit, terminal, config, oauth, refresh_token):
+def test_page_authenticated(reddit, terminal, config, oauth):
     class TestPage(Page):
         def refresh_content(self, order=None, name=None):
             pass
 
     page = TestPage(reddit, terminal, config, oauth)
     page.controller = PageController(page, keymap=config.keymap)
-    config.refresh_token = refresh_token
-
     # Login
     page.controller.trigger('u')
     assert reddit.is_oauth_session()

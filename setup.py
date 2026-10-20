@@ -20,7 +20,6 @@ tests_require = [
     'mock',
     'pylint',
     'responses',
-    'vcrpy',
 ]
 
 extras_require = {
@@ -50,21 +49,19 @@ setuptools.setup(
     description='A terminal-first Lemmy reader (based on tuir)',
     long_description=long_description(),
     long_description_content_type='text/markdown',
-    url='https://gitlab.com/Chocimier/tuir',
-    author='Chocimier',
-    author_email='chocimier@tlen.pl',
+    url='https://github.com/faethon/tuil',
+    author='tuil contributors',
+    author_email='',
     license='GPL-3.0-only',
     keywords='lemmy fediverse terminal curses',
     packages=[
         'tuil',
         'tuil.packages',
         'tuil.packages.mailcap',
-        'tuil.packages.praw',
         'tuil.api',
     ],
     package_data={
         'tuil': ['templates/*', 'themes/*'],
-        'tuil.packages.praw': ['praw.ini']
     },
     data_files=[("share/man/man1", ["tuil.1"])],
     install_requires=install_requires,

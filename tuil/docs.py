@@ -2,18 +2,18 @@
 from __future__ import unicode_literals
 
 AGENT = """\
-desktop:https://gitlab.com/Chocimier/tuir:{version}\
+desktop:https://github.com/faethon/tuil:{version}\
 """
 
 SUMMARY = """
-TUIL (Terminal UI for Reddit) is a terminal interface to view and interact with reddit.
+TUIL (Terminal UI for Lemmy) is a terminal interface to view and interact with Lemmy.
 """
 
 USAGE = """\
-tuil [URL] [-s SUBREDDIT]
+tuil [URL] [-i INSTANCE] [-s COMMUNITY]
 
-  $ tuil https://www.reddit.com/r/programming/comments/7h9l31
-  $ tuil -s linux
+  $ tuil https://lemmy.ml/post/123
+  $ tuil -i lemmy.ml -s linux
 """
 
 CONTROLS = """
@@ -224,37 +224,12 @@ MESSAGE_FILE = """<!--{token}
 Compose a new private message
 
 Enter your message below this instruction block:
-- The first line should contain the recipient's reddit name
-- The second line should contain the message subject
+- The first line should contain the recipient's Lemmy username
 - Subsequent lines will be interpreted as the message body
 
 {formatting_help}
 {token}-->
 """.format(token=TOKEN, formatting_help=FORMATTING_HELP)
-
-OAUTH_ACCESS_DENIED = """\
-        <h1 style="color: red">Access Denied</h1><hr>
-        <p><span style="font-weight: bold">Terminal UI for Reddit</span> was
-        denied access and will continue to operate in unauthenticated mode,
-        you can close this window.</p>
-"""
-
-OAUTH_ERROR = """\
-       <h1 style="color: red">Error</h1><hr>
-       <p>{error}</p>
-"""
-
-OAUTH_INVALID = """\
-       <h1>Wait...</h1><hr>
-       <p>This page is supposed to be a Reddit OAuth callback.
-       You can't just come here hands in your pocket!</p>
-"""
-
-OAUTH_SUCCESS = """\
-       <h1 style="color: green">Access Granted</h1><hr>
-       <p><span style="font-weight: bold">Terminal UI for Reddit</span>
-       will now log in, you can close this window.</p>
-"""
 
 TIME_ORDER_MENU = """
 Links from:

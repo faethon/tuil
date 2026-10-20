@@ -244,10 +244,11 @@ class SubredditPage(Page):
                 return
 
             title, content = text.split('\n', 1)
+            community = name.strip('/').split('/')[-1]
             with self.term.loader('Posting', delay=0):
-                submission = self.reddit.submit(name, title, text=content,
-                                                raise_captcha_exception=True)
-                # Give reddit time to process the submission
+                submission = self.reddit.create_post(
+                    community, title, body=content)
+                # Give the instance time to process the post
                 time.sleep(2.0)
             if self.term.loader.exception:
                 raise TemporaryFileError()
@@ -259,17 +260,8 @@ class SubredditPage(Page):
     @SubredditController.register(Command('SUBREDDIT_HIDE'))
     @logged_in
     def hide(self):
-        data = self.get_selected_item()
-        if not hasattr(data["object"], 'hide'):
-            self.term.flash()
-        elif data['hidden']:
-            with self.term.loader('Unhiding'):
-                data['object'].unhide()
-                data['hidden'] = False
-        else:
-            with self.term.loader('Hiding'):
-                data['object'].hide()
-                data['hidden'] = True
+        self.term.show_notification(
+            'Hiding posts is not available in Lemmy API v3', style='Error')
 
     @SubredditController.register(Command('SUBREDDIT_JOIN'))
     @logged_in
@@ -280,8 +272,12 @@ class SubredditPage(Page):
             self.term.show_notification("Not a valid subreddit {0}".format(name))
             return
 
-        self.reddit.subscribe(name)
-        self.term.show_notification("Joining {0}".format(name), 1)
+        community = name.strip('/').split('/')[-1]
+        with self.term.loader('Joining'):
+            self.reddit.follow_community(community, True)
+        if not self.term.loader.exception:
+            self.term.show_notification(
+                "Joined {0}".format(community), 1)
 
     @SubredditController.register(Command('SUBREDDIT_LEAVE'))
     @logged_in
@@ -292,8 +288,12 @@ class SubredditPage(Page):
             self.term.show_notification("Not a valid subreddit {0}".format(name))
             return
 
-        self.reddit.unsubscribe(name)
-        self.term.show_notification("Leaving {0}".format(name), 1)
+        community = name.strip('/').split('/')[-1]
+        with self.term.loader('Leaving'):
+            self.reddit.follow_community(community, False)
+        if not self.term.loader.exception:
+            self.term.show_notification(
+                "Left {0}".format(community), 1)
 
     def _submission_attr(self, data):
         if data['url_full'] in self.config.history:

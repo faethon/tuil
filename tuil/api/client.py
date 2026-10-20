@@ -64,6 +64,15 @@ class LemmyClient(object):
     def is_logged_in(self):
         return bool(self.token)
 
+    def is_oauth_session(self):
+        """Compatibility alias used by the page layer."""
+        return self.is_logged_in
+
+    @property
+    def user(self):
+        """Return the logged-in user, or ``None`` for an anonymous client."""
+        return self.me()
+
     def set_token(self, token):
         self._http.set_token(token)
         self._invalidate_me()
@@ -283,6 +292,30 @@ class LemmyClient(object):
         return self._user_content_pager(
             user, 'comments', sort, page_size, max_items,
             lambda item: Comment(self, item))
+
+    def list_user_content(self, user, *, sort=None, page_size=50,
+                          max_items=None):
+        """Iterate over a user's posts and comments.
+
+        The v3 ``/user`` endpoint returns both lists for each page, so the
+        combined pager yields posts followed by comments.  The UI only needs
+        one item at a time, and this keeps paging correct without losing either
+        kind of content.
+        """
+        self._check_page_size(page_size)
+        person_params = self._person_params(user)
+
+        def fetch(page):
+            params = {'sort': sort, 'page': page, 'limit': page_size}
+            params.update(person_params)
+            data = self._http.get('/user', params=params)
+            posts = data.get('posts') or []
+            comments = data.get('comments') or []
+            items = [Post(self, item) for item in posts]
+            items.extend(Comment(self, item) for item in comments)
+            return items, bool(posts or comments)
+
+        return Pager(fetch, max_items=max_items)
 
     def _user_content_pager(self, user, key, sort, page_size, max_items,
                             factory):

@@ -28,7 +28,7 @@ class SubmissionPage(Page):
                 max_comment_cols=config['max_comment_cols'])
         else:
             self.content = SubmissionContent(
-                submission, term.loader,
+                reddit, submission, term.loader,
                 max_comment_cols=config['max_comment_cols'])
 
         # Start at the submission post, which is indexed as -1

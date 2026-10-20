@@ -91,12 +91,12 @@ class InboxPage(Page):
         data = self.get_selected_item()
         if data['is_new']:
             with self.term.loader('Marking as read'):
-                data['object'].mark_as_read()
+                data['object'].mark_read()
             if not self.term.loader.exception:
                 data['is_new'] = False
         else:
             with self.term.loader('Marking as unread'):
-                data['object'].mark_as_unread()
+                data['object'].mark_unread()
             if not self.term.loader.exception:
                 data['is_new'] = True
 
@@ -165,7 +165,7 @@ class InboxPage(Page):
 
         row = offset + 1
         if row in valid_rows:
-            # reddit.user might be ``None`` if the user logs out while viewing
+            # The client user might be ``None`` if the user logs out while viewing
             # this page
             if data['author'] == getattr(self.reddit.user, 'name', None):
                 self.term.add_line(win, 'to ', row, 1)
