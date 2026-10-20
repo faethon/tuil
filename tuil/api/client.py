@@ -811,7 +811,8 @@ class LemmyClient(object):
         language_id = self._language_id(language_id)
         if language_id is not None:
             data['language_id'] = language_id
-        response = self._http.post('/comment', data)
+        response = self._http.post(
+            '/comment', data, api_version=4 if self._use_v4() else None)
         return Comment(self, response.get('comment_view') or {})
 
     def edit_comment(self, comment_id, content, *, language_id=None):
@@ -824,14 +825,19 @@ class LemmyClient(object):
         language_id = self._language_id(language_id)
         if language_id is not None:
             data['language_id'] = language_id
-        response = self._http.put('/comment', data)
+        response = self._http.put(
+            '/comment', data, api_version=4 if self._use_v4() else None)
         return Comment(self, response.get('comment_view') or {})
 
     def delete_comment(self, comment_id, deleted=True):
-        data = self._http.post('/comment/delete', {
+        payload = {
             'comment_id': self._comment_id(comment_id),
             'deleted': bool(deleted),
-        })
+        }
+        if self._use_v4():
+            data = self._http.delete('/comment', payload, api_version=4)
+        else:
+            data = self._http.post('/comment/delete', payload)
         return Comment(self, data.get('comment_view') or {})
 
     def follow_community(self, community, follow=True):

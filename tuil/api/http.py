@@ -256,7 +256,8 @@ class LemmyHTTP(object):
 
         if isinstance(payload, dict):
             code = payload.get('error')
-            message = payload.get('message')
+            message = (payload.get('message') or payload.get('cause')
+                       or payload.get('error'))
         else:
             code = None
             message = None

@@ -493,9 +493,12 @@ def test_http_errors_are_mapped():
         LemmyClient('lemmy.ml').site()
 
     responses.reset()
-    add_json(responses.GET, '/site', {'error': 'bad'}, status=400)
-    with pytest.raises(BadRequestError):
+    add_json(responses.GET, '/site', {
+        'error': 'bad_request', 'cause': 'invalid comment',
+    }, status=400)
+    with pytest.raises(BadRequestError) as excinfo:
         LemmyClient('lemmy.ml').site()
+    assert 'invalid comment' in str(excinfo.value)
 
 
 @responses.activate
@@ -577,6 +580,43 @@ def test_vote_save_and_read_state():
     assert client.mark_post_read(post_id, False) == {}
     assert json.loads(responses.calls[-1].request.body) == {
         'post_id': post_id, 'read': False}
+
+
+@responses.activate
+def test_v4_comment_writes_use_v4_endpoint():
+    view = comment_view()
+    comment_id = view['comment']['id']
+    add_json4(responses.POST, '/comment', {'comment_view': view})
+    add_json4(responses.PUT, '/comment', {'comment_view': view})
+    add_json4(responses.DELETE, '/comment', {'comment_view': view})
+    client = LemmyClient('lemmy.ml', api_version=4)
+
+    client.create_comment(
+        view['post']['id'], 'hello', parent_id=comment_id, language_id=0)
+    assert responses.calls[-1].request.url == API4 + '/comment'
+    assert json.loads(responses.calls[-1].request.body) == {
+        'post_id': view['post']['id'],
+        'content': 'hello',
+        'parent_id': comment_id,
+        'language_id': 0,
+    }
+
+    client.edit_comment(comment_id, 'edited', language_id=0)
+    assert responses.calls[-1].request.method == 'PUT'
+    assert responses.calls[-1].request.url == API4 + '/comment'
+    assert json.loads(responses.calls[-1].request.body) == {
+        'comment_id': comment_id,
+        'content': 'edited',
+        'language_id': 0,
+    }
+
+    client.delete_comment(comment_id)
+    assert responses.calls[-1].request.method == 'DELETE'
+    assert responses.calls[-1].request.url == API4 + '/comment'
+    assert json.loads(responses.calls[-1].request.body) == {
+        'comment_id': comment_id,
+        'deleted': True,
+    }
 
 
 @responses.activate

@@ -13,6 +13,11 @@ Features
 
 * Search communities with the ``F`` key
 
+Bugfixes
+
+* Use the v4 comment endpoints on Lemmy 1.0
+* Include the server error cause in API error messages
+
 ------------------
 0.1.1 (2026-10-20)
 ------------------
