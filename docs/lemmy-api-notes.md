@@ -15,26 +15,34 @@ Most public instances still run 0.19.x, so v3 is the first target.
 
 ## API v3 on Lemmy 1.0
 
-The backwards-compatible v3 API on 1.0 covers browsing, login, voting and
-commenting, but not the inbox, saved lists and several actions:
+The backwards-compatible v3 API on 1.0 covers browsing, login, voting,
+saving, posting and commenting, but not the inbox and read-state endpoints:
 
 | Endpoint | 0.19.20 | 1.0 nightly |
 |---|---|---|
 | `GET /api/v3/post/list` | 200 | 200 |
 | `GET /api/v3/comment/list` | 200 | 200 |
 | `GET /api/v3/community/list` | 200 | 200 |
+| `GET /api/v3/search` | 200 | 200 |
 | `POST /api/v3/user/login` | 400 on empty body | 400 on empty body |
-| `POST /api/v3/post/like` | 401 anonymous | 401 anonymous |
+| `POST /api/v3/post/like`, `comment/like` | 401 anonymous | 401 anonymous |
+| `PUT /api/v3/post/save`, `comment/save` | 401 anonymous | 401 anonymous |
+| `POST /api/v3/post`, `PUT /api/v3/post` | 401 anonymous | 401 anonymous |
+| `POST /api/v3/comment`, `PUT /api/v3/comment` | 401 anonymous | 401 anonymous |
+| `POST /api/v3/post/delete`, `comment/delete` | 401 anonymous | 401 anonymous |
 | `POST /api/v3/community/follow` | 401 anonymous | 401 anonymous |
 | `GET /api/v3/user/replies` | 401 anonymous | 404 |
+| `GET /api/v3/user/mention` | 401 anonymous | 404 |
 | `GET /api/v3/private_message/list` | 401 anonymous | 404 |
-| `GET /api/v3/user/unread_count` | 401 anonymous | 404 |
+| `POST /api/v3/private_message` | 401 anonymous | 404 |
+| `GET /api/v3/user/unread_count` | 401 anonymous | 401 anonymous |
 | `POST /api/v3/post/mark_as_read` | 401 anonymous | 404 |
 | `POST /api/v3/comment/mark_as_read` | 401 anonymous | 404 |
+| `POST /api/v3/private_message/mark_as_read` | 401 anonymous | 404 |
 
-This is why a v4 backend is needed for full parity on 1.0 (inbox, saved,
-notifications, hide actions). v3 remains sufficient for 0.19 and for
-anonymous browsing on every instance.
+This is why a v4 backend is needed for full parity on 1.0: inbox, mentions,
+private messages, unread counters and read state.  v3 remains sufficient for
+0.19 and for anonymous browsing on every instance.
 
 ## Authentication
 
@@ -178,8 +186,9 @@ Community-scoped search additionally accepts `community_id`.
 - `POST /api/v3/comment` (create)
 - `PUT /api/v3/comment` (edit)
 - `POST /api/v3/comment/delete` `{"comment_id": 1, "deleted": true}`
-- `POST /api/v3/post/mark_as_read`
-- `POST /api/v3/comment/mark_as_read`
+- `POST /api/v3/post/mark_as_read` `{"post_id": 1, "read": true}`
+- `POST /api/v3/comment/mark_as_read` (comment reply, `comment_reply_id`)
+- `POST /api/v3/user/mention/mark_as_read` (`person_mention_id`)
 - `POST /api/v3/community/follow` `{"community_id": 1, "follow": true}`
 - `POST /api/v3/private_message` `{"content": "...", "recipient_id": 1}`
 - `POST /api/v3/private_message/mark_as_read`
@@ -189,6 +198,13 @@ Notes:
 - `post/hide` does not exist in v3; hiding posts must be handled client-side
   or deferred to the v4 backend.
 - `/user/mention` is singular in v3, unlike the other inbox endpoints.
+- `/comment/mark_as_read` marks a **comment reply in the inbox** and takes
+  `comment_reply_id`.  There is no server-side read flag on a comment itself.
+- `/user/mention/mark_as_read` takes `person_mention_id`.
+- `/private_message/mark_as_read` takes `private_message_id`.
+- `/post/mark_as_read` accepts `post_id` or `post_ids`.
+- `GET /site` returns `discussion_languages` as a list of language **ids**,
+  while `all_languages` is a list of objects.
 - Private messages have no subject field. tuir's compose flow needs to drop
   the subject prompt for Lemmy.
 - Creating posts and comments requires `language_id`; use the site's default
@@ -198,7 +214,8 @@ Notes:
 
 v3 accepts all of these on 0.19.20: `Active`, `Hot`, `New`, `Old`,
 `TopDay`, `TopWeek`, `TopMonth`, `TopYear`, `TopAll`, `MostComments`,
-`NewComments`, `Controversial`, `Scaled`.
+`NewComments`, `Controversial`, `Scaled`.  There is no plain `Top`: always
+send a period-qualified value such as `TopDay` or `TopAll`.
 
 Proposed tuir mapping:
 

@@ -19,6 +19,7 @@ tests_require = [
     'coverage',
     'mock',
     'pylint',
+    'responses',
     'vcrpy',
 ]
 
@@ -59,6 +60,7 @@ setuptools.setup(
         'tuil.packages',
         'tuil.packages.mailcap',
         'tuil.packages.praw',
+        'tuil.api',
     ],
     package_data={
         'tuil': ['templates/*', 'themes/*'],
