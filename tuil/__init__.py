@@ -22,7 +22,7 @@ from __future__ import unicode_literals
 from .__version__ import __version__
 
 __title__ = 'Terminal UI for Lemmy'
-__author__ = 'Michael Lazar'
+__author__ = 'faethon'
 __license__ = 'GNU General Public License version 3'
 __copyright__ = ('(c) 2016 Michael Lazar, portions (c) 2019 John Helmert III, '
                  'tuil modifications (c) 2026 tuil contributors')

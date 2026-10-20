@@ -45,11 +45,16 @@ def long_description():
 setuptools.setup(
     name='tuil',
     version=version,
-    description='A terminal-first Lemmy reader (based on tuir)',
+    description='A terminal-first Lemmy reader',
     long_description=long_description(),
     long_description_content_type='text/markdown',
     url='https://github.com/faethon/tuil',
-    author='tuil contributors',
+    project_urls={
+        'Homepage': 'https://github.com/faethon/tuil',
+        'Issues': 'https://github.com/faethon/tuil/issues',
+        'Source': 'https://github.com/faethon/tuil',
+    },
+    author='faethon',
     author_email='',
     license='GPL-3.0-only',
     keywords='lemmy fediverse terminal curses',
