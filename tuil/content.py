@@ -1126,9 +1126,29 @@ class SubscriptionContent(Content):
         if not items:
             raise exceptions.SubscriptionError(
                 'No communities found for {0}'.format(query))
-        return cls(
+        content = cls(
             'Search Communities: {0}'.format(query), iter(items), loader,
             qualified=True)
+        content._search_items = items
+        return content
+
+    def sort(self, key):
+        """Sort search results by community name or member count."""
+        items = getattr(self, '_search_items', None)
+        if items is None:
+            return
+        if key == 'members':
+            items.sort(
+                key=lambda community: (
+                    -int(community.subscribers or 0),
+                    (community.name or '').lower()))
+        else:
+            items.sort(
+                key=lambda community: (
+                    (community.name or '').lower(),
+                    community.actor_id or ''))
+        self._subscriptions = iter(items)
+        self._subscription_data = []
 
     @classmethod
     def strip_search_subscription(cls, community):

@@ -150,6 +150,14 @@ def test_subscription_search_qualifies_and_deduplicates():
     with pytest.raises(IndexError):
         content.get(2)
 
+    content.sort('members')
+    assert content.get(0)['name'] == '/c/technology@lemmy.world'
+    assert content.get(1)['name'] == '/c/piracy@lemmy.dbzer0.com'
+
+    content.sort('name')
+    assert content.get(0)['name'] == '/c/piracy@lemmy.dbzer0.com'
+    assert content.get(1)['name'] == '/c/technology@lemmy.world'
+
 
 def test_subscription_search_rejects_empty_results():
     client = FakeClient()

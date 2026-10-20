@@ -86,6 +86,8 @@ https://github.com/faethon/tuil
 [Community List Mode]
   h     : Close your communities and return to the previous page
   l     : Open the selected community
+  1     : Sort community search results by name
+  2     : Sort community search results by members
 
 [Inbox Mode]
   h     : Close your inbox and return to the previous page
@@ -131,6 +133,10 @@ BANNER_SEARCH = """
 [1]relevance [2]top [3]comments [4]new
 """
 
+BANNER_COMMUNITY_SEARCH = """
+[1]name [2]members
+"""
+
 BANNER_INBOX = """
 [1]all [2]unread [3]messages [4]comments [5]posts [6]mentions [7]sent
 """
@@ -152,7 +158,7 @@ FOOTER_SUBMISSION = """
 """
 
 FOOTER_SUBSCRIPTION = """
-[?]Help [q]Quit [h]Return [l]Select Community [F]Find [r]Refresh
+[?]Help [q]Quit [h]Return [l]Select Community [1/2]Sort [F]Find [r]Refresh
 """
 
 FOOTER_INBOX = """

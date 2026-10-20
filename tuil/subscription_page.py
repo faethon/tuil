@@ -24,6 +24,7 @@ class SubscriptionPage(Page):
         self.controller = SubscriptionController(self, keymap=config.keymap)
         self.content_type = 'search' if query else content_type
         self.query = query
+        self.sort_key = None
         if query:
             self.content = SubscriptionContent.from_search(
                 reddit, term.loader, query)
@@ -52,11 +53,29 @@ class SubscriptionPage(Page):
             if self.query:
                 self.content = SubscriptionContent.from_search(
                     self.reddit, self.term.loader, self.query)
+                if self.sort_key:
+                    self.content.sort(self.sort_key)
             else:
                 self.content = SubscriptionContent.from_user(
                     self.reddit, self.term.loader, self.content_type)
         if not self.term.loader.exception:
             self.nav = Navigator(self.content.get)
+
+    def _sort_search(self, key):
+        if not self.query:
+            self.term.flash()
+            return
+        self.sort_key = key
+        self.content.sort(key)
+        self.nav = Navigator(self.content.get)
+
+    @SubscriptionController.register(Command('SORT_1'))
+    def sort_by_name(self):
+        self._sort_search('name')
+
+    @SubscriptionController.register(Command('SORT_2'))
+    def sort_by_members(self):
+        self._sort_search('members')
 
     @SubscriptionController.register(Command('SUBSCRIPTION_SELECT'))
     def select_subreddit(self):
@@ -74,8 +93,22 @@ class SubscriptionPage(Page):
         self.active = False
 
     def _draw_banner(self):
-        # Subscriptions can't be sorted, so disable showing the order menu
-        pass
+        if not self.query:
+            return
+
+        _, n_cols = self.term.stdscr.getmaxyx()
+        window = self.term.stdscr.derwin(1, n_cols, self._row, 0)
+        window.erase()
+        window.bkgd(str(' '), self.term.attr('OrderBar'))
+
+        text = docs.BANNER_COMMUNITY_SEARCH.strip()
+        self.term.add_line(window, text, 0, 0)
+        if self.sort_key:
+            col = text.find(self.sort_key) - 3
+            if col >= 0:
+                window.chgat(
+                    0, col, 3, self.term.attr('OrderBarHighlight'))
+        self._row += 1
 
     def _draw_item(self, win, data, inverted):
         n_rows, n_cols = win.getmaxyx()

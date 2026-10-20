@@ -14,6 +14,7 @@ Features
 * Search communities with the ``F`` key
 * Show the community member count in the title bar
 * Show member counts in community search results
+* Sort community search results by name or member count
 
 Bugfixes
 

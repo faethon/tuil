@@ -99,6 +99,8 @@ The following actions can be performed when viewing your subscribed communities:
 
 - <kbd>h</kbd> or <kbd>◄</kbd> - Close the community list and return to the previous page
 - <kbd>l</kbd> or <kbd>►</kbd> - Open the selected community
+- <kbd>1</kbd> - Sort community search results by name
+- <kbd>2</kbd> - Sort community search results by number of members
 - <kbd>F</kbd> - Search for communities
 
 ## Inbox Mode
