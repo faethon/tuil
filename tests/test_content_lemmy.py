@@ -90,7 +90,7 @@ class Loader(object):
 
 @pytest.fixture()
 def config():
-    return {'look_and_feel': 'default', 'subreddit_format': None}
+    return {'look_and_feel': 'default', 'post_format': None}
 
 
 def test_strip_submission_link_and_selfpost():
@@ -156,11 +156,11 @@ def test_parse_submission_url_rejects_unknown():
 
 
 @pytest.mark.parametrize('name,kind,resource,room,order,period,display', [
-    ('linux', 'community', 'linux', None, None, None, '/r/linux'),
+    ('linux', 'community', 'linux', None, None, None, '/c/linux'),
     ('/c/linux/top-week', 'community', 'linux', None, 'top', 'week',
-     '/r/linux'),
-    ('/r/all/new', 'listing', 'all', None, 'new', None, '/r/all'),
-    ('front/top-all', 'listing', 'front', None, 'top', 'all', '/r/front'),
+     '/c/linux'),
+    ('/r/all/new', 'listing', 'all', None, 'new', None, '/c/all'),
+    ('front/top-all', 'listing', 'front', None, 'top', 'all', '/c/front'),
     ('u/alice/comments', 'user', 'alice', 'comments', 'new', None,
      '/u/alice/comments'),
     ('u/alice/top-month', 'user', 'alice', 'overview', 'top', 'month',
@@ -204,7 +204,7 @@ def test_post_sort(order, period, expected):
 def test_listing_front_is_local_when_anonymous(config):
     client = FakeClient()
     content = SubredditContent.from_name(client, config, 'front', Loader())
-    assert content.name == '/r/front'
+    assert content.name == '/c/front'
     assert content.order is None
     assert client.calls[-1] == (
         'list_posts', {'type_': 'Local', 'sort': 'Hot', 'page_size': 50})
@@ -213,7 +213,7 @@ def test_listing_front_is_local_when_anonymous(config):
 def test_listing_preserves_full_sort_order(config):
     client = FakeClient()
     content = SubredditContent.from_name(
-        client, config, '/r/all', Loader(), order='top-week')
+        client, config, '/c/all', Loader(), order='top-week')
     assert content.order == 'top-week'
     assert client.calls[-1][1]['sort'] == 'TopWeek'
 
@@ -227,7 +227,7 @@ def test_listing_subscribed_requires_login(config):
 def test_community_and_user_listings(config):
     client = FakeClient()
     content = SubredditContent.from_name(client, config, 'linux', Loader())
-    assert content.name == '/r/linux'
+    assert content.name == '/c/linux'
     assert client.calls[-1][1]['community'] == 'linux'
 
     content = SubredditContent.from_name(
@@ -292,6 +292,6 @@ def test_pager_in_content_is_consumed_lazily():
     client = FakeClient()
     pager = Pager(lambda page: (client.posts, False))
     content = SubredditContent(
-        {'look_and_feel': 'compact', 'subreddit_format': None},
-        '/r/front', pager, Loader(), client=client)
+        {'look_and_feel': 'compact', 'post_format': None},
+        '/c/front', pager, Loader(), client=client)
     assert content.get(0)['n_rows'] == 2

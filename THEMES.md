@@ -66,6 +66,11 @@ terminal colors can be traced back to somebody hardcoding
 
 Here's an example of what an TUIL theme file looks like:
 
+Some element names, such as `SubmissionSubreddit` and `MultiredditName`, are
+inherited from tuir and kept for compatibility with existing themes. The
+`Submission*` elements style posts, and `SubmissionSubreddit` styles the
+community name shown next to a post.
+
 ```
 [theme]
 ;<element>            = <foreground>  <background>  <attributes>

@@ -13,7 +13,7 @@ from kitchen.text.display import textual_width
 
 from . import docs
 from .clipboard import copy as clipboard_copy
-from .objects import Controller, Command, preferred_reddit_domain
+from .objects import Controller, Command
 from .exceptions import TemporaryFileError, ProgramError
 from .__version__ import __version__
 
@@ -295,7 +295,7 @@ class Page(object):
     @PageController.register(Command('OPEN_SUBREDDIT'))
     def open_subreddit(self):
         """
-        Open the subreddit associated with the currently selected item.
+        Open the community associated with the currently selected item.
         """
         data = self.get_selected_item()
         if 'subreddit' in data:
@@ -366,7 +366,7 @@ class Page(object):
 
         if data['type'] == 'Submission':
             body = data['text']
-            description = 'submission'
+            description = 'post'
             reply = data['object'].reply
         elif data['type'] in ('Comment', 'InboxComment'):
             body = data['body']
@@ -408,7 +408,7 @@ class Page(object):
     @logged_in
     def delete_item(self):
         """
-        Delete a submission or comment.
+        Delete a post or comment.
         """
         data = self.get_selected_item()
         user = self.reddit.user
@@ -433,7 +433,7 @@ class Page(object):
     @logged_in
     def edit(self):
         """
-        Edit a submission or comment.
+        Edit a post or comment.
         """
         data = self.get_selected_item()
         user = self.reddit.user
@@ -520,7 +520,7 @@ class Page(object):
         permalink = data.get('permalink')
 
         if url_full and url_full != permalink:
-            # The item is a link-only submission that won't contain text
+            # The item is a link-only post that won't contain text
             link = url_full
         else:
             html = data.get('html')
@@ -546,10 +546,9 @@ class Page(object):
     @PageController.register(Command('COPY_PERMALINK'))
     def copy_permalink(self):
         """
-        Copy the submission permalink to OS clipboard
+        Copy the post permalink to OS clipboard
         """
         url = self.get_selected_item().get('permalink')
-        url = preferred_reddit_domain(url, self.config)
         _logger.info('permalink %s %s', url, type(url))
         self.copy_to_clipboard(url)
 
@@ -559,7 +558,6 @@ class Page(object):
         Copy a link to OS clipboard
         """
         url = self.prompt_and_select_link()
-        url = preferred_reddit_domain(url, self.config)
         self.copy_to_clipboard(url)
 
     def copy_to_clipboard(self, url):
@@ -584,7 +582,7 @@ class Page(object):
     @logged_in
     def subscriptions(self):
         """
-        View a list of the user's subscribed subreddits
+        View a list of the user's subscribed communities
         """
         self.selected_page = self.open_subscription_page('subreddit')
 
@@ -592,26 +590,36 @@ class Page(object):
     @logged_in
     def multireddits(self):
         """
-        View a list of the user's subscribed multireddits
+        Multireddits are not available in Lemmy.
         """
-        self.selected_page = self.open_subscription_page('multireddit')
+        self.term.show_notification(
+            'Multireddits are not available in Lemmy', style='Error')
 
     @PageController.register(Command('PROMPT'))
     def prompt(self):
         """
-        Open a prompt to navigate to a different subreddit or comment"
+        Open a prompt to navigate to a different community or post.
         """
         name = self.term.prompt_input('Enter page: /')
         if name:
             # Check if opening a post URL or a community URL.
             # Example patterns for posts:
             #     /post/123
+            #     /comment/456
             #     https://lemmy.ml/post/123
             #     https://lemmy.ml/c/linux/p/123/example
-            submission_pattern = re.compile(
+            comment_pattern = re.compile(r'/comment/(?P<id>\d+)')
+            post_pattern = re.compile(
                 r'(?:/post/|/p/|/comments/)(?P<id>\d+)')
 
-            match = submission_pattern.search(name)
+            match = comment_pattern.search(name)
+            if match:
+                url = '{0}/comment/{1}'.format(
+                    self.reddit.instance, match.group('id'))
+                self.selected_page = self.open_submission_page(url)
+                return
+
+            match = post_pattern.search(name)
             if match:
                 url = '{0}/post/{1}'.format(
                     self.reddit.instance, match.group('id'))
@@ -645,7 +653,8 @@ class Page(object):
         """
         from .subscription_page import SubscriptionPage
 
-        with self.term.loader('Loading {0}s'.format(content_type)):
+        label = 'communities' if content_type == 'subreddit' else content_type
+        with self.term.loader('Loading {0}'.format(label)):
             page = SubscriptionPage(self.reddit, self.term, self.config,
                                     self.oauth, content_type=content_type)
         if not self.term.loader.exception:
@@ -653,11 +662,11 @@ class Page(object):
 
     def open_submission_page(self, url=None, submission=None):
         """
-        Open an instance of the submission page for the given submission URL.
+        Open an instance of the post page for the given post URL.
         """
         from .submission_page import SubmissionPage
 
-        with self.term.loader('Loading submission'):
+        with self.term.loader('Loading post'):
             page = SubmissionPage(self.reddit, self.term, self.config,
                                   self.oauth, url=url, submission=submission)
         if not self.term.loader.exception:
@@ -665,16 +674,18 @@ class Page(object):
 
     def open_subreddit_page(self, name):
         """
-        Open an instance of the subreddit page for the given subreddit name.
+        Open an instance of the community page for the given community name.
         """
         from .subreddit_page import SubredditPage
 
         if 'u/' in name:
-            pagetypename = "userpage /"
+            pagetypename = "user page "
+        elif name.startswith('/c/') or name.startswith('c/'):
+            pagetypename = "community "
         elif 'r/' in name:
-            pagetypename = "subreddit "
+            pagetypename = "community "
         else:
-            pagetypename = "subreddit /r/"
+            pagetypename = "community /c/"
 
         with self.term.loader('Loading {0}{1}'.format(pagetypename, name)):
             page = SubredditPage(self.reddit, self.term, self.config,
@@ -721,7 +732,7 @@ class Page(object):
         window.bkgd(str(' '), self.term.attr('TitleBar'))
 
         sub_name = self.content.name
-        sub_name = sub_name.replace('/r/front', 'Front Page')
+        sub_name = sub_name.replace('/c/front', 'Front Page')
 
         parts = sub_name.split('/')
         if len(parts) == 1:
@@ -734,7 +745,7 @@ class Page(object):
             user_room = parts[3] if len(parts) == 4 else 'overview'
             title_lookup = {
                 'overview': 'Overview',
-                'submitted': 'Submissions',
+                'submitted': 'Posts',
                 'comments': 'Comments',
                 'saved': 'Saved Content',
                 'hidden': 'Hidden Content',
@@ -815,7 +826,7 @@ class Page(object):
 
     def _draw_content(self):
         """
-        Loop through submissions and fill up the content page.
+        Loop through posts and fill up the content page.
         """
         n_rows, n_cols = self.term.stdscr.getmaxyx()
         window = self.term.stdscr.derwin(n_rows - self._row - 1, n_cols, self._row, 0)
@@ -826,8 +837,8 @@ class Page(object):
         page_index, cursor_index, inverted = self.nav.position
         step = self.nav.step
 
-        # If not inverted, align the first submission with the top and draw
-        # downwards. If inverted, align the first submission with the bottom
+        # If not inverted, align the first post with the top and draw
+        # downwards. If inverted, align the first post with the bottom
         # and draw upwards.
         cancel_inverted = True
         current_row = (win_n_rows - 1) if inverted else 0

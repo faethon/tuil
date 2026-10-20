@@ -12,7 +12,7 @@ except ImportError:
 from . import docs
 from .content import SubredditContent
 from .page import Page, PageController, logged_in
-from .objects import Navigator, Command, preferred_reddit_domain
+from .objects import Navigator, Command
 from .exceptions import TemporaryFileError
 
 
@@ -46,11 +46,11 @@ class SubredditPage(Page):
 
     # Split this out to a function mostly to simplify testing
     def _create_format_list(self):
-        if self.config['subreddit_format']:
+        if self.config['post_format']:
             # Split the list between %., newlines, and separator characters to
             # treat them separately
             format_list = re.split(r'(%.|[\n' + re.escape(self.FORMAT_SEP) + '])',
-                    self.config['subreddit_format'], flags=re.DOTALL)
+                    self.config['post_format'], flags=re.DOTALL)
 
             # Clean the list of null items. We don't need to join this list
             # together again, so this is safe.
@@ -61,7 +61,7 @@ class SubredditPage(Page):
 
     def handle_selected_page(self):
         """
-        Open all selected pages in subwindows except other subreddit pages.
+        Open all selected pages in subwindows except other community pages.
         """
         if not self.selected_page:
             pass
@@ -123,7 +123,7 @@ class SubredditPage(Page):
             self.refresh_content(order=order)
 
     @SubredditController.register(Command('SORT_3'))
-    def sort_content_rising(self):
+    def sort_content_active(self):
         if self.content.query:
             order = self._prompt_period('comments')
             if order is None:
@@ -131,7 +131,7 @@ class SubredditPage(Page):
             else:
                 self.refresh_content(order=order)
         else:
-            self.refresh_content(order='rising')
+            self.refresh_content(order='active')
 
     @SubredditController.register(Command('SORT_4'))
     def sort_content_new(self):
@@ -151,15 +151,13 @@ class SubredditPage(Page):
 
     @SubredditController.register(Command('SORT_6'))
     def sort_content_gilded(self):
-        if self.content.query:
-            self.term.flash()
-        else:
-            self.refresh_content(order='gilded')
+        self.term.show_notification(
+            'Gilded listings are not available in Lemmy', style='Error')
 
     @SubredditController.register(Command('SUBREDDIT_SEARCH'))
     def search_subreddit(self, name=None):
         """
-        Open a prompt to search the given subreddit
+        Open a prompt to search the given community
         """
         name = name or self.content.name
 
@@ -176,12 +174,12 @@ class SubredditPage(Page):
     @SubredditController.register(Command('SUBREDDIT_FRONTPAGE'))
     def show_frontpage(self):
         """
-        If on a subreddit, remember it and head back to the front page.
-        If this was pressed on the front page, go back to the last subreddit.
+        If on a community, remember it and head back to the front page.
+        If this was pressed on the front page, go back to the last community.
         """
 
-        if self.content.name != '/r/front':
-            target = '/r/front'
+        if self.content.name != '/c/front':
+            target = '/c/front'
             self.toggled_subreddit = self.content.name
         else:
             target = self.toggled_subreddit
@@ -218,7 +216,7 @@ class SubredditPage(Page):
             self.open_submission(url=data['url_full'])
             self.config.history.add(data['url_full'])
         else:
-            url = preferred_reddit_domain(data['url_full'], self.config)
+            url = data['url_full']
             self.term.open_link(url)
             self.config.history.add(url)
 
@@ -226,11 +224,12 @@ class SubredditPage(Page):
     @logged_in
     def post_submission(self):
         """
-        Post a new submission to the given subreddit.
+        Post a new post to the given community.
         """
-        # Check that the subreddit can be submitted to
+        # Check that the community can be posted to
         name = self.content.name
-        if '+' in name or name in ('/r/all', '/r/front', '/r/me', '/u/saved'):
+        if '+' in name or name in ('/c/all', '/c/front', '/c/local', '/c/subscribed',
+                    '/r/all', '/r/front', '/r/me', '/u/saved'):
             self.term.show_notification("Can't post to {0}".format(name))
             return
 
@@ -268,8 +267,9 @@ class SubredditPage(Page):
     def subreddit_subscribe(self):
         name = self.content.name
 
-        if 'u/' in name or name in ('/r/all', '/r/front', '/r/me', '/u/saved'):
-            self.term.show_notification("Not a valid subreddit {0}".format(name))
+        if 'u/' in name or name in ('/c/all', '/c/front', '/c/local', '/c/subscribed',
+                    '/r/all', '/r/front', '/r/me', '/u/saved'):
+            self.term.show_notification("Not a valid community {0}".format(name))
             return
 
         community = name.strip('/').split('/')[-1]
@@ -284,8 +284,9 @@ class SubredditPage(Page):
     def subreddit_unsubscribe(self):
         name = self.content.name
 
-        if 'u/' in name or name in ('/r/all', '/r/front', '/r/me', '/u/saved'):
-            self.term.show_notification("Not a valid subreddit {0}".format(name))
+        if 'u/' in name or name in ('/c/all', '/c/front', '/c/local', '/c/subscribed',
+                    '/r/all', '/r/front', '/r/me', '/u/saved'):
+            self.term.show_notification("Not a valid community {0}".format(name))
             return
 
         community = name.strip('/').split('/')[-1]
@@ -398,7 +399,7 @@ class SubredditPage(Page):
                                    attr=self.term.attr('SubmissionAuthor'))
                 last_was_space = False
             elif item == "%S":
-                self.term.add_line(win, "/r/" + data['subreddit'],
+                self.term.add_line(win, "/c/" + data['subreddit'],
                                    row=offset, col=col,
                                    attr=self.term.attr('SubmissionSubreddit'))
                 last_was_space = False
@@ -623,7 +624,7 @@ class SubredditPage(Page):
             self.term.add_space(win)
 
             attr = self.term.attr('SubmissionSubreddit')
-            self.term.add_line(win, '/r/{subreddit}'.format(**data), attr=attr)
+            self.term.add_line(win, '/c/{subreddit}'.format(**data), attr=attr)
 
             if data['flair']:
                 attr = self.term.attr('SubmissionFlair')
@@ -638,9 +639,9 @@ class SubredditPage(Page):
         valid_rows = range(0, n_rows)
         offset = 0 if not inverted else - (data['n_rows'] - n_rows)
 
-        # TODO - this assumes default doesn't have a subreddit_format. In the
+        # TODO - this assumes the default doesn't have a post_format. In the
         # future it should, and when it does it will break this if
-        if self.config['subreddit_format']:
+        if self.config['post_format']:
             self._draw_item_format(win, data, valid_rows, offset)
         else:
             self._draw_item_default(win, data, n_rows, n_cols, valid_rows, offset)

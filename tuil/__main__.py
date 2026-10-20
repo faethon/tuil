@@ -76,7 +76,7 @@ def main():
     if args.get('user'):
         #simple multi-account support
         user = args.get('user')
-        token_file = os.path.join(Config.TUIL_DATA_HOME, user + '.refresh-token')
+        token_file = os.path.join(Config.TUIL_DATA_HOME, user + '.token')
         history_file = os.path.join(Config.TUIL_DATA_HOME, user + '.history.log')
         config = Config(history_file, token_file)
     else:
@@ -121,16 +121,16 @@ def main():
         # Add an empty handler so the logger doesn't complain
         logging.root.addHandler(logging.NullHandler())
 
-    if config['subreddit_format']:
-        # If the user has explicitly set a subreddit format, we don't want to
+    if config['post_format']:
+        # If the user has explicitly set a post format, we don't want to
         # try to do something else with the format so we fall out of the if now
         pass
     elif not config['look_and_feel'] or config['look_and_feel'] == 'default':
-        # FIXME - default needs its own subreddit_format but can't because
+        # FIXME - default needs its own post_format but can't because
         # no wrapped-title specifier exists
         pass
     elif config['look_and_feel'] == 'compact':
-        config['subreddit_format'] = config.COMPACT_FORMAT
+        config['post_format'] = config.COMPACT_FORMAT
 
     # Make sure the locale is UTF-8 for unicode support
     default_locale = locale.setlocale(locale.LC_ALL, '')
@@ -246,7 +246,7 @@ def main():
                     page = page.loop()
 
             page = None
-            name = config['subreddit'] or 'front'
+            name = config['community'] or 'front'
             with term.loader('Loading {0}'.format(name)):
                 try:
                     page = SubredditPage(client, term, config, oauth, name)

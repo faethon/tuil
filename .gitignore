@@ -15,6 +15,7 @@ dist
 htmlcov/
 tuil.egg-info
 *.egg-info
+tests/token
 tests/refresh-token
 venv/
 tags

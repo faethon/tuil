@@ -19,19 +19,19 @@ class AccountError(TUILError):
 
 
 class SubmissionError(TUILError):
-    "Submission could not be loaded"
+    "Post could not be loaded"
 
 
 class SubredditError(TUILError):
-    "Subreddit could not be loaded"
+    "Community could not be loaded"
 
 
 class NoSubmissionsError(TUILError):
-    "No submissions for the given page"
+    "No posts for the given page"
 
     def __init__(self, name):
         self.name = name
-        message = '`{0}` has no submissions'.format(name)
+        message = '`{0}` has no posts'.format(name)
         super(NoSubmissionsError, self).__init__(message)
 
 

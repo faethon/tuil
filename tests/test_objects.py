@@ -14,7 +14,7 @@ from tuil.api.errors import NetworkError
 
 from tuil import exceptions
 from tuil.objects import Controller, Navigator, Command, KeyMap, \
-    curses_session, patch_webbrowser, replace_domain, preferred_reddit_domain
+    curses_session, patch_webbrowser
 
 try:
     from unittest import mock
@@ -48,27 +48,6 @@ def test_patch_webbrowser(*_):
     patch_webbrowser()
     assert isinstance(webbrowser.get(), webbrowser.MacOSXOSAScript)
     assert webbrowser._tryorder[0] == 'safari'
-
-
-@pytest.mark.parametrize('url,old,new,expected', [
-    ('http://old.reddit.com/', 'www.reddit.com', 'old.reddit.com', 'http://www.reddit.com/'),
-    ('https://www.reddit.com/', 'old.reddit.com', 'www.reddit.com', 'https://old.reddit.com/'),
-    ('https://www.reddit.com/', 'old.reddit.com', 'reddit.com', 'https://www.reddit.com/'),
-])
-def test_replace_domain(url, new, old, expected):
-    assert replace_domain(url, old, new) == expected
-
-
-@pytest.mark.parametrize('url,old,expected', [
-    ('http://old.reddit.com/u/me', False, 'http://old.reddit.com/u/me'),
-    ('http://old.reddit.com/u/me', True, 'http://old.reddit.com/u/me'),
-    ('https://www.reddit.com/u/me', False, 'https://www.reddit.com/u/me'),
-    ('https://www.reddit.com/u/me', True, 'https://www.reddit.com/u/me'),
-    ('https://gitlab.com/Chocimier/tuir/', False, 'https://gitlab.com/Chocimier/tuir/'),
-    ('https://gitlab.com/Chocimier/tuir/', True, 'https://gitlab.com/Chocimier/tuir/'),
-])
-def test_preferred_reddit_domain(url, old, expected):
-    assert preferred_reddit_domain(url, dict(copy_as_old=old)) == expected
 
 
 @pytest.mark.parametrize('use_ascii', [True, False])

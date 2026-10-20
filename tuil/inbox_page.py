@@ -86,7 +86,7 @@ class InboxPage(Page):
     @logged_in
     def mark_seen(self):
         """
-        Mark the selected message or comment as seen.
+        Mark the selected message or comment as read.
         """
         data = self.get_selected_item()
         if data['is_new']:
@@ -129,7 +129,7 @@ class InboxPage(Page):
     @logged_in
     def open_submission(self):
         """
-        Open the full submission and comment tree for the selected comment.
+        Open the full post and comment tree for the selected comment.
         """
         url = self.get_selected_item().get('submission_permalink')
         if url:
@@ -190,7 +190,7 @@ class InboxPage(Page):
 
             if data['subreddit_name']:
                 attr = self.term.attr('MessageSubreddit')
-                text = 'via {subreddit_name}'.format(**data)
+                text = 'via c/{subreddit_name}'.format(**data)
                 self.term.add_line(win, text, attr=attr)
                 self.term.add_space(win)
 

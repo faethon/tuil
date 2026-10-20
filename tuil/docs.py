@@ -23,9 +23,9 @@ Press `?` to open the help screen.
 
 HELP = """\
 ====================================
-Terminal UI for Reddit
+Terminal UI for Lemmy
 
-https://gitlab.com/Chocimier/tuir
+https://github.com/faethon/tuil
 ====================================
 
 [Basic Commands]
@@ -37,94 +37,91 @@ https://gitlab.com/Chocimier/tuir
   n     : Move the cursor down one page
   gg    : Jump to the top of the page
   G     : Jump to the bottom of the page
-  1-7   : Sort submissions by category
+  1-5   : Sort posts by category
   r     : Refresh the content on the current page
-  u     : Login to your reddit account
+  u     : Log in to your Lemmy account
   q     : Quit
   Q     : Force quit
-  y     : Copy submission permalink to clipboard
-  Y     : Copy submission link to clipboard
+  y     : Copy post permalink to clipboard
+  Y     : Copy post link to clipboard
   F2    : Cycle to the previous color theme
   F3    : Cycle to the next color theme
   ?     : Show the help screen
-  /     : Open a prompt to select a subreddit
+  /     : Open a prompt to select a community
 
 [Authenticated Commands]
   a     : Upvote
   z     : Downvote
-  c     : Compose a new submission or comment
+  c     : Compose a new post or comment
   C     : Compose a new private message
-  e     : Edit the selected submission or comment
-  d     : Delete the selected submission or comment
+  e     : Edit the selected post or comment
+  d     : Delete the selected post or comment
   i     : View your inbox (see Inbox Mode)
-  s     : View your subscribed subreddits (see Subscription Mode)
-  S     : View your subscribed multireddits (see Subscription Mode)
-  u     : Logout of your reddit account
-  w     : Save the selected submission or comment
+  s     : View your subscribed communities (see Community List Mode)
+  u     : Log out of your Lemmy account
+  w     : Save the selected post or comment
 
-[Subreddit Mode]
-  l     : View the comments for the selected submission (see Submission Mode)
-  o     : Open the selected submission link using your web browser
-  SPACE : Mark the selected submission as hidden
-  p     : Toggle between the currently viewed subreddit and /r/front
-  f     : Open a prompt to search the current subreddit for a text string
-  t     : Join this subreddit
-  T     : Leave this subreddit
-  v     : Open the subreddit for the selected submission
-  V     : Open the authors user page for the selected submission
+[Community Mode]
+  l     : View the comments for the selected post (see Post Mode)
+  o     : Open the selected post link using your web browser
+  p     : Toggle between the current community and /c/front
+  f     : Open a prompt to search the current community for a text string
+  t     : Join this community
+  T     : Leave this community
+  v     : Open the community for the selected post
+  V     : Open the author's user page for the selected post
 
-[Submission Mode]
-  h     : Close the submission and return to the previous page
+[Post Mode]
+  h     : Close the post and return to the previous page
   l     : View the selected comment using the system's pager
   o     : Open a link in the comment using your web browser
   SPACE : Fold or expand the selected comment and its children
   b     : Send the comment text to the system's urlviewer application
-  J     : Move the cursor down the the next comment at the same indentation
+  J     : Move the cursor down to the next comment at the same indentation
   K     : Move the cursor up to the parent comment
-  V     : Open the authors user page for the selected comment
+  V     : Open the author's user page for the selected comment
 
-[Subscription Mode]
-  h     : Close your subscriptions and return to the previous page
-  l     : Open the selected subreddit or multireddit
+[Community List Mode]
+  h     : Close your communities and return to the previous page
+  l     : Open the selected community
 
 [Inbox Mode]
   h     : Close your inbox and return to the previous page
   l     : View the context of the selected comment
-  o     : Open the submission of the selected comment
+  o     : Open the post of the selected comment
   c     : Reply to the selected comment or message
-  w     : Mark the selected comment or message as seen
+  w     : Mark the selected comment or message as read
 
 [Prompt]
   The / key opens a text prompt at the bottom of the screen. You can use this
-  to type in the name of the subreddit that you want to open. The following
+  to type in the name of the community that you want to open. The following
   text formats are recognized:
 
-  /python                      - Open a subreddit, shorthand
-  /r/python                    - Open a subreddit
-  /r/python/new                - Open a subreddit, sorted by category
-  /r/python/controversial-year - Open a subreddit, sorted by category and time
-  /r/python+linux+commandline  - Open multiple subreddits merged together
-  /comments/30rwj2             - Open a submission, shorthand
-  /r/python/comments/30rwj2    - Open a submission
-  /r/front                     - Open your front page
-  /u/me                        - View your submissions
+  /linux                       - Open a community, shorthand
+  /c/linux                     - Open a community
+  /c/linux/new                 - Open a community, sorted by category
+  /c/linux/top-week            - Open a community, sorted by category and time
+  /c/front                     - Open your subscribed communities
+  /c/all                       - Open all communities on the instance
+  /c/local                     - Open the local communities listing
+  /c/subscribed                - Open your subscribed communities
+  /post/123                    - Open a post
+  /comment/123                 - Open a post containing a comment
+  /u/me                        - View your posts and comments
   /u/me/saved                  - View your saved content
-  /u/me/hidden                 - View your hidden content
   /u/me/upvoted                - View your upvoted content
   /u/me/downvoted              - View your downvoted content
-  /u/spez                      - View a user's submissions and comments
-  /u/spez/submitted            - View a user's submissions
-  /u/spez/comments             - View a user's comments
-  /u/multi-mod/m/android       - Open a user's curated multireddit
-  /domain/python.org           - Search for links for the given domain
+  /u/alice                     - View a user's posts and comments
+  /u/alice/submitted           - View a user's posts
+  /u/alice/comments            - View a user's comments
 """
 
 BANNER_SUBREDDIT = """
-[1]hot [2]top [3]rising [4]new [5]controversial [6]gilded
+[1]hot [2]top [3]active [4]new [5]controversial
 """
 
 BANNER_SUBMISSION = """
-[1]hot [2]top [3]rising [4]new [5]controversial
+[1]hot [2]top [3]old [4]new [5]controversial
 """
 
 BANNER_SEARCH = """
@@ -152,11 +149,11 @@ FOOTER_SUBMISSION = """
 """
 
 FOOTER_SUBSCRIPTION = """
-[?]Help [q]Quit [h]Return [l]Select Subreddit [r]Refresh
+[?]Help [q]Quit [h]Return [l]Select Community [r]Refresh
 """
 
 FOOTER_INBOX = """
-[?]Help [l]View Context [o]Open Submission [c]Reply [w]Mark Read [r]Refresh
+[?]Help [l]View Context [o]Open Post [c]Reply [w]Mark Read [r]Refresh
 """
 
 FOOTER_EMPTY = BANNER_EMPTY
@@ -171,8 +168,6 @@ ___bold-italic___ / ***bold-italic***
 ~~strikethrough~~
 
 Special formatting:
->!spoilers!<
-^superscript / ^(superscript)
 `code` (or indent each line with four spaces)
 > Quote someone else
 [link text](link url)"""
@@ -182,7 +177,7 @@ Replying to {{author}}'s {{type}}:
 {{content}}
 
 Enter your reply below this instruction block, an empty message will abort
-the comment.
+the reply.
 
 {formatting_help}
 {token}-->
@@ -199,20 +194,20 @@ The comment is shown below, update it and save the file.
 """.format(token=TOKEN, formatting_help=FORMATTING_HELP)
 
 SUBMISSION_FILE = """<!--{token}
-Submitting a selfpost to {{name}}.
+Creating a post in {{name}}.
 
-Enter your submission below this instruction block:
+Enter your post below this instruction block:
 - The first line will be interpreted as the title
 - The following lines will be interpreted as the body
-- An empty message will abort the submission
+- An empty message will abort the post
 
 {formatting_help}
 {token}-->
 """.format(token=TOKEN, formatting_help=FORMATTING_HELP)
 
 SUBMISSION_EDIT_FILE = """<!--{token}
-Editing submission #{{id}}.
-The submission is shown below, update it and save the file.
+Editing post #{{id}}.
+The post is shown below, update it and save the file.
 
 {formatting_help}
 {token}-->
@@ -232,7 +227,7 @@ Enter your message below this instruction block:
 """.format(token=TOKEN, formatting_help=FORMATTING_HELP)
 
 TIME_ORDER_MENU = """
-Links from:
+Posts from:
   [1] Past hour
   [2] Past 24 hours
   [3] Past week

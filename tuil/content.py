@@ -45,16 +45,6 @@ COMMENT_SORTS = {
 }
 
 
-def _community_name(value):
-    """Return a bare Lemmy community name."""
-    value = str(value).strip().strip('/')
-    for prefix in ('c/', 'r/'):
-        if value.startswith(prefix):
-            value = value[len(prefix):]
-            break
-    return value
-
-
 def _user_name(value):
     value = str(value).strip().strip('/')
     for prefix in ('u/', 'user/', '@', '!'):
@@ -284,7 +274,7 @@ class Content(object):
             'likes': comment.my_vote,
             'created': cls.humanize_timestamp(comment.created_utc),
             'saved': comment.saved,
-            'stickied': bool(comment.distinguished),
+            'stickied': False,
             'gold': 0,
             'author': comment.author or '[deleted]',
             'flair': '',
@@ -830,7 +820,7 @@ class SubredditContent(Content):
             resource_order = parts[1] if len(parts) == 2 else None
             parsed = cls._make_parsed(
                 'listing', resource, None, resource_order, order, query)
-            parsed['display_name'] = '/r/' + resource
+            parsed['display_name'] = '/c/' + resource
             return parsed
 
         root = 'c'
@@ -853,14 +843,14 @@ class SubredditContent(Content):
             if resource in LISTING_NAMES:
                 parsed = cls._make_parsed(
                     'listing', resource, None, resource_order, order, query)
-                parsed['display_name'] = '/r/' + resource
+                parsed['display_name'] = '/c/' + resource
                 return parsed
             if '+' in resource:
                 raise exceptions.SubredditError(
                     'Multi-community pages are not available in Lemmy')
             parsed = cls._make_parsed(
                 'community', resource, None, resource_order, order, query)
-            parsed['display_name'] = '/r/' + resource
+            parsed['display_name'] = '/c/' + resource
             return parsed
 
         # User page.
@@ -949,7 +939,7 @@ class SubredditContent(Content):
         nsfw_count = 0
         while index >= len(self._submission_data):
             try:
-                with self._loader('Loading more submissions'):
+                with self._loader('Loading more posts'):
                     item = next(self._submissions)
                 if self._loader.exception:
                     raise IndexError
@@ -1011,8 +1001,8 @@ class SubredditContent(Content):
 
         if self.config['look_and_feel'] == 'compact':
             data['n_rows'] = 2
-        elif self.config['subreddit_format']:
-            data['n_rows'] = self.config['subreddit_format'].count('\n') + 1
+        elif self.config['post_format']:
+            data['n_rows'] = self.config['post_format'].count('\n') + 1
         else:
             data['split_title'] = self.wrap_text(data['title'], width=n_cols)
             data['n_rows'] = len(data['split_title']) + 3

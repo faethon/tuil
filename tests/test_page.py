@@ -92,6 +92,18 @@ def test_page_unauthenticated(reddit, terminal, config, oauth):
             terminal.stdscr.subwin.addstr.reset_mock()
 
 
+def test_page_prompt_comment(reddit, terminal, config, oauth):
+    page = Page(reddit, terminal, config, oauth)
+
+    with mock.patch.object(
+            terminal, 'prompt_input',
+            return_value='https://lemmy.ml/comment/321'), \
+            mock.patch.object(page, 'open_submission_page') as open_page:
+        page.prompt()
+
+    open_page.assert_called_once_with('https://lemmy.ml/comment/321')
+
+
 def test_page_authenticated(reddit, terminal, config, oauth):
     class TestPage(Page):
         def refresh_content(self, order=None, name=None):

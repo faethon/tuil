@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import os
+import json
 import codecs
 from tempfile import NamedTemporaryFile
 
@@ -91,12 +92,24 @@ def test_config_interface():
     del config['ascii']
     assert config['ascii'] is False
 
-    config.update(subreddit='cfb', new_value=2.0)
-    assert config['subreddit'] == 'cfb'
+    config.update(community='cfb', new_value=2.0)
+    assert config['community'] == 'cfb'
     assert config['new_value'] == 2.0
 
     assert config['link'] is None
     assert config['log'] is None
+
+
+def test_config_legacy_option_names():
+    """Old tuir option names keep working after the Lemmy rename."""
+
+    config = Config(subreddit='legacy', subreddit_format='%t')
+    assert config['community'] == 'legacy'
+    assert config['post_format'] == '%t'
+
+    config = Config(community='linux', post_format='%s')
+    assert config['community'] == 'linux'
+    assert config['post_format'] == '%s'
 
 
 def test_config_get_args():
@@ -104,6 +117,7 @@ def test_config_get_args():
 
     args = ['tuil',
             'https://reddit.com/permalink •',
+            '-i', 'lemmy.world',
             '-s', 'cfb',
             '--log', 'logfile.log',
             '--config', 'configfile.cfg',
@@ -129,7 +143,8 @@ def test_config_get_args():
         config = Config(**config_dict)
         assert config['ascii'] is True
         assert config['monochrome'] is True
-        assert config['subreddit'] == 'cfb'
+        assert config['instance'] == 'lemmy.world'
+        assert config['community'] == 'cfb'
         assert config['log'] == 'logfile.log'
         assert config['ascii'] is True
         assert config['persistent'] is False
@@ -171,7 +186,7 @@ def test_config_from_file():
         'clear_auth': True,
         'log': 'logfile.log',
         'link': 'https://reddit.com/permalink •',
-        'subreddit': 'cfb',
+        'community': 'cfb',
         'enable_media': True,
         'max_comment_cols': 150,
         'max_pager_cols': 120,
@@ -179,7 +194,6 @@ def test_config_from_file():
         'theme': 'molokai',
         'flash': True,
         'autologin': True,
-        'copy_as_old': False,
     }
 
     bindings = {
@@ -253,6 +267,28 @@ def test_config_refresh_token():
         config.refresh_token = 'secret_value'
         config.load_refresh_token()
         assert config.refresh_token is None
+
+
+def test_config_legacy_token_file(tmp_path):
+    """Tokens saved under the old filename are still loaded and deleted."""
+
+    legacy = tmp_path / 'refresh-token'
+    current = tmp_path / 'token'
+    legacy.write_text(json.dumps({
+        'instance': 'lemmy.ml',
+        'token': 'legacy_token',
+    }))
+
+    config = Config(token_file=str(current))
+    config.load_refresh_token()
+    assert config.refresh_token == 'legacy_token'
+    assert config.token_instance == 'lemmy.ml'
+
+    config.save_refresh_token()
+    assert current.exists()
+    config.delete_refresh_token()
+    assert not current.exists()
+    assert not legacy.exists()
 
 
 def test_config_history():

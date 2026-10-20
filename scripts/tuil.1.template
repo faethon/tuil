@@ -1,6 +1,6 @@
 .TH "TUIL" "1" "{release_date}" "Version {version}" "Usage and Commands"
 .SH NAME
-TUIL - Terminal UI for Reddit
+TUIL - Terminal UI for Lemmy
 .SH SYNOPSIS
 {synopsis}
 .SH DESCRIPTION
@@ -10,9 +10,9 @@ TUIL - Terminal UI for Reddit
 .SH CONTROLS
 Move the cursor using the arrow keys or vim style movement.
 .br
-Press \fBup\fR and \fBdown\fR to scroll through submissions.
+Press \fBup\fR and \fBdown\fR to scroll through posts.
 .br
-Press \fBright\fR to view the selected submission and \fBleft\fR to return.
+Press \fBright\fR to view the selected post and \fBleft\fR to return.
 .br
 Press \fB?\fR to open the help screen.
 .SH FILES
@@ -20,9 +20,9 @@ Press \fB?\fR to open the help screen.
 .BR $XDG_CONFIG_HOME/tuil/tuil.cfg
 The configuration file can be used to customize default program settings.
 .TP
-.BR $XDG_DATA_HOME/tuil/refresh-token
-After you login to reddit, your most recent OAuth refresh token will be stored
-for future sessions.
+.BR $XDG_DATA_HOME/tuil/token
+After you log in to a Lemmy instance, the session token will be stored for
+future sessions. Tokens are bound to the instance that issued them.
 .TP
 .BR $XDG_DATA_HOME/tuil/history.log
 This file stores URLs that have been recently opened in order to
@@ -30,7 +30,7 @@ visually highlight them as "seen".
 .SH ENVIRONMENT
 .TP
 .BR TUIL_EDITOR
-Text editor to use when editing comments and submissions. Will fallback to
+Text editor to use when editing comments and posts. Will fallback to
 \fI$EDITOR\fR.
 .TP
 .BR TUIL_URLVIEWER
@@ -44,6 +44,6 @@ Michael Lazar <lazar.michael22@gmail.com> (2017).
 John Helmert III <jchelmertt3@gmail.com> (2019).
 Piotr Wójcik <chocimier@tlen.pl> (2024).
 .SH BUGS
-Report bugs to \fIhttps://gitlab.com/Chocimier/tuir/issues\fR
+Report bugs to \fIhttps://github.com/faethon/tuil/issues\fR
 .SH LICENSE
 {license}

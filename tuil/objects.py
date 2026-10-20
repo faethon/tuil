@@ -15,7 +15,6 @@ import webbrowser
 import curses
 import curses.ascii
 from contextlib import contextmanager
-from six.moves.urllib_parse import urlparse, urlunparse
 
 import six
 
@@ -79,22 +78,6 @@ def patch_webbrowser():
                 browser = webbrowser.MacOSXOSAScript(cmdline)
                 webbrowser.register(cmdline, None, browser, update_tryorder=-1)
 
-
-def replace_domain(url, new_domain, old_domain):
-    url_parsed = urlparse(url)
-    if url_parsed.netloc != old_domain:
-        return url
-    new_url = urlunparse(url_parsed._replace(netloc=new_domain))
-    return new_url
-
-
-def preferred_reddit_domain(url, config):
-    """Compatibility name for the page layer.
-
-    Lemmy permalinks are already canonical for the configured instance, so no
-    domain rewriting is required.
-    """
-    return url
 
 codecs_open = codecs.open if six.PY2 else open
 

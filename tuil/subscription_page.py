@@ -37,7 +37,7 @@ class SubscriptionPage(Page):
         """
         Re-download all subscriptions and reset the page index
         """
-        # reddit.get_my_subreddits() does not support sorting by order
+        # The Lemmy community listing does not support sorting by order
         if order:
             self.term.flash()
             return
@@ -51,7 +51,7 @@ class SubscriptionPage(Page):
     @SubscriptionController.register(Command('SUBSCRIPTION_SELECT'))
     def select_subreddit(self):
         """
-        Store the selected subreddit and return to the subreddit page
+        Store the selected community and return to the community page
         """
         name = self.get_selected_item()['name']
         self.selected_page = self.open_subreddit_page(name)
@@ -59,7 +59,7 @@ class SubscriptionPage(Page):
     @SubscriptionController.register(Command('SUBSCRIPTION_EXIT'))
     def close_subscriptions(self):
         """
-        Close subscriptions and return to the subreddit page
+        Close subscriptions and return to the community page
         """
         self.active = False
 

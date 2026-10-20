@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from . import docs
 from .content import SubmissionContent
 from .page import Page, PageController, logged_in
-from .objects import Navigator, Command, preferred_reddit_domain
+from .objects import Navigator, Command
 
 
 class SubmissionController(PageController):
@@ -78,8 +78,8 @@ class SubmissionPage(Page):
         self.refresh_content(order='top')
 
     @SubmissionController.register(Command('SORT_3'))
-    def sort_content_rising(self):
-        self.refresh_content(order='rising')
+    def sort_content_old(self):
+        self.refresh_content(order='old')
 
     @SubmissionController.register(Command('SORT_4'))
     def sort_content_new(self):
@@ -113,7 +113,7 @@ class SubmissionPage(Page):
     @SubmissionController.register(Command('SUBMISSION_EXIT'))
     def exit_submission(self):
         """
-        Close the submission and return to the subreddit page
+        Close the post and return to the community page
         """
         self.active = False
 
@@ -129,13 +129,11 @@ class SubmissionPage(Page):
         if data['type'] == 'Submission':
             link = self.prompt_and_select_link()
             if link:
-                link = preferred_reddit_domain(link, self.config)
                 self.config.history.add(link)
                 self.term.open_link(link)
         elif data['type'] == 'Comment':
             link = self.prompt_and_select_link()
             if link:
-                link = preferred_reddit_domain(link, self.config)
                 self.term.open_link(link)
         else:
             self.term.flash()
@@ -358,7 +356,7 @@ class SubmissionPage(Page):
 
         attr = self.term.attr('SubmissionSubreddit')
         self.term.add_space(win)
-        self.term.add_line(win, '/r/{subreddit}'.format(**data), attr=attr)
+        self.term.add_line(win, '/c/{subreddit}'.format(**data), attr=attr)
 
         attr = self.term.attr('Created')
         self.term.add_space(win)

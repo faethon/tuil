@@ -1,254 +1,168 @@
-<h1 align="center">Terminal UI for Reddit (TUIR)</h1>
+<h1 align="center">TUIL</h1>
 
 <p align="center">
-A text-based interface (TUI) to view and interact with Reddit from your terminal.<br>
+A terminal interface (TUI) for browsing and interacting with <a href="https://join-lemmy.org/">Lemmy</a>.<br>
 </p>
 
-<p align="center">
-<img alt="title image" src="resources/title_image.png"/>
-</p>
+TUIL is based on [tuir](https://gitlab.com/Chocimier/tuir), the terminal client
+for Reddit. The layout, key bindings and configuration format are intentionally
+kept close to tuir. The Reddit/PRAW backend has been replaced with a native
+Lemmy API client.
 
-<p align="center">
-  <a href="https://pypi.python.org/pypi/tuir-continued/">
-    <img alt="pypi" src="https://img.shields.io/pypi/v/tuir-continued.svg?label=version"/>
-  </a>
-  <a href="https://gitlab.com/Chocimier/tuir/pipelines?ref=master">
-    <img alt="gitlab-ci" src="https://gitlab.com/Chocimier/tuir/badges/master/pipeline.svg"/>
-  </a>
-  <img alt="coverage" src="https://gitlab.com/Chocimier/tuir/badges/master/coverage.svg"/>
-</p>
+## Status
 
-## Table of Contents
+TUIL is in early development. It currently uses the Lemmy API v3 and supports:
 
-* [June 2026 news](#june-2026-news)
-* [Installation](#installation)
-* [Migration from RTV](#migration-from-rtv)
-* [Usage](#usage)
-* [Settings](#settings)
-* [Themes](#themes)
-* [FAQ](#faq)
-* [Contributing](#current-development-status)
-* [License](#license)
+- Anonymous browsing of communities, posts, comments and users
+- Logging in with a username and password
+- Voting, saving, posting, replying, editing and deleting
+- Joining and leaving communities
+- Community search and user profiles
+- Inbox, private messages and unread counts
+- Status bar themes, custom key bindings and mailcap media handling
 
-
-## June 2026 news
-
-Reddit limited access to their API.
-
-Now, only logged-in browsing is possible. Make sure autologin is set to True in [settings](#settings).
-
-Next, it is not possible to acquire `oauth_client_id` and `oauth_client_secret` from <https://www.reddit.com/prefs/apps/>
-while still needed to provide in settings.
-I filled form to get a shared one.
-In the meantime, if you have few of them, consider sharing one to newcomers.
-
+Most functionality works with Lemmy 0.19.x and Lemmy 1.0. Some v3 inbox and
+notification endpoints are unavailable on Lemmy 1.0; those parts will be moved
+to the v4 API in a later release. Multireddits, domain listings, Reddit gold and
+post hiding are not part of Lemmy and are not available.
 
 ## Installation
 
-### PyPI package
-
-TUIR is available on [PyPI](https://pypi.python.org/pypi/tuir-continued/) and can be installed with pip:
-
-```bash
-$ pip install tuir-continued
-```
-
 ### From source
 
-```bash
-$ git clone https://gitlab.com/Chocimier/tuir.git
-$ cd tuir
-$ python setup.py install
-```
-
-### Windows
-
-TUIR is not supported on Windows, due to a lack of resources and interest. Sorry!
-
-## Migration from RTV
-
-If you are migrating from RTV to TUIR, you can simply rename your old config directory/config file:
+Python 3.10 or newer is required.
 
 ```bash
-$ mv ~/.config/rtv ~/.config/tuir
-$ mv ~/.config/tuir/rtv.cfg ~/.config/tuir/tuir.cfg
+$ git clone https://github.com/faethon/tuil.git
+$ cd tuil
+$ python3 -m venv .venv
+$ . .venv/bin/activate
+$ pip install -e .
 ```
 
+Run it with:
+
+```bash
+$ tuil
+```
+
+or directly from the source tree:
+
+```bash
+$ python3 -m tuil
+```
 
 ## Usage
-To run the program, type:
+
+Connect to any Lemmy instance with `--instance` and optionally open a community
+or listing on startup:
 
 ```bash
-$ tuir
+$ tuil --instance lemmy.ml
+$ tuil --instance lemmy.world --community linux
+$ tuil --instance lemmy.ml --community all
+$ tuil https://lemmy.ml/post/12345
 ```
 
-### Controls
+The default instance is `lemmy.ml`. Community and listing pages use Lemmy's
+paths: `/c/linux` for a community, `/c/all` for the local instance's federated
+timeline, and `/c/front` for the front page. The `/` prompt also accepts bare
+community names such as `/linux`, post URLs, and user pages.
 
-Move the cursor using either the arrow keys or *Vim* style movement:
+### Logging in
 
-- Press <kbd>▲</kbd> and <kbd>▼</kbd> to scroll through submissions
-- Press <kbd>▶</kbd> to view the selected submission and <kbd>◀</kbd> to return
-- Press <kbd>space-bar</kbd> to expand/collapse comments
-- Press <kbd>u</kbd> to login (this requires a web browser for [OAuth](https://github.com/reddit-archive/reddit/wiki/oauth2))
-- Press <kbd>?</kbd> to open the help screen
+Press <kbd>u</kbd> to log in. TUIL asks for your Lemmy username and password and
+stores only the returned session token, in `$XDG_DATA_HOME/tuil/token`. The token
+is bound to the instance that issued it; switching instances will not reuse a
+token from another instance. Credentials are not stored.
 
-Press <kbd>/</kbd> to open the navigation prompt, where you can type things like:
+Useful options:
 
-- ``/front``
-- ``/r/commandprompt+linuxmasterrace``
-- ``/r/programming/controversial``
-- ``/u/me``
-- ``/u/multi-mod/m/art``
-- ``/domain/github.com``
+- `--non-persistent` forget the session token when the program exits
+- `--no-autologin` do not restore a saved session on startup
+- `--clear-auth` delete the saved token on startup
+- `--user NAME` keep a separate token and history file per account
 
-See [CONTROLS](CONTROLS.md) for the full list of commands.
+## Controls
+
+Move the cursor with the arrow keys or Vim-style movement. Press <kbd>?</kbd> for
+the in-app help, or see [CONTROLS.md](CONTROLS.md) for the full key map.
+
+- <kbd>j</kbd>/<kbd>k</kbd> - move the cursor
+- <kbd>l</kbd>/<kbd>h</kbd> - open an item or return to the previous page
+- <kbd>1</kbd>-<kbd>5</kbd> - change the post/comment sort order
+- <kbd>l</kbd> in a community - open the selected post and its comments
+- <kbd>/</kbd> - open the navigation prompt
+- <kbd>a</kbd>/<kbd>z</kbd> - upvote/downvote
+- <kbd>c</kbd> - create a post or reply
+- <kbd>w</kbd> - save/unsave
+- <kbd>s</kbd> - view subscribed communities
+- <kbd>i</kbd> - view the inbox
+- <kbd>u</kbd> - log in or out
+- <kbd>?</kbd> - open help
+- <kbd>q</kbd> - quit
 
 ## Settings
 
-### Configuration File
+Configuration is stored in `$XDG_CONFIG_HOME/tuil/tuil.cfg` (normally
+`~/.config/tuil/tuil.cfg`). Run `tuil --copy-config` to create a default file.
+The full list of options, including custom post formats and key bindings, is
+documented in [tuil.cfg](tuil/templates/tuil.cfg).
 
-Configuration files are stored in the ``{HOME}/.config/tuir/`` directory.
+The main startup settings are:
 
-Check out [tuir.cfg](tuir/templates/tuir.cfg) for the full list of configurable options. You can clone this file into your home directory by running:
-
-```bash
-$ tuir --copy-config
+```ini
+[tuil]
+instance = lemmy.ml
+community = front
+persistent = True
+autologin = True
 ```
 
-### Viewing Media Links
+Older tuir config files that use `subreddit` and `subreddit_format` are still
+accepted; the new names are `community` and `post_format`.
 
-You can use [mailcap](https://en.wikipedia.org/wiki/Media_type#Mailcap) to configure how TUIR will open different types of links.
+### Viewing media links
 
-<p align="center">
-<img alt="title image" src="resources/mailcap.gif"/>
-</p>
-
-A mailcap file allows you to associate different MIME media types, like ``image/jpeg`` or ``video/mp4``, with shell commands. This feature is disabled by default because it takes a few extra steps to configure. To get started, copy the default mailcap template to your home directory.
+TUIL can use [mailcap](https://en.wikipedia.org/wiki/Media_type#Mailcap) to open
+images and videos in external programs. Copy the example file with:
 
 ```bash
-$ tuir --copy-mailcap
+$ tuil --copy-mailcap
 ```
 
-This template contains examples for common MIME types that work with popular reddit websites like *imgur*, *youtube*, and *gfycat*. Open the mailcap template and follow the [instructions](tuir/templates/mailcap) listed inside.
+Then enable the feature with `--enable-media` or by setting `enable_media = True`
+in `tuil.cfg`.
 
-Once you've setup your mailcap file, enable it by launching tuir with the ``tuir --enable-media`` flag (or set it in your **tuir.cfg**)
+### Environment variables
 
-### Environment Variables
+- `TUIL_EDITOR` - editor used for posts, comments and messages
+- `TUIL_BROWSER` - browser used to open links
+- `TUIL_URLVIEWER` - urlview/urlscan-compatible link extractor
 
-The default programs that TUIR interacts with can be configured through environment variables:
-
-<table>
-  <tr>
-  <td><strong>$TUIR_EDITOR</strong></td>
-  <td>A program used to compose text submissions and comments, e.g. <strong>vim</strong>, <strong>emacs</strong>, <strong>gedit</strong>
-  <br/> <em>If not specified, will fallback to $VISUAL and $EDITOR in that order.</em></td>
-  </tr>
-  <tr>
-  <td><strong>$TUIR_BROWSER</strong></td>
-  <td>A program used to open links to external websites, e.g. <strong>firefox</strong>, <strong>google-chrome</strong>, <strong>w3m</strong>, <strong>lynx</strong>
-  <br/> <em>If not specified, will fallback to $BROWSER, or your system's default browser.</em></td>
-  </tr>
-  <tr>
-  <td><strong>$TUIR_URLVIEWER</strong></td>
-  <td>A tool used to extract hyperlinks from blocks of text, e.g. <a href=https://github.com/sigpipe/urlview>urlview</a>, <a href=https://github.com/firecat53/urlscan>urlscan</a>
-  <br/> <em>If not specified, will fallback to urlview if it is installed.</em></td>
-  </tr>
-</table>
-
-### Clipboard
-
-TUIR supports copying submission links to the OS clipboard.  Data being copied is piped into a command specified by the configuration option `clipboard_cmd`. If this option is not set, the command will default to `pbcopy w` on Darwin systems (OSX), and `xclip -selection clipboard` on Linux.
+If unset, TUIL falls back to `VISUAL`/`EDITOR`, `BROWSER`, and the system default
+programs. The clipboard command is configured with `clipboard_cmd` in
+`tuil.cfg`.
 
 ## Themes
 
-Themes can be used to customize the look and feel of TUIR
+List the installed themes with `tuil --list-themes`, select one with
+`tuil --theme NAME`, or cycle through them in the app with <kbd>F2</kbd> and
+<kbd>F3</kbd>. Theme files use the same attribute names as tuir; see
+[THEMES.md](THEMES.md).
 
-<table>
-  <tr>
-    <td align="center">
-      <p><strong>Solarized Dark</strong></p>
-      <img src="resources/theme_solarized_dark.png"></img>
-    </td>
-    <td align="center">
-      <p><strong>Solarized Light</strong></p>
-      <img src="resources/theme_solarized_light.png"></img>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <p><strong>Papercolor</strong></p>
-      <img src="resources/theme_papercolor.png"></img>
-    </td>
-    <td align="center">
-      <p><strong>Molokai</strong></p>
-      <img src="resources/theme_molokai.png"></img>
-    </td>
-  </tr>
-</table>
+## Development
 
-You can list all installed themes with the ``--list-themes`` command, and select one with ``--theme``. You can save your choice permanently in your [tuir.cfg](tuir/templates/tuir.cfg) file. You can also use the <kbd>F2</kbd> & <kbd>F3</kbd> keys inside of TUIR to cycle through all available themes.
+```bash
+$ .venv/bin/python -m pytest -q
+```
 
-For instructions on writing and installing your own themes, see [THEMES.md](THEMES.md).
-
-## FAQ
-
-<details>
- <summary>Why am I getting an error during installation/when launching tuir?</summary>
-
-  > If your distro ships with an older version of python 2.7 or python-requests,
-  > you may experience SSL errors or other package incompatibilities. The
-  > easiest way to fix this is to install tuir using python 3. If you
-  > don't already have pip3, see http://stackoverflow.com/a/6587528 for setup
-  > instructions. Then do
-  >
-  > ```bash
-  > $ sudo pip uninstall tuir-continued
-  > $ sudo pip3 install -U tuir-continued
-  > ```
-
-</details>
-<details>
-  <summary>Why do I see garbled text like <em>M-b~@M-"</em> or <em>^@</em>?</summary>
-
-  > This type of text usually shows up when python is unable to render
-  > unicode properly.
-  >
-  > 1. Try starting TUIR in ascii-only mode with ``tuir --ascii``
-  > 2. Make sure that the terminal/font that you're using supports unicode
-  > 3. Try [setting the LOCALE to utf-8](https://perlgeek.de/en/article/set-up-a-clean-utf8-environment)
-  > 4. Your python may have been built against the wrong curses library,
-  >    see [here](stackoverflow.com/questions/19373027) and
-  >    [here](https://bugs.python.org/issue4787) for more information
-
-</details>
-<details>
- <summary>How do I run the code directly from the repository?</summary>
-
-  > This project is structured to be run as a python *module*. This means that
-  > you need to launch it using python's ``-m`` flag. See the example below, which
-  > assumes that you have cloned the repository into the directory **~/tuir_project**.
-  >
-  > ```bash
-  > $ cd ~/tuir_project
-  > $ python3 -m tuir
-  > ```
-
-</details>
-<details>
- <summary>Can I use multiple accounts persistenly?</summary>
-
-  > Yes, simply start tuir with ``--user yourusername``. The refresh token and
-  > history will be preserved on a per-user basis.
-  >
-  > This does mean you need to restart the program (or simply open multiple)
-  > if you want to be another user. There's no on-the-fly switching currently.
-
-</details>
-
-## Current development status
-Tuir-continued is meant as low activity maintainance, to keep the thing operational in face of changes in Python, libraries and Reddit API.
-
-Contributions are still welcome. Before writing any code, please read the [Contributor Guidelines](CONTRIBUTING.rst).
+The Lemmy API client lives in [tuil/api](tuil/api). Verified response shapes and
+known endpoint differences are documented in
+[docs/lemmy-api-notes.md](docs/lemmy-api-notes.md).
 
 ## License
-This project is distributed under the [GPLv3](COPYING) license.
+
+TUIL is distributed under the GNU General Public License, version 3 only. It is
+derived from tuir and retains the upstream copyright notices and attribution.
+See [COPYING](COPYING) and [AUTHORS.rst](AUTHORS.rst).

@@ -31,7 +31,7 @@ class Config(object):
     TUIL_DATA_HOME = os.path.join(XDG_DATA_HOME, 'tuil')
     CONFIG = os.path.join(TUIL_CONFIG_HOME, 'tuil.cfg')
     MAILCAP = os.path.join(TUIL_CONFIG_HOME, 'mailcap')
-    TOKEN = os.path.join(TUIL_DATA_HOME, 'refresh-token')
+    TOKEN = os.path.join(TUIL_DATA_HOME, 'token')
     HISTORY = os.path.join(TUIL_DATA_HOME, 'history.log')
     THEMES = os.path.join(TUIL_CONFIG_HOME, 'themes')
 
@@ -54,7 +54,21 @@ class Config(object):
         self.token_instance = None
         self.history = OrderedSet()
 
+    def _lookup(self, item, legacy):
+        """Look up a renamed option, falling back to its tuir name."""
+        for name in (item, legacy):
+            if name in self.config:
+                return self.config[name]
+        for name in (item, legacy):
+            if name in self.default:
+                return self.default[name]
+        return None
+
     def __getitem__(self, item):
+        if item == 'community':
+            return self._lookup('community', 'subreddit')
+        if item == 'post_format':
+            return self._lookup('post_format', 'subreddit_format')
         if item in self.config:
             return self.config[item]
         else:
@@ -65,16 +79,31 @@ class Config(object):
 
     def __delitem__(self, key):
         self.config.pop(key, None)
+        if key == 'community':
+            self.config.pop('subreddit', None)
+        elif key == 'post_format':
+            self.config.pop('subreddit_format', None)
 
     def update(self, **kwargs):
         self.config.update(kwargs)
 
+    def _legacy_token_file(self):
+        if self.token_file.endswith('refresh-token'):
+            return None
+        if self.token_file.endswith('token'):
+            return self.token_file[:-len('token')] + 'refresh-token'
+        return None
+
     def load_refresh_token(self):
         self.refresh_token = None
         self.token_instance = None
-        if not os.path.exists(self.token_file):
-            return
-        with open(self.token_file) as fp:
+        filename = self.token_file
+        if not os.path.exists(filename):
+            legacy = self._legacy_token_file()
+            if not legacy or not os.path.exists(legacy):
+                return
+            filename = legacy
+        with open(filename) as fp:
             value = fp.read().strip()
         if not value:
             return
@@ -102,8 +131,10 @@ class Config(object):
             json.dump(data, fp)
 
     def delete_refresh_token(self):
-        if os.path.exists(self.token_file):
-            os.remove(self.token_file)
+        legacy = self._legacy_token_file()
+        for filename in (self.token_file, legacy):
+            if filename and os.path.exists(filename):
+                os.remove(filename)
         self.refresh_token = None
         self.token_instance = None
 
@@ -189,7 +220,6 @@ class Config(object):
             'hide_username': partial(config.getboolean, section),
             'flash': partial(config.getboolean, section),
             'force_new_browser_window': partial(config.getboolean, section),
-            'copy_as_old': partial(config.getboolean, section),
         }
 
         for key, func in params.items():
@@ -228,12 +258,12 @@ def build_parser():
         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument(
         'link', metavar='URL', nargs='?',
-        help='[optional] Full URL of a submission to open')
+        help='[optional] Full URL of a post to open')
     parser.add_argument(
         '-i', '--instance', dest='instance',
         help='Lemmy instance to use, for example lemmy.ml')
     parser.add_argument(
-        '-s', '--community', dest='subreddit',
+        '-s', '--community', dest='community',
         help='Community or listing that will be loaded on start')
     parser.add_argument(
         '-l', dest='link_deprecated',

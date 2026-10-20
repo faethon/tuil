@@ -1,6 +1,28 @@
-==================
-RTV/TUIR Changelog
-==================
+==============
+TUIL Changelog
+==============
+
+TUIL is a Lemmy fork of tuir. The releases below 0.1.0 are inherited from
+tuir and RTV.
+
+------------------
+0.1.0 (unreleased)
+------------------
+
+Features
+
+* Replace the Reddit/PRAW backend with a native Lemmy API client
+* Support anonymous browsing and username/password login
+* Browse communities, posts, comments, users and search results
+* Vote, save, post, reply, edit and delete
+* Join and leave communities
+* Read the inbox and private messages
+* Use Lemmy terminology and ``/c/`` community paths throughout the interface
+
+Known limitations
+
+* Inbox and notification endpoints on Lemmy 1.0 require a future API v4 backend
+* Multireddits, domain listings, gold and post hiding are not available
 
 .. _1.32.2: https://gitlab.com/Chocimier/tuir/tree/v1.32.2
 .. _1.32.1: https://gitlab.com/Chocimier/tuir/tree/v1.32.1
