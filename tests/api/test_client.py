@@ -984,6 +984,21 @@ def test_v4_browsing_resolves_community_and_sorts():
 
 
 @responses.activate
+def test_community_cache_preserves_listing_data():
+    add_json4(responses.GET, '/post/list', {
+        'items': [v4_post_item()],
+    })
+    client = LemmyClient('lemmy.ml', api_version=4)
+
+    client.list_posts(page_size=1).take(1)
+    community = client.get_community(post_view(0)['community']['name'])
+
+    assert community.id == post_view(0)['community']['id']
+    assert community.name == post_view(0)['community']['name']
+    assert community.title == post_view(0)['community']['title']
+
+
+@responses.activate
 def test_v4_person_content_resolves_remote_username():
     person = user_view()['person']
 

@@ -376,7 +376,7 @@ class LemmyClient(object):
             name = self._normalize_name(community)
             cached = self._community_cache.get('name:' + name.lower())
             if cached:
-                return Community(self, cached)
+                return Community(self, {'community': cached})
             params = {'name': name}
 
         try:

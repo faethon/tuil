@@ -92,4 +92,6 @@ not require a Lemmy account or network access.
    ``docs/lemmy-api-notes.md``.
 
 Live tests against a real instance are optional. They need network access and
-should not be part of the default test run.
+should not be part of the default test run. The read-only checker is
+``scripts/live_check.py``; see ``docs/live-testing.md`` for anonymous,
+authenticated and manual write checks.

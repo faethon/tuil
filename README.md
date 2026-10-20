@@ -164,6 +164,15 @@ The Lemmy API client lives in [tuil/api](tuil/api). Verified response shapes and
 known endpoint differences are documented in
 [docs/lemmy-api-notes.md](docs/lemmy-api-notes.md).
 
+Optional read-only checks against a live instance:
+
+```bash
+$ .venv/bin/python scripts/live_check.py --instance lemmy.ml
+```
+
+See [docs/live-testing.md](docs/live-testing.md) for authenticated and manual
+write checks.
+
 ## License
 
 TUIL is distributed under the GNU General Public License, version 3 only. It is
