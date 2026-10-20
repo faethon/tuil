@@ -115,6 +115,35 @@ def test_config_legacy_option_names():
     assert config['post_format'] == '%s'
 
 
+def test_config_reads_legacy_tuir_section(tmp_path):
+    """Old tuir config sections should keep working."""
+    path = tmp_path / 'tuir.cfg'
+    path.write_text(
+        '[tuir]\n'
+        'enable_media = True\n'
+        'subreddit = linux\n',
+        encoding='utf-8')
+
+    values, _ = Config.get_file(str(path))
+
+    assert values['enable_media'] is True
+    assert values['subreddit'] == 'linux'
+
+
+def test_config_uses_legacy_tuir_path(tmp_path, monkeypatch):
+    """Use the tuir config path when no tuil config exists."""
+    legacy = tmp_path / 'tuir.cfg'
+    legacy.write_text(
+        '[tuir]\nenable_media = True\n',
+        encoding='utf-8')
+    monkeypatch.setattr(Config, 'CONFIG', str(tmp_path / 'missing.cfg'))
+    monkeypatch.setattr(Config, 'LEGACY_CONFIG', str(legacy))
+
+    values, _ = Config.get_file()
+
+    assert values['enable_media'] is True
+
+
 def test_config_get_args():
     """Ensure that command line arguments are parsed properly"""
 

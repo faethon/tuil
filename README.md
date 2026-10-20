@@ -122,8 +122,10 @@ persistent = True
 autologin = True
 ```
 
-Older tuir config files that use `subreddit` and `subreddit_format` are still
-accepted; the new names are `community` and `post_format`.
+Older tuir config files are accepted as a fallback when no tuil config exists.
+The `[tuir]` section, the `subreddit` and `subreddit_format` options, and the old
+`~/.config/tuir/tuir.cfg` path keep working. The new names are `[tuil]`,
+`community` and `post_format`.
 
 ### Viewing media links
 

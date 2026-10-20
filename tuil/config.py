@@ -31,6 +31,7 @@ class Config(object):
     TUIL_CONFIG_HOME = os.path.join(XDG_CONFIG_HOME, 'tuil')
     TUIL_DATA_HOME = os.path.join(XDG_DATA_HOME, 'tuil')
     CONFIG = os.path.join(TUIL_CONFIG_HOME, 'tuil.cfg')
+    LEGACY_CONFIG = os.path.join(XDG_CONFIG_HOME, 'tuir', 'tuir.cfg')
     MAILCAP = os.path.join(TUIL_CONFIG_HOME, 'mailcap')
     TOKEN = os.path.join(TUIL_DATA_HOME, 'token')
     HISTORY = os.path.join(TUIL_DATA_HOME, 'history.log')
@@ -177,11 +178,14 @@ class Config(object):
     @classmethod
     def get_file(cls, filename=None):
         """
-        Load settings from an tuil configuration file.
+        Load settings from a tuil configuration file.
         """
 
         if filename is None:
             filename = Config.CONFIG
+            if (not os.path.exists(filename)
+                    and os.path.exists(Config.LEGACY_CONFIG)):
+                filename = Config.LEGACY_CONFIG
 
         config = configparser.RawConfigParser()
         if os.path.exists(filename):
@@ -207,6 +211,10 @@ class Config(object):
         if config.has_section('tuil'):
             tuil = dict(config.items('tuil'))
             section = 'tuil'
+        elif config.has_section('tuir'):
+            # Backwards compatibility for tuir configs.
+            tuil = dict(config.items('tuir'))
+            section = 'tuir'
         elif config.has_section('rtv'):
             # Backwards compatibility for rtv configs, bug #13
             tuil = dict(config.items('rtv'))
