@@ -75,8 +75,8 @@ The following actions can be performed when viewing a community:
 - <kbd>o</kbd> or <kbd>ENTER</kbd> - Open the selected post link using your web browser or ``.mailcap`` config
 - <kbd>p</kbd> - Toggle between the currently viewed community and ``/c/front``
 - <kbd>f</kbd> - Open a prompt to search the current community for a text string
-- <kbd>t</kbd> - Join this community
-- <kbd>T</kbd> - Leave this community
+- <kbd>t</kbd> - Join this community if not already a member
+- <kbd>T</kbd> - Leave this community if joined
 - <kbd>SPACE</kbd> - Hide or unhide the selected post (Lemmy 1.0 or newer)
 - <kbd>v</kbd> - Open the community for the selected post
 - <kbd>V</kbd> - Open the author's user page for the selected post

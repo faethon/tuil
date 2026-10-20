@@ -297,12 +297,20 @@ class SubredditPage(Page):
             self.term.show_notification("Not a valid community {0}".format(name))
             return
 
-        community = name.strip('/').split('/')[-1]
-        with self.term.loader('Joining'):
-            self.reddit.follow_community(community, True)
-        if not self.term.loader.exception:
+        community = self.content.community
+        community_name = name.strip('/').split('/')[-1]
+        if community is not None and community.subscribed:
             self.term.show_notification(
-                "Joined {0}".format(community), 1)
+                "Already joined {0}".format(community_name), 1)
+            return
+
+        with self.term.loader('Joining'):
+            updated = self.reddit.follow_community(
+                community or community_name, True)
+        if not self.term.loader.exception:
+            self.content.community = updated
+            self.term.show_notification(
+                "Joined {0}".format(community_name), 1)
 
     @SubredditController.register(Command('SUBREDDIT_LEAVE'))
     @logged_in
@@ -314,12 +322,20 @@ class SubredditPage(Page):
             self.term.show_notification("Not a valid community {0}".format(name))
             return
 
-        community = name.strip('/').split('/')[-1]
-        with self.term.loader('Leaving'):
-            self.reddit.follow_community(community, False)
-        if not self.term.loader.exception:
+        community = self.content.community
+        community_name = name.strip('/').split('/')[-1]
+        if community is not None and not community.subscribed:
             self.term.show_notification(
-                "Left {0}".format(community), 1)
+                "Not joined {0}".format(community_name), 1)
+            return
+
+        with self.term.loader('Leaving'):
+            updated = self.reddit.follow_community(
+                community or community_name, False)
+        if not self.term.loader.exception:
+            self.content.community = updated
+            self.term.show_notification(
+                "Left {0}".format(community_name), 1)
 
     def _submission_attr(self, data):
         if data['url_full'] in self.config.history:

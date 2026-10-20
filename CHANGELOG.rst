@@ -16,6 +16,8 @@ Features
 * Show member counts in community search results
 * Sort community search results by name or member count
 * Show ``community@instance`` in feed and post labels
+* Show joined status in the community title bar
+* Prevent joining a community that is already joined
 
 Bugfixes
 

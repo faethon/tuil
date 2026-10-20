@@ -792,6 +792,17 @@ class Page(object):
         if query:
             sub_name = 'Searching {0}: {1}'.format(sub_name, query)
 
+        community = getattr(self.content, 'community', None)
+        if community is not None:
+            subscription = getattr(community, 'subscription', None)
+            if subscription == 'Subscribed':
+                check = 'v' if self.config['ascii'] else '✓'
+                sub_name = '{} {} joined'.format(sub_name, check)
+            elif subscription == 'Pending':
+                sub_name = '{} join pending'.format(sub_name)
+            else:
+                sub_name = '{} not joined'.format(sub_name)
+
         member_count = getattr(self.content, 'member_count', None)
         if member_count is not None:
             member_count = int(member_count)

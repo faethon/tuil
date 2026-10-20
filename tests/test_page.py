@@ -7,6 +7,7 @@ from contextlib import contextmanager
 import pytest
 
 from tuil.page import Page, PageController, logged_in
+from tuil.subreddit_page import SubredditPage
 
 try:
     from unittest import mock
@@ -134,6 +135,7 @@ def test_page_content_title_member_count(reddit, terminal, config, oauth):
     page.content = mock.MagicMock()
     page.content.name = '/c/linux'
     page.content.query = None
+    page.content.community = None
 
     page.content.member_count = 68180
     assert page._content_title() == '/c/linux (68,180 members)'
@@ -143,6 +145,50 @@ def test_page_content_title_member_count(reddit, terminal, config, oauth):
 
     page.content.member_count = None
     assert page._content_title() == '/c/linux'
+
+    page.content.member_count = 68180
+    page.content.community = mock.MagicMock(subscription='Subscribed')
+    assert page._content_title() == '/c/linux ✓ joined (68,180 members)'
+
+    config['ascii'] = True
+    assert page._content_title() == '/c/linux v joined (68,180 members)'
+
+    config['ascii'] = False
+    page.content.community.subscription = 'Pending'
+    assert page._content_title() == (
+        '/c/linux join pending (68,180 members)')
+
+    page.content.community.subscription = 'NotSubscribed'
+    assert page._content_title() == '/c/linux not joined (68,180 members)'
+
+
+def test_subreddit_join_skips_existing_member():
+    page = mock.MagicMock()
+    page.reddit.is_oauth_session.return_value = True
+    page.content.name = '/c/linux'
+    page.content.community = mock.MagicMock(subscribed=True)
+
+    SubredditPage.subreddit_subscribe(page)
+
+    page.reddit.follow_community.assert_not_called()
+    page.term.show_notification.assert_called_with(
+        'Already joined linux', 1)
+
+
+def test_subreddit_join_updates_membership():
+    page = mock.MagicMock()
+    page.reddit.is_oauth_session.return_value = True
+    page.reddit.follow_community.return_value = mock.MagicMock()
+    page.content.name = '/c/linux'
+    community = mock.MagicMock(subscribed=False)
+    page.content.community = community
+    page.term.loader.exception = None
+
+    SubredditPage.subreddit_subscribe(page)
+
+    page.reddit.follow_community.assert_called_once_with(community, True)
+    assert page.content.community is page.reddit.follow_community.return_value
+    page.term.show_notification.assert_called_with('Joined linux', 1)
 
 
 def test_page_open_subreddit_uses_qualified_name(reddit, terminal, config,
