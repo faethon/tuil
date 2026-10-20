@@ -115,9 +115,13 @@ class LemmyHTTP(object):
         self._owns_session = session is None
         self.session = session or requests.Session()
 
+    def url_for(self, api_version=None):
+        version = self.api_version if api_version is None else api_version
+        return '{}/api/v{}'.format(self.instance, version)
+
     @property
     def api_url(self):
-        return '{}/api/v{}'.format(self.instance, self.api_version)
+        return self.url_for()
 
     @property
     def token(self):
@@ -144,29 +148,36 @@ class LemmyHTTP(object):
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
-    def get(self, path, params=None, *, cache=True):
-        return self.request('GET', path, params=params, cache=cache)
+    def get(self, path, params=None, *, cache=True, api_version=None):
+        return self.request(
+            'GET', path, params=params, cache=cache,
+            api_version=api_version)
 
-    def post(self, path, data=None, *, params=None):
-        return self.request('POST', path, params=params, json_body=data)
+    def post(self, path, data=None, *, params=None, api_version=None):
+        return self.request(
+            'POST', path, params=params, json_body=data,
+            api_version=api_version)
 
-    def put(self, path, data=None, *, params=None):
-        return self.request('PUT', path, params=params, json_body=data)
+    def put(self, path, data=None, *, params=None, api_version=None):
+        return self.request(
+            'PUT', path, params=params, json_body=data,
+            api_version=api_version)
 
     def request(self, method, path, *, params=None, json_body=None,
-                cache=None):
+                cache=None, api_version=None):
         method = method.upper()
         if cache is None:
             cache = method == 'GET'
+        version = self.api_version if api_version is None else api_version
 
         prepared_params = _prepare_params(params)
-        cache_key = self._cache_key(method, path, prepared_params)
+        cache_key = self._cache_key(method, path, prepared_params, version)
         if cache:
             cached = self._cache_get(cache_key)
             if cached is not None:
                 return cached
 
-        url = self.api_url + path
+        url = self.url_for(version) + path
         headers = {
             'Accept': 'application/json',
             'User-Agent': self.user_agent,
@@ -272,14 +283,14 @@ class LemmyHTTP(object):
             return ServerError(text, **kwargs)
         return APIError(text, **kwargs)
 
-    def _cache_key(self, method, path, params):
+    def _cache_key(self, method, path, params, api_version):
         token = ''
         if self._token:
             token = hashlib.sha256(
                 self._token.encode('utf-8')).hexdigest()[:16]
         encoded = json.dumps(
             params, sort_keys=True, separators=(',', ':'), default=str)
-        return (method, path, encoded, token)
+        return (method, path, encoded, token, api_version)
 
     def _cache_get(self, key):
         if not self.cache_ttl:

@@ -620,6 +620,7 @@ def test_inbox():
     reply = reply_view()
     mention = mention_view()
     message = message_view()
+    add_json(responses.GET, '/site', fixture('site.json'))
     add_json(responses.GET, '/user/replies', {'replies': [reply]})
     add_json(responses.GET, '/user/mention', {'mentions': [mention]})
     add_json(responses.GET, '/private_message/list',
@@ -692,6 +693,185 @@ def test_image_proxy_target():
     url = ('https://lemmy.ml/api/v3/image_proxy?url=https%3A%2F%2F'
            'example.com%2Fimage.jpg')
     assert image_proxy_target(url) == 'https://example.com/image.jpg'
+    assert image_proxy_target(
+        'https://lemmy.ml/api/v4/image/proxy?url=https%3A%2F%2F'
+        'example.com%2Fimage.jpg') == 'https://example.com/image.jpg'
     assert image_proxy_target('https://example.com/a.jpg') == \
         'https://example.com/a.jpg'
     assert image_proxy_target(None) is None
+
+
+def v4_post_item():
+    view = post_view()
+    post = dict(view['post'])
+    post['published_at'] = post.pop('published')
+    post.update(view['counts'])
+    return {
+        'type_': 'post',
+        'post': post,
+        'creator': view['creator'],
+        'community': view['community'],
+        'post_actions': {
+            'read_at': '2026-10-20T09:30:00Z',
+            'saved_at': '2026-10-20T09:30:00Z',
+            'vote_is_upvote': True,
+        },
+    }
+
+
+def v4_comment_item():
+    view = comment_view()
+    comment = dict(view['comment'])
+    comment['published_at'] = comment.pop('published')
+    comment.update(view['counts'])
+    return {
+        'type_': 'comment',
+        'comment': comment,
+        'creator': view['creator'],
+        'post': view['post'],
+        'community': view['community'],
+        'comment_actions': {
+            'saved_at': '2026-10-20T09:30:00Z',
+            'vote_is_upvote': False,
+        },
+    }
+
+
+def v4_notification(item, *, kind='reply', notification_id=501, read=False):
+    data = dict(item)
+    data['type_'] = item['type_']
+    return {
+        'notification': {
+            'id': notification_id,
+            'creator_id': item['creator']['id'],
+            'recipient_id': user_view()['person']['id'],
+            'kind': kind,
+            'read': read,
+            'published_at': '2026-10-20T09:45:00Z',
+            'post_id': item.get('post', {}).get('id'),
+            'comment_id': item.get('comment', {}).get('id'),
+        },
+        'data': data,
+    }
+
+
+def add_json4(method, path, payload, **kwargs):
+    responses.add(method, INSTANCE + '/api/v4' + path, json=payload, **kwargs)
+
+
+@responses.activate
+def test_v4_inbox_notifications():
+    comment = v4_notification(v4_comment_item())
+    add_json4(responses.GET, '/account/notification/list', {
+        'items': [comment],
+        'next_page': 'cursor-2',
+    })
+    add_json4(responses.POST, '/account/notification/mark_as_read',
+              {'success': True})
+    client = LemmyClient('lemmy.ml', api_version=4)
+
+    replies = client.list_replies(unread_only=True).take(1)
+    assert len(replies) == 1
+    reply = replies[0]
+    assert reply.id == 501
+    assert reply.kind == 'reply'
+    assert reply.comment.content
+    assert reply.post_id == comment['data']['post']['id']
+    assert reply.community_name
+    assert reply.created_utc is not None
+    assert reply.my_vote == -1
+    assert reply.saved is True
+
+    query = request_query(responses.calls[-1].request)
+    assert query['type_'] == ['reply']
+    assert query['unread_only'] == ['true']
+
+    reply.mark_read()
+    assert json.loads(responses.calls[-1].request.body) == {
+        'notification_id': 501, 'read': True}
+    assert responses.calls[-1].request.url.endswith(
+        '/api/v4/account/notification/mark_as_read')
+
+
+@responses.activate
+def test_v4_messages_and_unread_count():
+    message = message_view()
+    item = {
+        'type_': 'private_message',
+        'private_message': dict(message['private_message']),
+        'creator': message['creator'],
+        'recipient': message['recipient'],
+    }
+    item['private_message']['published_at'] = \
+        item['private_message'].pop('published')
+    notification = v4_notification(
+        item, kind='private_message', notification_id=601)
+    add_json4(responses.GET, '/account/notification/list', {
+        'items': [notification],
+    })
+    add_json4(responses.GET, '/account/unread_counts', {
+        'notification_count': 7,
+        'report_count': 0,
+        'pending_follow_count': 0,
+        'registration_application_count': 0,
+    })
+    add_json4(responses.POST, '/account/notification/mark_as_read/all',
+              {'success': True})
+    client = LemmyClient('lemmy.ml', api_version=4)
+
+    messages = client.list_messages().take(1)
+    assert messages[0].is_private_message
+    assert messages[0].content == 'hello from the other side'
+    assert messages[0].creator.name == 'other_user'
+    assert messages[0].recipient.name == user_view()['person']['name']
+
+    count = client.unread_count()
+    assert count.notifications == 7
+    assert count.total == 7
+
+    client.mark_all_read()
+    assert responses.calls[-1].request.url.endswith(
+        '/api/v4/account/notification/mark_as_read/all')
+
+
+@responses.activate
+def test_v4_saved_uses_cursor_pagination():
+    add_json4(responses.GET, '/account/saved', {
+        'items': [v4_post_item()],
+        'next_page': 'cursor-2',
+    })
+    add_json4(responses.GET, '/account/saved', {
+        'items': [v4_comment_item()],
+    })
+    client = LemmyClient('lemmy.ml', api_version=4)
+
+    saved = client.list_saved(page_size=1).take(2)
+    assert len(saved) == 2
+    assert type(saved[0]).__name__ == 'Post'
+    assert type(saved[1]).__name__ == 'Comment'
+    assert saved[0].score == 1
+    assert saved[0].saved is True
+    assert saved[0].read is True
+    assert saved[1].score > 0
+    assert saved[1].saved is True
+
+    queries = [request_query(call.request) for call in responses.calls]
+    assert queries[0]['limit'] == ['1']
+    assert 'page_cursor' not in queries[0]
+    assert queries[1]['page_cursor'] == ['cursor-2']
+
+
+@responses.activate
+def test_v4_version_detection():
+    add_json(responses.GET, '/site', {
+        'version': '1.0.0-nightly',
+        'site_view': {},
+        'admins': [],
+        'all_languages': [],
+        'discussion_languages': [],
+    })
+    client = LemmyClient('lemmy.ml')
+    assert client.supports_v4() is True
+    # The version lookup is cached.
+    assert client.supports_v4() is True
+    assert len(responses.calls) == 1

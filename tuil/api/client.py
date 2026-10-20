@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """A small, dependency-light client for the Lemmy API.
 
-The client targets API v3, which is what all 0.19 instances speak and what the
-1.0 instances still expose for browsing and basic interaction.  Every list
-method returns a :class:`~tuil.api.paging.Pager`; pages are fetched lazily.
+The client uses API v3 on Lemmy 0.19 and switches the affected endpoints to
+v4 on Lemmy 1.0.  Every list method returns a
+:class:`~tuil.api.paging.Pager`; pages are fetched lazily.
 """
+
+import re
 
 from .errors import InvalidResponseError
 from .http import LemmyHTTP
@@ -12,6 +14,7 @@ from .models import (
     Comment,
     Community,
     Mention,
+    Notification,
     Post,
     PrivateMessage,
     Reply,
@@ -47,6 +50,8 @@ class LemmyClient(object):
             user_agent=user_agent, session=session, verify=verify)
         self._my_user = None
         self._my_user_loaded = False
+        self._server_major = None
+        self._v4_capable = None
 
     @property
     def instance(self):
@@ -147,6 +152,17 @@ class LemmyClient(object):
 
     def version(self):
         return self.site().version
+
+    def supports_v4(self):
+        """Return True when the instance speaks the Lemmy 1.0 API."""
+        if self._http.api_version >= 4:
+            return True
+        if self._v4_capable is None:
+            version = self.version() or ''
+            match = re.match(r'\s*(\d+)', str(version))
+            self._server_major = int(match.group(1)) if match else 0
+            self._v4_capable = self._server_major >= 1
+        return self._v4_capable
 
     # ------------------------------------------------------------------
     # Posts and comments
@@ -317,6 +333,19 @@ class LemmyClient(object):
 
         return Pager(fetch, max_items=max_items)
 
+    def list_saved(self, *, type_=None, page_size=50, max_items=None):
+        """Iterate over saved posts and comments through the v4 API."""
+        self._check_page_size(page_size)
+        params = {'type_': type_}
+
+        def factory(item):
+            if item.get('type_') == 'comment':
+                return Comment(self, item)
+            return Post(self, item)
+
+        return self._cursor_pager(
+            '/account/saved', params, page_size, max_items, factory)
+
     def _user_content_pager(self, user, key, sort, page_size, max_items,
                             factory):
         self._check_page_size(page_size)
@@ -370,8 +399,23 @@ class LemmyClient(object):
     # Inbox
     # ------------------------------------------------------------------
 
+    def list_notifications(self, *, type_=None, unread_only=None,
+                           creator=None, page_size=50, max_items=None):
+        """Iterate over the combined v4 notification stream."""
+        self._check_page_size(page_size)
+        params = {'type_': type_, 'unread_only': unread_only}
+        if creator is not None:
+            params['creator_id'] = self._person_id(creator)
+        return self._cursor_pager(
+            '/account/notification/list', params, page_size, max_items,
+            lambda item: Notification(self, item))
+
     def list_replies(self, *, unread_only=None, sort=None, page_size=50,
                      max_items=None):
+        if self.supports_v4():
+            return self.list_notifications(
+                type_='reply', unread_only=unread_only,
+                page_size=page_size, max_items=max_items)
         params = {'unread_only': unread_only, 'sort': sort}
         return self._pager(
             '/user/replies', 'replies', params, page_size, max_items,
@@ -379,6 +423,10 @@ class LemmyClient(object):
 
     def list_mentions(self, *, unread_only=None, sort=None, page_size=50,
                       max_items=None):
+        if self.supports_v4():
+            return self.list_notifications(
+                type_='mention', unread_only=unread_only,
+                page_size=page_size, max_items=max_items)
         params = {'unread_only': unread_only, 'sort': sort}
         return self._pager(
             '/user/mention', 'mentions', params, page_size, max_items,
@@ -386,6 +434,10 @@ class LemmyClient(object):
 
     def list_messages(self, *, unread_only=None, creator=None, page_size=50,
                       max_items=None):
+        if self.supports_v4():
+            return self.list_notifications(
+                type_='private_message', unread_only=unread_only,
+                creator=creator, page_size=page_size, max_items=max_items)
         params = {'unread_only': unread_only}
         if creator is not None:
             params['creator_id'] = self._person_id(creator)
@@ -394,6 +446,11 @@ class LemmyClient(object):
             max_items, lambda item: PrivateMessage(self, item))
 
     def unread_count(self):
+        if self.supports_v4():
+            data = self._http.get(
+                '/account/unread_counts', api_version=4)
+            return UnreadCount(
+                notifications=data.get('notification_count'))
         data = self._http.get('/user/unread_count')
         return UnreadCount(
             replies=data.get('replies'),
@@ -421,7 +478,18 @@ class LemmyClient(object):
         })
         return PrivateMessage(self, data.get('private_message_view') or {})
 
+    def mark_notification_read(self, notification_id, read=True):
+        return self._http.post(
+            '/account/notification/mark_as_read', {
+                'notification_id': notification_id,
+                'read': bool(read),
+            }, api_version=4)
+
     def mark_all_read(self):
+        if self.supports_v4():
+            return self._http.post(
+                '/account/notification/mark_as_read/all', {},
+                api_version=4)
         return self._http.post('/user/mark_all_as_read', {})
 
     def send_message(self, recipient, content):
@@ -592,6 +660,28 @@ class LemmyClient(object):
             raw_items = data.get(key) or []
             return ([factory(item) for item in raw_items],
                     len(raw_items) >= page_size)
+
+        return Pager(fetch, max_items=max_items)
+
+    def _cursor_pager(self, path, params, page_size, max_items, factory):
+        """Pager for v4 endpoints which use opaque ``page_cursor`` tokens."""
+        self._check_page_size(page_size)
+        cursors = {}
+
+        def fetch(page):
+            if page > 1 and not cursors.get(page):
+                return [], False
+            query = dict(params)
+            query['limit'] = page_size
+            if page > 1:
+                query['page_cursor'] = cursors[page]
+            data = self._http.get(path, params=query, api_version=4)
+            raw_items = data.get('items') or []
+            next_page = data.get('next_page')
+            if next_page:
+                cursors[page + 1] = next_page
+            return ([factory(item) for item in raw_items],
+                    bool(next_page) and bool(raw_items))
 
         return Pager(fetch, max_items=max_items)
 

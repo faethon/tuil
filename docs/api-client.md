@@ -73,9 +73,18 @@ for message in client.list_messages(unread_only=True):
     message.mark_read()
 ```
 
-Inbox replies, mentions and private messages are only available through API
-v3 on Lemmy 0.19.  Lemmy 1.0 instances need the v4 backend for this part of
-the UI.
+The client detects the instance version and uses API v3 on Lemmy 0.19 or API
+v4 on Lemmy 1.0 for the inbox.  The page layer sees the same object interface
+on both versions:
+
+```python
+for notification in client.list_notifications(unread_only=True):
+    print(notification.kind, notification.content)
+    notification.mark_read()
+
+for item in client.list_saved():
+    print(item.__class__.__name__, item.id)
+```
 
 ## Errors
 

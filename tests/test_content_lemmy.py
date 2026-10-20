@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from tuil import exceptions
-from tuil.api import Comment, Post, PrivateMessage
+from tuil.api import Comment, Notification, Post, PrivateMessage
 from tuil.api.paging import Pager
 from tuil.content import Content, SubmissionContent, SubredditContent
 
@@ -30,8 +30,9 @@ def comment_data(index=0):
 class FakeClient(object):
     instance = 'https://lemmy.ml'
 
-    def __init__(self, logged_in=False):
+    def __init__(self, logged_in=False, v4=False):
         self.logged_in = logged_in
+        self.v4 = v4
         self.calls = []
         self.posts = [Post(self, post_data(i)) for i in (0, 2)]
         self.comments = [Comment(self, comment_data(i)) for i in range(6)]
@@ -40,6 +41,9 @@ class FakeClient(object):
     @property
     def is_logged_in(self):
         return self.logged_in
+
+    def supports_v4(self):
+        return self.v4
 
     def me(self, refresh=False):
         if not self.logged_in:
@@ -54,6 +58,10 @@ class FakeClient(object):
     def list_user_posts(self, user, **kwargs):
         self.calls.append(('list_user_posts', user, kwargs))
         return iter(self.posts)
+
+    def list_saved(self, **kwargs):
+        self.calls.append(('list_saved', kwargs))
+        return iter(self.posts + self.comments)
 
     def list_user_comments(self, user, **kwargs):
         self.calls.append(('list_user_comments', user, kwargs))
@@ -250,6 +258,15 @@ def test_private_user_rooms_require_the_same_user(config):
     assert client.calls[-1][0] == 'list_posts'
 
 
+def test_saved_content_uses_v4_backend(config):
+    client = FakeClient(logged_in=True, v4=True)
+    content = SubredditContent.from_name(
+        client, config, 'u/me/saved', Loader())
+    assert client.calls[-1][0] == 'list_saved'
+    assert content.get(0)['type'] == 'Submission'
+    assert content.get(2)['type'] == 'SavedComment'
+
+
 def test_search_is_paginated(config):
     client = FakeClient()
     content = SubredditContent.from_name(
@@ -286,6 +303,37 @@ def test_strip_private_message():
     assert data['author'] == 'bob'
     assert data['is_new'] is True
     assert data['was_comment'] is False
+
+
+def test_strip_v4_notification():
+    client = FakeClient(logged_in=True)
+    view = comment_data(0)
+    comment = dict(view['comment'])
+    comment['published_at'] = comment.pop('published')
+    comment.update(view['counts'])
+    notification = Notification(client, {
+        'notification': {
+            'id': 12,
+            'creator_id': view['creator']['id'],
+            'recipient_id': 1,
+            'kind': 'mention',
+            'read': False,
+            'published_at': '2026-10-20T09:45:00Z',
+        },
+        'data': {
+            'type_': 'comment',
+            'comment': comment,
+            'creator': view['creator'],
+            'post': view['post'],
+            'community': view['community'],
+        },
+    })
+    data = Content.strip_message(notification, username='alice')
+    assert data['type'] == 'InboxComment'
+    assert data['subject'] == 'mention'
+    assert data['author'] == view['creator']['name']
+    assert data['subreddit_name'] == view['community']['name']
+    assert data['permalink'].endswith('/comment/{}'.format(comment['id']))
 
 
 def test_pager_in_content_is_consumed_lazily():

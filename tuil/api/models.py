@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Thin model wrappers around Lemmy API v3 response objects.
+"""Thin model wrappers around Lemmy API responses.
 
-The wrappers deliberately keep the original response dict available as
-``.raw``.  The UI can therefore switch to new fields without waiting for this
-module to grow, while common fields and actions have a stable interface.
+The wrappers accept both v3 and v4 field layouts and deliberately keep the
+original response dict available as ``.raw``.  The UI can therefore switch to
+new fields without waiting for this module to grow, while common fields and
+actions have a stable interface.
 """
 
 from datetime import datetime, timezone
@@ -35,7 +36,7 @@ def image_proxy_target(url):
     if not url:
         return url
     parts = urlsplit(url)
-    if parts.path.rstrip('/').endswith('/image_proxy'):
+    if parts.path.rstrip('/').endswith(('/image_proxy', '/image/proxy')):
         values = parse_qs(parts.query).get('url')
         if values:
             return values[0]
@@ -84,7 +85,18 @@ class Post(Model):
 
     @property
     def counts(self):
-        return self._data.get('counts') or {}
+        counts = self._data.get('counts') or {}
+        if counts:
+            return counts
+        # API v4 stores vote counts directly on the post.
+        return {
+            key: self.post.get(key, 0)
+            for key in ('score', 'upvotes', 'downvotes', 'comments')
+        }
+
+    @property
+    def actions(self):
+        return self._data.get('post_actions') or {}
 
     @property
     def id(self):
@@ -144,7 +156,7 @@ class Post(Model):
 
     @property
     def published(self):
-        return self.post.get('published')
+        return self.post.get('published') or self.post.get('published_at')
 
     @property
     def created_utc(self):
@@ -152,7 +164,7 @@ class Post(Model):
 
     @property
     def updated(self):
-        return self.post.get('updated')
+        return self.post.get('updated') or self.post.get('updated_at')
 
     @property
     def edited(self):
@@ -221,7 +233,12 @@ class Post(Model):
 
     @property
     def my_vote(self):
-        return self._data.get('my_vote')
+        if 'my_vote' in self._data:
+            return self._data.get('my_vote')
+        vote = self.actions.get('vote_is_upvote')
+        if vote is None:
+            return None
+        return 1 if vote else -1
 
     @property
     def likes(self):
@@ -229,19 +246,33 @@ class Post(Model):
 
     @property
     def saved(self):
-        return bool(self._data.get('saved'))
+        if 'saved' in self._data:
+            return bool(self._data.get('saved'))
+        return bool(self.actions.get('saved_at'))
 
     @property
     def read(self):
-        return bool(self._data.get('read'))
+        if 'read' in self._data:
+            return bool(self._data.get('read'))
+        return bool(self.actions.get('read_at'))
 
     @property
     def hidden(self):
-        return bool(self._data.get('hidden'))
+        if 'hidden' in self._data:
+            return bool(self._data.get('hidden'))
+        return bool(self.actions.get('hidden_at'))
 
     @property
     def subscribed(self):
-        return self._data.get('subscribed')
+        if 'subscribed' in self._data:
+            return self._data.get('subscribed')
+        state = (self._data.get('community_actions') or {}).get(
+            'follow_state')
+        if state == 'accepted':
+            return 'Subscribed'
+        if state in ('pending', 'approval_required'):
+            return 'Pending'
+        return None
 
     @property
     def creator_is_admin(self):
@@ -334,7 +365,18 @@ class Comment(Model):
 
     @property
     def counts(self):
-        return self._data.get('counts') or {}
+        counts = self._data.get('counts') or {}
+        if counts:
+            return counts
+        # API v4 stores vote counts directly on the comment.
+        return {
+            key: self.comment.get(key, 0)
+            for key in ('score', 'upvotes', 'downvotes', 'child_count')
+        }
+
+    @property
+    def actions(self):
+        return self._data.get('comment_actions') or {}
 
     @property
     def id(self):
@@ -392,7 +434,8 @@ class Comment(Model):
 
     @property
     def published(self):
-        return self.comment.get('published')
+        return (self.comment.get('published')
+                or self.comment.get('published_at'))
 
     @property
     def created_utc(self):
@@ -400,7 +443,8 @@ class Comment(Model):
 
     @property
     def updated(self):
-        return self.comment.get('updated')
+        return (self.comment.get('updated')
+                or self.comment.get('updated_at'))
 
     @property
     def edited(self):
@@ -456,7 +500,12 @@ class Comment(Model):
 
     @property
     def my_vote(self):
-        return self._data.get('my_vote')
+        if 'my_vote' in self._data:
+            return self._data.get('my_vote')
+        vote = self.actions.get('vote_is_upvote')
+        if vote is None:
+            return None
+        return 1 if vote else -1
 
     @property
     def likes(self):
@@ -464,7 +513,9 @@ class Comment(Model):
 
     @property
     def saved(self):
-        return bool(self._data.get('saved'))
+        if 'saved' in self._data:
+            return bool(self._data.get('saved'))
+        return bool(self.actions.get('saved_at'))
 
     @property
     def creator_is_admin(self):
@@ -530,7 +581,19 @@ class Community(Model):
 
     @property
     def counts(self):
-        return self._data.get('counts') or {}
+        counts = self._data.get('counts') or {}
+        if counts:
+            return counts
+        return {
+            key: self.community.get(key, 0)
+            for key in ('subscribers', 'posts', 'comments',
+                        'users_active_day', 'users_active_week',
+                        'users_active_month', 'users_active_half_year')
+        }
+
+    @property
+    def actions(self):
+        return self._data.get('community_actions') or {}
 
     @property
     def id(self):
@@ -582,7 +645,8 @@ class Community(Model):
 
     @property
     def published(self):
-        return self.community.get('published')
+        return (self.community.get('published')
+                or self.community.get('published_at'))
 
     @property
     def created_utc(self):
@@ -590,7 +654,8 @@ class Community(Model):
 
     @property
     def updated(self):
-        return self.community.get('updated')
+        return (self.community.get('updated')
+                or self.community.get('updated_at'))
 
     @property
     def icon(self):
@@ -630,7 +695,14 @@ class Community(Model):
 
     @property
     def subscription(self):
-        return self._data.get('subscribed')
+        if 'subscribed' in self._data:
+            return self._data.get('subscribed')
+        state = self.actions.get('follow_state')
+        if state == 'accepted':
+            return 'Subscribed'
+        if state in ('pending', 'approval_required'):
+            return 'Pending'
+        return None
 
     @property
     def subscribed(self):
@@ -642,7 +714,9 @@ class Community(Model):
 
     @property
     def blocked(self):
-        return bool(self._data.get('blocked'))
+        if 'blocked' in self._data:
+            return bool(self._data.get('blocked'))
+        return bool(self.actions.get('blocked_at'))
 
     @property
     def moderators(self):
@@ -692,7 +766,13 @@ class User(Model):
 
     @property
     def counts(self):
-        return self._data.get('counts') or {}
+        counts = self._data.get('counts') or {}
+        if counts:
+            return counts
+        return {
+            key: self.person.get(key, 0)
+            for key in ('post_count', 'comment_count')
+        }
 
     @property
     def id(self):
@@ -740,7 +820,8 @@ class User(Model):
 
     @property
     def published(self):
-        return self.person.get('published')
+        return (self.person.get('published')
+                or self.person.get('published_at'))
 
     @property
     def created_utc(self):
@@ -837,7 +918,8 @@ class PrivateMessage(Model):
 
     @property
     def published(self):
-        return self.private_message.get('published')
+        return (self.private_message.get('published')
+                or self.private_message.get('published_at'))
 
     @property
     def created_utc(self):
@@ -845,7 +927,8 @@ class PrivateMessage(Model):
 
     @property
     def edited(self):
-        return to_epoch(self.private_message.get('updated'))
+        return to_epoch(self.private_message.get('updated')
+                        or self.private_message.get('updated_at'))
 
     @property
     def ap_id(self):
@@ -879,6 +962,170 @@ class PrivateMessage(Model):
 
     def delete(self):
         return self._replace(self._client.delete_message(self.id, True))
+
+
+class Notification(Model):
+    """A v4 inbox notification.
+
+    The v4 inbox combines replies, mentions and private messages into one
+    notification stream.  This wrapper exposes the same fields as the separate
+    v3 ``Reply``, ``Mention`` and ``PrivateMessage`` models so the page layer
+    does not need two different code paths.
+    """
+
+    @property
+    def notification(self):
+        return self._data.get('notification') or {}
+
+    @property
+    def data(self):
+        return self._data.get('data') or {}
+
+    @property
+    def data_type(self):
+        return self.data.get('type_')
+
+    @property
+    def kind(self):
+        return self.notification.get('kind')
+
+    @property
+    def id(self):
+        return self.notification.get('id')
+
+    @property
+    def read(self):
+        return bool(self.notification.get('read'))
+
+    @property
+    def published(self):
+        return (self.notification.get('published')
+                or self.notification.get('published_at'))
+
+    @property
+    def created_utc(self):
+        return to_epoch(self.published)
+
+    @property
+    def creator_data(self):
+        return self.data.get('creator') or {}
+
+    @property
+    def creator_id(self):
+        return self.notification.get('creator_id')
+
+    @property
+    def recipient_data(self):
+        return self.data.get('recipient') or {}
+
+    @property
+    def creator(self):
+        return User(self._client, {'person': self.creator_data}) \
+            if self.creator_data else None
+
+    @property
+    def recipient(self):
+        return User(self._client, {'person': self.recipient_data}) \
+            if self.recipient_data else None
+
+    @property
+    def is_private_message(self):
+        return self.data_type == 'private_message'
+
+    @property
+    def comment(self):
+        if self.data_type != 'comment':
+            return None
+        return Comment(self._client, self.data)
+
+    @property
+    def content(self):
+        if self.is_private_message:
+            message = self.data.get('private_message') or {}
+            return message.get('content')
+        if self.data_type == 'comment':
+            comment = self.data.get('comment') or {}
+            return comment.get('content')
+        post = self.data.get('post') or {}
+        return post.get('body') or post.get('name')
+
+    @property
+    def body(self):
+        return self.content
+
+    @property
+    def post_data(self):
+        return self.data.get('post') or {}
+
+    @property
+    def post_id(self):
+        return self.post_data.get('id')
+
+    @property
+    def post_title(self):
+        return self.post_data.get('name')
+
+    @property
+    def community_data(self):
+        return self.data.get('community') or {}
+
+    @property
+    def community_name(self):
+        return self.community_data.get('name')
+
+    @property
+    def counts(self):
+        if self.data_type == 'comment':
+            return Comment(self._client, self.data).counts
+        return {}
+
+    @property
+    def saved(self):
+        if self.data_type == 'comment':
+            return Comment(self._client, self.data).saved
+        return False
+
+    @property
+    def my_vote(self):
+        if self.data_type == 'comment':
+            return Comment(self._client, self.data).my_vote
+        return None
+
+    @property
+    def permalink(self):
+        if self.is_private_message:
+            message = self.data.get('private_message') or {}
+            return message.get('ap_id')
+        if self.data_type == 'comment':
+            comment_id = (self.data.get('comment') or {}).get('id')
+            return '{}/comment/{}'.format(
+                self._client.instance, comment_id)
+        if self.data_type == 'post':
+            return '{}/post/{}'.format(
+                self._client.instance, self.post_id)
+        return None
+
+    def mark_read(self, read=True):
+        self._client.mark_notification_read(self.id, read)
+        self.notification['read'] = bool(read)
+        return self
+
+    def mark_unread(self):
+        return self.mark_read(False)
+
+    def reply(self, content):
+        if self.is_private_message:
+            message = self.data.get('private_message') or {}
+            my_id = self._client.user_id
+            recipient_id = (message.get('recipient_id')
+                            if message.get('creator_id') == my_id
+                            else message.get('creator_id'))
+            return self._client.send_message(recipient_id, content)
+        if self.data_type == 'comment':
+            return self._client.create_comment(
+                self.post_id, content,
+                parent_id=(self.data.get('comment') or {}).get('id'))
+        return self._client.create_comment(self.post_id, content)
 
 
 class _CommentInboxItem(Model):
@@ -1189,15 +1436,20 @@ class Site(Model):
 
 
 class UnreadCount(object):
-    """Unread inbox counters returned by ``GET /user/unread_count``."""
+    """Unread inbox counters returned by the Lemmy API."""
 
-    def __init__(self, replies=0, mentions=0, private_messages=0):
+    def __init__(self, replies=0, mentions=0, private_messages=0,
+                 notifications=None):
         self.replies = int(replies or 0)
         self.mentions = int(mentions or 0)
         self.private_messages = int(private_messages or 0)
+        self.notifications = (None if notifications is None
+                              else int(notifications or 0))
 
     @property
     def total(self):
+        if self.notifications is not None:
+            return self.notifications
         return self.replies + self.mentions + self.private_messages
 
     def __repr__(self):

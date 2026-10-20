@@ -40,9 +40,43 @@ saving, posting and commenting, but not the inbox and read-state endpoints:
 | `POST /api/v3/comment/mark_as_read` | 401 anonymous | 404 |
 | `POST /api/v3/private_message/mark_as_read` | 401 anonymous | 404 |
 
-This is why a v4 backend is needed for full parity on 1.0: inbox, mentions,
-private messages, unread counters and read state.  v3 remains sufficient for
-0.19 and for anonymous browsing on every instance.
+This is why tuil uses a v4 backend for full parity on 1.0: inbox, mentions,
+private messages, unread counters, saved content and read state.  v3 remains
+sufficient for 0.19 and for anonymous browsing on every instance.  The client
+checks the site version and switches only the affected endpoints.
+
+## API v4
+
+Lemmy 1.0 groups the inbox into a single notification stream and replaces
+page numbers with cursors.  The endpoints used by tuil are:
+
+| Purpose | Endpoint |
+|---|---|
+| Inbox | `GET /api/v4/account/notification/list` |
+| Unread count | `GET /api/v4/account/unread_counts` |
+| Mark one notification | `POST /api/v4/account/notification/mark_as_read` |
+| Mark all notifications | `POST /api/v4/account/notification/mark_as_read/all` |
+| Saved posts and comments | `GET /api/v4/account/saved` |
+| Person content | `GET /api/v4/person/content` |
+
+The notification list accepts `type_` (`reply`, `mention`, `subscribed`,
+`private_message`, `mod_action`, `all`), `unread_only`, `creator_id`, `limit`
+and `page_cursor`.  Each item contains a `notification` record and a `data`
+object.  The `data.type_` field identifies the payload (`comment`, `post`,
+`private_message` or `mod_action`).
+
+Private messages are special: filtering by `type_=private_message` returns both
+received and sent messages.  Adding `creator_id` returns both sides of a
+conversation with that person.  The UI filters the result locally for the
+"sent" view.
+
+Response fields also changed in v4.  Vote, save and read state now live in
+`post_actions`, `comment_actions`, `community_actions` and `person_actions`;
+counts live directly on posts, comments and communities.  Timestamps use
+`published_at` and `updated_at`.  The model wrappers accept both shapes.
+
+The first page of a cursor-paginated endpoint carries a `next_page` token.
+Pass it unchanged as `page_cursor` to get the next page.  Do not parse it.
 
 ## Authentication
 

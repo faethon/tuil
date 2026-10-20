@@ -17,11 +17,11 @@ Features
 * Vote, save, post, reply, edit and delete
 * Join and leave communities
 * Read the inbox and private messages
+* Use the v4 API for inbox, saved content and read state on Lemmy 1.0
 * Use Lemmy terminology and ``/c/`` community paths throughout the interface
 
 Known limitations
 
-* Inbox and notification endpoints on Lemmy 1.0 require a future API v4 backend
 * Multireddits, domain listings, gold and post hiding are not available
 
 .. _1.32.2: https://gitlab.com/Chocimier/tuir/tree/v1.32.2

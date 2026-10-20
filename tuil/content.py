@@ -307,7 +307,8 @@ class Content(object):
             'was_comment': False,
         }
 
-        if isinstance(message, PrivateMessage):
+        if (isinstance(message, PrivateMessage)
+                or getattr(message, 'is_private_message', False)):
             data.update({
                 'type': 'Message',
                 'level': 0,
@@ -319,11 +320,15 @@ class Content(object):
                 'subject': 'Private message',
             })
         else:
-            comment = message.comment
-            body = comment.content or '[deleted]'
+            comment = getattr(message, 'comment', None)
+            body = ((comment.content if comment is not None
+                     else getattr(message, 'content', None))
+                    or '[deleted]')
             post_url = '{}/post/{}'.format(
                 message._client.instance, message.post_id)
-            subject = 'mention' if isinstance(message, Mention) else 'reply'
+            subject = getattr(message, 'kind', None)
+            if subject is None:
+                subject = 'mention' if isinstance(message, Mention) else 'reply'
             data.update({
                 'type': 'InboxComment',
                 'level': 0,
@@ -744,6 +749,9 @@ class SubredditContent(Content):
                 raise exceptions.SubredditError(
                     'Hidden posts are not available in Lemmy API v3')
             if room == 'saved':
+                supports_v4 = getattr(client, 'supports_v4', lambda: False)
+                if supports_v4():
+                    return client.list_saved(page_size=50)
                 return client.list_posts(
                     saved_only=True, sort=sort, page_size=50)
             if room == 'upvoted':
@@ -1132,8 +1140,13 @@ class InboxContent(Content):
             items = list(client.list_mentions(
                 page_size=50, max_items=200))
         elif order == 'sent':
+            me = client.me()
             items = list(client.list_messages(
-                creator=client.me().id, page_size=50, max_items=200))
+                creator=me.id, page_size=50, max_items=200))
+            # The v4 inbox returns both sides of a private-message
+            # conversation when a creator filter is used.
+            items = [item for item in items
+                     if getattr(item, 'creator_id', None) == me.id]
         else:
             raise exceptions.InboxError('Invalid order %s' % order)
 
