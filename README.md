@@ -183,6 +183,9 @@ names as tuir; see [THEMES.md](THEMES.md).
 
 ## Development
 
+Development was made with the support of AI, including reimplementing the
+Reddit API calls for Lemmy.
+
 ```bash
 $ .venv/bin/python -m pytest -q
 ```
