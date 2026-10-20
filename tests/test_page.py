@@ -117,6 +117,18 @@ def test_page_edit_private_message(reddit, terminal, config, oauth):
     message.edit.assert_called_once_with('new body')
 
 
+def test_page_identity_text(reddit, terminal, config, oauth):
+    page = Page(reddit, terminal, config, oauth)
+
+    assert page._identity_text() == 'lemmy.ml'
+
+    reddit.logged_in = True
+    assert page._identity_text() == 'tester@lemmy.ml'
+
+    config['hide_username'] = True
+    assert page._identity_text() == 'Logged in@lemmy.ml'
+
+
 def test_page_prompt_comment(reddit, terminal, config, oauth):
     page = Page(reddit, terminal, config, oauth)
 

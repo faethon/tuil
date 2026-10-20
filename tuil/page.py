@@ -722,6 +722,26 @@ class Page(object):
         self.term.clear_screen()
         self.term.stdscr.refresh()
 
+    def _instance_name(self):
+        """Return the instance hostname without its URL scheme."""
+        instance = self.reddit.instance if self.reddit else ''
+        if '://' in instance:
+            instance = instance.split('://', 1)[1]
+        return instance.rstrip('/')
+
+    def _identity_text(self):
+        """Return the instance or logged-in account shown in the title bar."""
+        if not self.reddit:
+            return None
+
+        instance = self._instance_name()
+        user = self.reddit.user
+        if user is None:
+            return instance
+        if self.config['hide_username']:
+            return 'Logged in@{}'.format(instance)
+        return '{}@{}'.format(user.name, instance)
+
     def _draw_header(self):
         """
         Draw the title bar at the top of the screen
@@ -787,19 +807,15 @@ class Page(object):
             sys.stdout.write(title)
             sys.stdout.flush()
 
-        if self.reddit and self.reddit.user is not None:
+        identity = self._identity_text()
+        if identity:
             # The starting position of the name depends on if we're converting
             # to ascii or not
             width = len if self.config['ascii'] else textual_width
-
-            if self.config['hide_username']:
-                username = "Logged in"
-            else:
-                username = self.reddit.user.name
-            s_col = (n_cols - width(username) - 1)
-            # Only print username if it fits in the empty space on the right
+            s_col = (n_cols - width(identity) - 1)
+            # Only print the identity if it fits in the empty space on the right
             if (s_col - 1) >= width(sub_name):
-                self.term.add_line(window, username, 0, s_col)
+                self.term.add_line(window, identity, 0, s_col)
 
         self._row += 1
 

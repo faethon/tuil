@@ -23,6 +23,7 @@ Features
 * Read legacy tuir configuration files, mailcap and themes
 * Hide and unhide posts on Lemmy 1.0
 * Use Lemmy terminology and ``/c/`` community paths throughout the interface
+* Show the instance or ``user@instance`` in the title bar
 
 Known limitations
 
