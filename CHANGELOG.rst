@@ -6,6 +6,14 @@ TUIL is a Lemmy fork of tuir. The releases below 0.1.0 are inherited from
 tuir and RTV.
 
 ------------------
+0.1.3 (unreleased)
+------------------
+
+Features
+
+* Detect ``terminal-browser`` as a console browser, including full paths
+
+------------------
 0.1.2 (2026-10-20)
 ------------------
 
