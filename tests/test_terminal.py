@@ -48,7 +48,20 @@ def test_terminal_properties(terminal, config):
 
     terminal._display = None
     with mock.patch.dict('os.environ', {
-            'DISPLAY': ':0', 'BROWSER': 'terminal-browser'}):
+            'DISPLAY': ':0', 'BROWSER': '/usr/bin/terminal-browser'}), \
+            mock.patch('webbrowser._tryorder', new=[]):
+        assert terminal.display is False
+
+    terminal._display = None
+    with mock.patch.dict('os.environ', {
+            'DISPLAY': ':0', 'BROWSER': 'terminal-browser --new-window'}), \
+            mock.patch('webbrowser._tryorder', new=[]):
+        assert terminal.display is False
+
+    terminal._display = None
+    with mock.patch.dict('os.environ', {'DISPLAY': ':0'}), \
+            mock.patch('webbrowser._tryorder',
+                       new=['/usr/local/bin/terminal-browser']):
         assert terminal.display is False
 
     terminal._display = None

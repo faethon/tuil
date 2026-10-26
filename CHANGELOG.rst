@@ -11,7 +11,7 @@ tuir and RTV.
 
 Features
 
-* Detect ``terminal-browser`` as a console browser
+* Detect ``terminal-browser`` as a console browser, including full paths
 
 ------------------
 0.1.2 (2026-10-20)

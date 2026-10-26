@@ -190,12 +190,22 @@ class Terminal(object):
             # https://docs.python.org/2/library/webbrowser.html
             console_browsers = ['www-browser', 'links', 'links2', 'elinks',
                                 'lynx', 'w3m', 'terminal-browser']
+
+            def is_console_browser(browser):
+                if not isinstance(browser, six.string_types):
+                    return False
+                try:
+                    command = shlex.split(browser)[0]
+                except (IndexError, ValueError):
+                    return False
+                return os.path.basename(command) in console_browsers
+
             if "BROWSER" in os.environ:
                 user_browser = os.environ["BROWSER"].split(os.pathsep)[0]
-                if user_browser in console_browsers:
+                if is_console_browser(user_browser):
                     display = False
             if webbrowser._tryorder:
-                if webbrowser._tryorder[0] in console_browsers:
+                if is_console_browser(webbrowser._tryorder[0]):
                     display = False
             self._display = display
         return self._display
